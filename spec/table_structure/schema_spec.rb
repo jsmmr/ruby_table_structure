@@ -193,16 +193,16 @@ RSpec.describe TableStructure::Schema do
     class TestTableSchema14
       include TableStructure::Schema
 
-      TableContext = Struct.new(:questions, keyword_init: true)
+      TableContext = Struct.new(:questions)
 
-      RowContext = Struct.new(:id, :name, :pets, :answers, keyword_init: true) {
+      RowContext = Struct.new(:id, :name, :pets, :answers) {
         def more_pets
           pets + pets
         end
       }
 
-      context_builder :table, ->(context) { TableContext.new(**context) }
-      context_builder :row, ->(context) { RowContext.new(**context) }
+      context_builder :table, ->(context) { TableContext.new(*context.values) }
+      context_builder :row, ->(context) { RowContext.new(*context.values) }
 
       column  name: 'ID',
               value: ->(row, _table) { row.id }

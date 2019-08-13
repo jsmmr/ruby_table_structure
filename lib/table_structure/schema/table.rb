@@ -48,11 +48,11 @@ module TableStructure
         end
 
         def values(method, context)
-          @columns
+          columns = @columns
             .map { |column| column.send(method, context, @context) }
             .flatten
             .map { |val| reduce_callables(@column_converters, val, context) }
-            .yield_self { |columns| reduce_callables(@result_builders, columns, context) }
+          reduce_callables(@result_builders, columns, context)
         end
 
         def reduce_callables(callables, val, context)
