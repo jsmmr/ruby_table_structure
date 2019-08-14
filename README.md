@@ -1,8 +1,10 @@
 # TableStructure
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/table_structure`. To experiment with that code, run `bin/console` for an interactive prompt.
+`TableStructure` has two major functions.
+The functions are `TableStructure::Schema` that defines the schema of a table using DSL and ` TableStructure::Writer` that converts and outputs data with that schema.
 
-TODO: Delete this and the text above, and describe your gem
+`TableStructure::Writer` outputs the converted data line by line.
+This keeps the memory usage constant and is suitable for large-scale CSV output.
 
 ## Installation
 
@@ -22,17 +24,140 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Basic
 
-## Development
+#### TableStructure::Schema
+```ruby
+class SampleTableSchema
+  include TableStructure::Schema
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+  column  name: 'ID',
+          value: ->(row, _table) { row[:id] }
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+
+  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          value: ->(row, *) { row[:pets] }
+
+  columns ->(table) do
+    table[:questions].map do |question|
+      {
+        name: question[:id],
+        value: ->(row, *) { row[:answers][question[:id]] }
+      }
+    end
+  end
+
+  column_converter :to_s, ->(val, _row, _table) { val.to_s }
+end
+
+context = {
+  questions: [
+    { id: 'Q1', text: 'Do you like sushi?' },
+    { id: 'Q2', text: 'Do you like yakiniku?' },
+    { id: 'Q3', text: 'Do you like ramen?' }
+  ]
+}
+
+schema = SampleTableSchema.new(context: context)
+```
+
+#### TableStructure::Writer
+```ruby
+writer = TableStructure::Writer.new(schema)
+
+items = [
+  {
+    id: 1,
+    name: 'Taro',
+    pets: ['🐱', '🐶'],
+    answers: { 'Q1' => '⭕️', 'Q2' => '❌', 'Q3' => '⭕️' }
+  },
+  {
+    id: 2,
+    name: 'Hanako',
+    pets: ['🐇', '🐢', '🐿', '🦒'],
+    answers: { 'Q1' => '⭕️', 'Q2' => '⭕️', 'Q3' => '❌' }
+  }
+]
+
+## When using `find_each` method of Rails
+# items = ->(y) { Records.find_each {|r| y << r } }
+
+# Output to array
+table = []
+writer.write(items, to: table)
+
+# table
+# => [["ID", "Name", "Pet 1", "Pet 2", "Pet 3", "Q1", "Q2", "Q3"], ["1", "Taro", "🐱", "🐶", "", "⭕️", "❌", "⭕️"], ["2", "Hanako", "🐇", "🐢", "🐿", "⭕️", "⭕️", "❌"]]
+
+# Output to file as CSV
+File.open('sample.csv', 'w') do |f|
+  writer.write(items, to: CSV.new(f))
+end
+
+# Output to stream as CSV with Rails
+response.headers['X-Accel-Buffering'] = 'no' # When using Nginx for reverse proxy
+response.headers['Cache-Control'] = 'no-cache'
+response.headers['Content-Type'] = 'text/csv'
+response.headers['Content-Disposition'] = 'attachment; filename="sample.csv"'
+response_body = Enumerator.new { |y| writer.write(items, to: CSV.new(y)) }
+```
+
+### Advanced
+
+You can also use `context_builder`.
+This may be useful when `column` definition lambda is complicated.
+```ruby
+class SampleTableSchema
+  include TableStructure::Schema
+
+  TableContext = Struct.new(:questions, keyword_init: true)
+
+  RowContext = Struct.new(:id, :name, :pets, :answers, keyword_init: true) {
+    def more_pets
+      pets + pets
+    end
+  }
+
+  context_builder :table, ->(context) { TableContext.new(**context) }
+  context_builder :row, ->(context) { RowContext.new(**context) }
+
+  column  name: 'ID',
+          value: ->(row, _table) { row.id }
+
+  column  name: 'Name',
+          value: ->(row, *) { row.name }
+
+  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          value: ->(row, *) { row.more_pets }
+
+  columns ->(table) {
+    table.questions.map do |question|
+      {
+        name: question[:id],
+        value: ->(row, *) { row.answers[question[:id]] }
+      }
+    end
+  }
+
+  column_converter :to_s, ->(val, *) { val.to_s }
+end
+```
+
+If you want to convert CSV character code, see the code below.
+```ruby
+File.open('sample.csv', 'w') do |f|
+  writer.write(items, to: CSV.new(f)) do |row_values|
+    row_values.map { |val| val&.to_s&.encode('Shift_JIS', invalid: :replace, undef: :replace) }
+  end
+end
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/table_structure.
+Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/ruby_table_structure.
 
 ## License
 
