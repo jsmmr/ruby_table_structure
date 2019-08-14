@@ -1,5 +1,7 @@
 # TableStructure
 
+[![Build Status](https://travis-ci.org/jsmmr/ruby_table_structure.svg?branch=master)](https://travis-ci.org/jsmmr/ruby_table_structure)
+
 `TableStructure` has two major functions.
 The functions are `TableStructure::Schema` that defines the schema of a table using DSL and ` TableStructure::Writer` that converts and outputs data with that schema.
 
