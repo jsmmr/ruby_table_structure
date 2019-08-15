@@ -4,7 +4,7 @@ module TableStructure
 
       DEFAULT_SIZE = 1
 
-      def initialize(name: nil, key: nil, value:, size: nil)
+      def initialize(name: nil, key: nil, value: nil, size: nil)
         @name = name
         @key = key
         @value = value
