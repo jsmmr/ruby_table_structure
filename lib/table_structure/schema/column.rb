@@ -1,15 +1,19 @@
 module TableStructure
   module Schema
     class Column
-      def initialize(name: nil, key: nil, value:, size: nil)
+
+      DEFAULT_SIZE = 1
+
+      def initialize(name: nil, key: nil, value: nil, size: nil)
         @name = name
         @key = key
         @value = value
-        @size = specify_size(specified_size: size)
+        @size = determine_size(specified_size: size)
       end
 
       def name(header_context, table_context)
-        Utils.evaluate_callable(@name, header_context, table_context)
+        val = Utils.evaluate_callable(@name, header_context, table_context)
+        optimize_size(val)
       end
 
       def key
@@ -23,23 +27,24 @@ module TableStructure
 
       private
 
-        def specify_size(specified_size:)
-          if @name.kind_of?(Array)
-            @name.size
-          elsif @name.respond_to?(:call)
-            unless specified_size
-              raise ::TableStructure::Error.new(
-                ":size must be specified when :name is lambda, because columns size is ambiguous."
-              )
-            end
-            specified_size
-          else
-            1
+        def determine_size(specified_size:)
+          if @name.respond_to?(:call) && !specified_size
+            raise ::TableStructure::Error.new('"size" must be specified, because column size cannot be determined.')
           end
+          if specified_size
+            if specified_size < DEFAULT_SIZE
+              raise ::TableStructure::Error.new('"size" must be positive.')
+            end
+            return specified_size
+          end
+          if @name.kind_of?(Array)
+            return @name.empty? ? DEFAULT_SIZE : @name.size
+          end
+          DEFAULT_SIZE
         end
 
         def multiple?
-          @size > 1
+          @size > DEFAULT_SIZE
         end
 
         def optimize_size(value)

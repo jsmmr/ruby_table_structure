@@ -194,6 +194,17 @@ RSpec.describe TableStructure::Writer do
           expect(row.shift).to eq 'yes'
           expect(row.shift).to eq 'no'
           expect(row.shift).to be_nil
+
+          row = enum.next
+          expect(row.shift).to eq '3'
+          expect(row.shift).to eq '次郎'
+          expect(row.shift).to eq 'tiger'
+          expect(row.shift).to eq 'elephant'
+          expect(row.shift).to eq 'doragon'
+          expect(row.shift).to eq 'no'
+          expect(row.shift).to eq 'yes'
+          expect(row.shift).to eq ''
+          expect(row.shift).to be_nil
         end
       end
 
@@ -245,6 +256,16 @@ RSpec.describe TableStructure::Writer do
           expect(table[2].shift).to eq 'yes'
           expect(table[2].shift).to eq 'no'
           expect(table[2].shift).to be_nil
+
+          expect(table[3].shift).to eq '3'
+          expect(table[3].shift).to eq '次郎'
+          expect(table[3].shift).to eq 'tiger'
+          expect(table[3].shift).to eq 'elephant'
+          expect(table[3].shift).to eq 'doragon'
+          expect(table[3].shift).to eq 'no'
+          expect(table[3].shift).to eq 'yes'
+          expect(table[3].shift).to eq ''
+          expect(table[3].shift).to be_nil
         end
       end
 
