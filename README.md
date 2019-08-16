@@ -5,9 +5,6 @@
 `TableStructure` has two major functions.
 The functions are `TableStructure::Schema` that defines the schema of a table using DSL and ` TableStructure::Writer` that converts and outputs data with that schema.
 
-`TableStructure::Writer` outputs the converted data line by line.
-This keeps the memory usage constant and is suitable for large-scale CSV output.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -68,6 +65,8 @@ schema = SampleTableSchema.new(context: context)
 #### TableStructure::Writer
 ```ruby
 writer = TableStructure::Writer.new(schema)
+## When omitting header line
+# writer = TableStructure::Writer.new(schema, header_omitted: true)
 
 items = [
   {
@@ -135,14 +134,14 @@ class SampleTableSchema
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row.more_pets }
 
-  columns ->(table) {
+  columns ->(table) do
     table.questions.map do |question|
       {
         name: question[:id],
         value: ->(row, *) { row.answers[question[:id]] }
       }
     end
-  }
+  end
 
   column_converter :to_s, ->(val, *) { val.to_s }
 end
