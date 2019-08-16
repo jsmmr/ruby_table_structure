@@ -175,7 +175,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil] }
     end
 
     describe '#value' do
@@ -210,7 +210,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil] }
     end
 
     describe '#value' do
@@ -245,7 +245,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil] }
     end
 
     describe '#value' do
@@ -280,7 +280,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil] }
     end
 
     describe '#value' do
@@ -315,7 +315,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil] }
     end
 
     describe '#value' do
@@ -351,7 +351,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil] }
     end
 
     describe '#value' do
@@ -387,7 +387,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil] }
     end
 
     describe '#value' do
@@ -423,7 +423,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil, nil, nil, nil] }
     end
 
     describe '#value' do
@@ -449,42 +449,6 @@ RSpec.describe TableStructure::Schema::Column do
       it 'raises error' do
         expect{ described_class.new(params) }.to raise_error '"size" must be positive.'
       end
-    end
-  end
-
-  context 'pattern 15' do
-    let(:params) {
-      {
-        name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['tiger', 'elephant', 'doragon'],
-        size: 4,
-      }
-    }
-
-    let(:column) { described_class.new(params) }
-
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
-
-      let(:header_context) { nil }
-      let(:table_context) { nil }
-
-      it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3', nil] }
-    end
-
-    describe '#key' do
-      subject { column.key }
-
-      it { is_expected.to be_nil }
-    end
-
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
-
-      let(:row_context) { nil }
-      let(:table_context) { nil }
-
-      it { is_expected.to eq ['tiger', 'elephant', 'doragon', nil] }
     end
   end
 end
