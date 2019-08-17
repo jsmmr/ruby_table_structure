@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module TableStructure
   module Schema
     module DSL
       module ResultBuilder
         def result_builder(name, callable)
           result_builders[name] = callable
-          return
+          nil
         end
 
         def result_builders

@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module TableStructure
   module Schema
     module DSL
       module ColumnDefinition
         def column(definition)
           column_definitions << definition
-          return
+          nil
         end
 
         def columns(definition)

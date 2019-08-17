@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TableStructure
   class Error < StandardError; end
 
@@ -12,5 +14,4 @@ module TableStructure
   require 'table_structure/schema/column'
   require 'table_structure/schema/utils'
   require 'table_structure/writer'
-
 end

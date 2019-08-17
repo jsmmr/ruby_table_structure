@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 RSpec.describe TableStructure do
-  it "has a version number" do
+  it 'has a version number' do
     expect(TableStructure::VERSION).not_to be nil
   end
 end
