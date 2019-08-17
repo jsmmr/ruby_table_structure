@@ -1,5 +1,6 @@
-RSpec.describe TableStructure::Writer do
+# frozen_string_literal: true
 
+RSpec.describe TableStructure::Writer do
   describe '#write' do
     class TestTableSchema21
       include TableStructure::Schema
@@ -13,7 +14,7 @@ RSpec.describe TableStructure::Writer do
       columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
               value: ->(row, *) { row[:pets] }
 
-      columns ->(table) {
+      columns lambda { |table|
         table[:questions].map do |question|
           {
             name: question[:id],
@@ -25,42 +26,42 @@ RSpec.describe TableStructure::Writer do
       column_converter :to_s, ->(val, _row, _table) { val.to_s }
     end
 
-    let(:context) {
+    let(:context) do
       {
         questions: [
           { id: 'Q1', text: 'Do you like sushi?' },
           { id: 'Q2', text: 'Do you like yakiniku?' },
-          { id: 'Q3', text: 'Do you like ramen?' },
+          { id: 'Q3', text: 'Do you like ramen?' }
         ]
       }
-    }
+    end
 
-    let(:array_items) {
+    let(:array_items) do
       [
         {
           id: 1,
           name: '太郎',
-          pets: ['cat', 'dog'],
+          pets: %w[cat dog],
           answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' }
         },
         {
           id: 2,
           name: '花子',
-          pets: ['rabbit', 'turtle', 'squirrel', 'giraffe'],
+          pets: %w[rabbit turtle squirrel giraffe],
           answers: { 'Q1' => 'yes', 'Q2' => 'yes', 'Q3' => 'no' }
         },
         {
           id: 3,
           name: '次郎',
-          pets: ['tiger', 'elephant', 'doragon'],
+          pets: %w[tiger elephant doragon],
           answers: { 'Q1' => 'no', 'Q2' => 'yes', 'Q999' => 'yes' }
         }
       ]
-    }
+    end
 
-    let(:lambda_items) {
+    let(:lambda_items) do
       ->(y) { array_items.each { |item| y << item } }
-    }
+    end
 
     context 'when output to CSV file' do
       shared_examples 'to convert and write data' do
@@ -137,11 +138,11 @@ RSpec.describe TableStructure::Writer do
 
       context 'when CSV encoding is Shift_JIS' do
         let(:csv_options) { { encoding: 'Shift_JIS:UTF-8' } }
-        let(:converter) {
-          ->(values) {
+        let(:converter) do
+          lambda do |values|
             values.map { |val| val&.to_s&.encode('Shift_JIS', invalid: :replace, undef: :replace) }
-          }
-        }
+          end
+        end
 
         context 'when passed array_items' do
           let(:items) { array_items }
@@ -280,5 +281,4 @@ RSpec.describe TableStructure::Writer do
       end
     end
   end
-
 end

@@ -1,11 +1,12 @@
-RSpec.describe TableStructure::Schema::Column do
+# frozen_string_literal: true
 
+RSpec.describe TableStructure::Schema::Column do
   let(:group_index) { 0 }
 
   context 'pattern 1' do
-    let(:definition) {
+    let(:definition) do
       {}
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -35,12 +36,12 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 2' do
-    let(:definition) {
+    let(:definition) do
       {
         name: 'Name',
-        value: 'Taro',
+        value: 'Taro'
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -70,12 +71,12 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 3' do
-    let(:definition) {
+    let(:definition) do
       {
         name: 'Name',
-        value: ->(_row, _table) { _row + _table },
+        value: ->(_row, _table) { _row + _table }
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -105,12 +106,12 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 4' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ->(row, table) { row + table },
-        value: 'Taro',
+        value: 'Taro'
       }
-    }
+    end
 
     describe '.new' do
       it 'raises error' do
@@ -121,13 +122,13 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 5' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ->(row, table) { row + table },
         value: 'Taro',
-        size: 1,
+        size: 1
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -157,12 +158,12 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 6' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['cat', 'dog'],
+        value: %w[cat dog]
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -192,12 +193,12 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 7' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['tiger', 'elephant', 'doragon'],
+        value: %w[tiger elephant doragon]
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -222,17 +223,17 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['tiger', 'elephant', 'doragon'] }
+      it { is_expected.to eq %w[tiger elephant doragon] }
     end
   end
 
   context 'pattern 8' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['rabbit', 'turtle', 'squirrel', 'giraffe'],
+        value: %w[rabbit turtle squirrel giraffe]
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -257,17 +258,17 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['rabbit', 'turtle', 'squirrel'] }
+      it { is_expected.to eq %w[rabbit turtle squirrel] }
     end
   end
 
   context 'pattern 9' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: [],
+        value: []
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -297,12 +298,12 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 10' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: nil,
+        value: nil
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -332,13 +333,13 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 11' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['tiger', 'elephant', 'doragon'],
-        size: 3,
+        value: %w[tiger elephant doragon],
+        size: 3
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -363,18 +364,18 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['tiger', 'elephant', 'doragon'] }
+      it { is_expected.to eq %w[tiger elephant doragon] }
     end
   end
 
   context 'pattern 12' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['tiger', 'elephant', 'doragon'],
-        size: 2,
+        value: %w[tiger elephant doragon],
+        size: 2
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -399,18 +400,18 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['tiger', 'elephant'] }
+      it { is_expected.to eq %w[tiger elephant] }
     end
   end
 
   context 'pattern 13' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['tiger', 'elephant', 'doragon'],
-        size: 4,
+        value: %w[tiger elephant doragon],
+        size: 4
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -440,13 +441,13 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 14' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        value: ['tiger', 'elephant', 'doragon'],
-        size: 0,
+        value: %w[tiger elephant doragon],
+        size: 0
       }
-    }
+    end
 
     describe '.new' do
       it 'raises error' do
@@ -457,13 +458,13 @@ RSpec.describe TableStructure::Schema::Column do
   end
 
   context 'pattern 15' do
-    let(:definition) {
+    let(:definition) do
       {
         name: 'Name',
-        key: [:first_name, :last_name],
-        value: ['Taro', 'Momo']
+        key: %i[first_name last_name],
+        value: %w[Taro Momo]
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -479,7 +480,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to eq [:first_name, :last_name] }
+      it { is_expected.to eq %i[first_name last_name] }
     end
 
     describe '#value' do
@@ -488,18 +489,18 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['Taro', 'Momo'] }
+      it { is_expected.to eq %w[Taro Momo] }
     end
   end
 
   context 'pattern 16' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ['First name', 'Last name'],
         key: [:name],
-        value: ['Taro', 'Momo']
+        value: %w[Taro Momo]
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -524,18 +525,18 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['Taro', 'Momo'] }
+      it { is_expected.to eq %w[Taro Momo] }
     end
   end
 
   context 'pattern 17' do
-    let(:definition) {
+    let(:definition) do
       {
         name: ->(*) { 'Name' },
-        key: [:first_name, :last_name],
-        value: ['Taro', 'Momo']
+        key: %i[first_name last_name],
+        value: %w[Taro Momo]
       }
-    }
+    end
 
     let(:column) { described_class.new(definition, group_index) }
 
@@ -551,7 +552,7 @@ RSpec.describe TableStructure::Schema::Column do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to eq [:first_name, :last_name] }
+      it { is_expected.to eq %i[first_name last_name] }
     end
 
     describe '#value' do
@@ -560,7 +561,7 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['Taro', 'Momo'] }
+      it { is_expected.to eq %w[Taro Momo] }
     end
   end
 end

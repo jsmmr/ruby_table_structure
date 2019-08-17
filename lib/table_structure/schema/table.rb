@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module TableStructure
   module Schema
     class Table
-
-      DEFAULT_OPTIONS = { result_type: :array }
+      DEFAULT_OPTIONS = { result_type: :array }.freeze
 
       attr_reader :columns, :column_converters, :result_builders
 
@@ -24,45 +25,44 @@ module TableStructure
 
       private
 
-        def build_columns(definitions)
-          definitions
-            .map { |definition| Utils.evaluate_callable(definition, @context) }
-            .map.with_index do |definition, i|
-              [definition]
-                .flatten
-                .map { |definition| Column.new(definition, i) }
-            end
+      def build_columns(definitions)
+        definitions
+          .map { |definition| Utils.evaluate_callable(definition, @context) }
+          .map.with_index do |definition, i|
+            [definition]
               .flatten
-        end
-
-        def default_column_converters
-          {}
-        end
-
-        def default_result_builders
-          result_builders = {}
-          if @options[:result_type] == :hash
-            result_builders[:to_h] = ->(array, *) { (@keys ||= keys).zip(array).to_h }
+              .map { |definition| Column.new(definition, i) }
           end
-          result_builders
-        end
+          .flatten
+      end
 
-        def keys
-          @columns.map(&:key).flatten
-        end
+      def default_column_converters
+        {}
+      end
 
-        def values(method, context)
-          columns = @columns
-            .map { |column| column.send(method, context, @context) }
-            .flatten
-            .map { |val| reduce_callables(@column_converters, val, context) }
-          reduce_callables(@result_builders, columns, context)
+      def default_result_builders
+        result_builders = {}
+        if @options[:result_type] == :hash
+          result_builders[:to_h] = ->(array, *) { (@keys ||= keys).zip(array).to_h }
         end
+        result_builders
+      end
 
-        def reduce_callables(callables, val, context)
-          callables.reduce(val) { |val, (_, callable)| callable.call(val, context, @context) }
-        end
+      def keys
+        @columns.map(&:key).flatten
+      end
 
+      def values(method, context)
+        columns = @columns
+                  .map { |column| column.send(method, context, @context) }
+                  .flatten
+                  .map { |val| reduce_callables(@column_converters, val, context) }
+        reduce_callables(@result_builders, columns, context)
+      end
+
+      def reduce_callables(callables, val, context)
+        callables.reduce(val) { |val, (_, callable)| callable.call(val, context, @context) }
+      end
     end
   end
 end

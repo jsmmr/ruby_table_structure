@@ -1,7 +1,7 @@
+# frozen_string_literal: true
+
 RSpec.describe TableStructure::Schema do
-
   context 'define column' do
-
     class TestTableSchema11
       include TableStructure::Schema
 
@@ -27,9 +27,9 @@ RSpec.describe TableStructure::Schema do
     describe '#row' do
       subject { schema.row(context: item) }
 
-      let(:item) {
+      let(:item) do
         { id: 1, name: 'Taro' }
-      }
+      end
 
       it 'returns row columns' do
         expect(subject.shift).to eq 1
@@ -40,7 +40,6 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'define columns' do
-
     class TestTableSchema12
       include TableStructure::Schema
 
@@ -53,7 +52,7 @@ RSpec.describe TableStructure::Schema do
       columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
               value: ->(row, *) { row[:pets] }
 
-      columns ->(table) {
+      columns lambda { |table|
         table[:questions].map do |question|
           {
             name: question[:id],
@@ -63,17 +62,17 @@ RSpec.describe TableStructure::Schema do
       }
     end
 
-    let(:schema) {
+    let(:schema) do
       TestTableSchema12.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
             { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
           ]
         }
       )
-    }
+    end
 
     describe '#header' do
       subject { schema.header }
@@ -94,9 +93,9 @@ RSpec.describe TableStructure::Schema do
     describe '#row' do
       subject { schema.row(context: item) }
 
-      let(:item) {
-        { id: 1, name: 'Taro', pets: ['cat', 'dog'], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      }
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
 
       it 'returns row columns' do
         expect(subject.shift).to eq 1
@@ -113,7 +112,6 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'define column_converter' do
-
     class TestTableSchema13
       include TableStructure::Schema
 
@@ -126,7 +124,7 @@ RSpec.describe TableStructure::Schema do
       columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
               value: ->(row, *) { row[:pets] }
 
-      columns ->(table) {
+      columns lambda { |table|
         table[:questions].map do |question|
           {
             name: question[:id],
@@ -139,17 +137,17 @@ RSpec.describe TableStructure::Schema do
       column_converter :to_s, ->(val, *) { val.to_s }
     end
 
-    let(:schema) {
+    let(:schema) do
       TestTableSchema13.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
             { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
           ]
         }
       )
-    }
+    end
 
     describe '#header' do
       subject { schema.header }
@@ -170,9 +168,9 @@ RSpec.describe TableStructure::Schema do
     describe '#row' do
       subject { schema.row(context: item) }
 
-      let(:item) {
-        { id: 1, name: 'Taro', pets: ['cat', 'dog'], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      }
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
 
       it 'returns row columns' do
         expect(subject.shift).to eq '1'
@@ -189,17 +187,16 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'define context_builder' do
-
     class TestTableSchema14
       include TableStructure::Schema
 
       TableContext = Struct.new(:questions)
 
-      RowContext = Struct.new(:id, :name, :pets, :answers) {
+      RowContext = Struct.new(:id, :name, :pets, :answers) do
         def more_pets
           pets + pets
         end
-      }
+      end
 
       context_builder :table, ->(context) { TableContext.new(*context.values) }
       context_builder :row, ->(context) { RowContext.new(*context.values) }
@@ -213,7 +210,7 @@ RSpec.describe TableStructure::Schema do
       columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
               value: ->(row, *) { row.more_pets }
 
-      columns ->(table) {
+      columns lambda { |table|
         table.questions.map do |question|
           {
             name: question[:id],
@@ -226,17 +223,17 @@ RSpec.describe TableStructure::Schema do
       column_converter :to_s, ->(val, *) { val.to_s }
     end
 
-    let(:schema) {
+    let(:schema) do
       TestTableSchema14.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
             { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
           ]
         }
       )
-    }
+    end
 
     describe '#header' do
       subject { schema.header }
@@ -257,9 +254,9 @@ RSpec.describe TableStructure::Schema do
     describe '#row' do
       subject { schema.row(context: item) }
 
-      let(:item) {
-        { id: 1, name: 'Taro', pets: ['cat', 'dog'], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      }
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
 
       it 'returns row columns' do
         expect(subject.shift).to eq '1'
@@ -276,7 +273,6 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'define result_builder' do
-
     class TestTableSchema15
       include TableStructure::Schema
 
@@ -289,7 +285,7 @@ RSpec.describe TableStructure::Schema do
       columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
               value: ->(row, *) { row[:pets] }
 
-      columns ->(table) {
+      columns lambda { |table|
         table[:questions].map do |question|
           {
             name: question[:id],
@@ -303,17 +299,17 @@ RSpec.describe TableStructure::Schema do
       result_builder :to_struct, ->(values, *) { Result.new(*values) }
     end
 
-    let(:schema) {
+    let(:schema) do
       TestTableSchema15.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
             { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
           ]
         }
       )
-    }
+    end
 
     describe '#header' do
       subject { schema.header }
@@ -333,9 +329,9 @@ RSpec.describe TableStructure::Schema do
     describe '#row' do
       subject { schema.row(context: item) }
 
-      let(:item) {
-        { id: 1, name: 'Taro', pets: ['cat', 'dog'], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      }
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
 
       it 'returns row columns' do
         expect(subject.id).to eq 1
@@ -351,7 +347,6 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'specify result_type: :hash' do
-
     class TestTableSchema16
       include TableStructure::Schema
 
@@ -364,10 +359,10 @@ RSpec.describe TableStructure::Schema do
               value: ->(row, *) { row[:name] }
 
       columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              key: [:pet1, :pet2, :pet3],
+              key: %i[pet1 pet2 pet3],
               value: ->(row, *) { row[:pets] }
 
-      columns ->(table) {
+      columns lambda { |table|
         table[:questions].map do |question|
           {
             name: question[:id],
@@ -378,18 +373,18 @@ RSpec.describe TableStructure::Schema do
       }
     end
 
-    let(:schema) {
+    let(:schema) do
       TestTableSchema16.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
             { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
           ]
         },
         result_type: :hash
       )
-    }
+    end
 
     describe '#header' do
       subject { schema.header }
@@ -409,9 +404,9 @@ RSpec.describe TableStructure::Schema do
     describe '#row' do
       subject { schema.row(context: item) }
 
-      let(:item) {
-        { id: 1, name: 'Taro', pets: ['cat', 'dog'], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      }
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
 
       it 'returns row columns' do
         expect(subject[:id]).to eq 1

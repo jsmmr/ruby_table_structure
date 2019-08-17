@@ -1,11 +1,12 @@
+# frozen_string_literal: true
+
 module TableStructure
   class Writer
-
     DEFAULT_OPTIONS = {
       header_omitted: false,
       header_context: nil,
       method: :<<
-    }
+    }.freeze
 
     def initialize(schema, **options)
       @schema = schema
@@ -24,15 +25,15 @@ module TableStructure
         row = yield row if block_given?
         to.send(options[:method], row)
       end
-      return
+      nil
     end
 
     private
 
-      def to_enum(items)
-        items.respond_to?(:call) ?
-          Enumerator.new { |y| items.call(y) } :
-          items
-      end
+    def to_enum(items)
+      items.respond_to?(:call) ?
+        Enumerator.new { |y| items.call(y) } :
+        items
+    end
   end
 end

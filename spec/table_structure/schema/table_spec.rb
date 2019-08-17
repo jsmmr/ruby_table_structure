@@ -1,31 +1,33 @@
+# frozen_string_literal: true
+
 RSpec.describe TableStructure::Schema::Table do
   let(:table) { described_class.new(column_definitions, column_converters, result_builders, context, options) }
 
   describe '#columns' do
-    let(:column_definitions) {
+    let(:column_definitions) do
       [
         {
           name: 'ID',
-          value: 1,
+          value: 1
         },
         {
           name: 'Name',
-          value: 'Taro',
+          value: 'Taro'
         },
         {
           name: ['Pet 1', 'Pet 2', 'Pet 3'],
-          value: ['cat', 'dog'],
+          value: %w[cat dog]
         },
-        ->(*) {
-          ['Q1', 'Q2', 'Q3'].map do |question_id|
+        lambda do |*|
+          %w[Q1 Q2 Q3].map do |question_id|
             {
               name: question_id,
               value: 'yes'
             }
           end
-        }
+        end
       ]
-    }
+    end
     let(:column_converters) { {} }
     let(:result_builders) { {} }
     let(:context) { nil }
@@ -74,5 +76,4 @@ RSpec.describe TableStructure::Schema::Table do
       expect(columns[5].group_index).to eq 3
     end
   end
-
 end
