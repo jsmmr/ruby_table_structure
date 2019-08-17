@@ -4,7 +4,7 @@ module TableStructure
 
       DEFAULT_OPTIONS = { result_type: :array }
 
-      attr_reader :column_converters, :result_builders
+      attr_reader :columns, :column_converters, :result_builders
 
       def initialize(column_definitions, column_converters, result_builders, context, options)
         @context = context
@@ -24,11 +24,15 @@ module TableStructure
 
       private
 
-        def build_columns(column_definitions)
-          column_definitions
-            .map { |column| Utils.evaluate_callable(column, @context) }
-            .flatten
-            .map { |column| Column.new(**column) }
+        def build_columns(definitions)
+          definitions
+            .map { |definition| Utils.evaluate_callable(definition, @context) }
+            .map.with_index do |definition, i|
+              [definition]
+                .flatten
+                .map { |definition| Column.new(definition, i) }
+            end
+              .flatten
         end
 
         def default_column_converters
