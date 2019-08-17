@@ -39,14 +39,14 @@ class SampleTableSchema
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 
-  columns ->(table) do
+  columns ->(table) {
     table[:questions].map do |question|
       {
         name: question[:id],
         value: ->(row, *) { row[:answers][question[:id]] }
       }
     end
-  end
+  }
 
   column_converter :to_s, ->(val, _row, _table) { val.to_s }
 end
@@ -126,7 +126,7 @@ class SampleTableSchema
   context_builder :row, ->(context) { RowContext.new(**context) }
 
   column  name: 'ID',
-          value: ->(row, _table) { row.id }
+          value: ->(row, *) { row.id }
 
   column  name: 'Name',
           value: ->(row, *) { row.name }
@@ -134,14 +134,14 @@ class SampleTableSchema
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row.more_pets }
 
-  columns ->(table) do
+  columns ->(table) {
     table.questions.map do |question|
       {
         name: question[:id],
         value: ->(row, *) { row.answers[question[:id]] }
       }
     end
-  end
+  }
 
   column_converter :to_s, ->(val, *) { val.to_s }
 end
@@ -153,6 +153,16 @@ File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f)) do |row_values|
     row_values.map { |val| val&.to_s&.encode('Shift_JIS', invalid: :replace, undef: :replace) }
   end
+end
+```
+
+You can also use only `TableStructure::Schema`.
+```ruby
+schema = SampleTableSchema.new
+header = schema.header
+items.each do |item|
+  row = schema.row(context: item)
+  ...
 end
 ```
 
