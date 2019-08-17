@@ -280,5 +280,35 @@ RSpec.describe TableStructure::Writer do
         it_behaves_like 'to convert and write data'
       end
     end
+
+    context 'when output to string' do
+      shared_examples 'to convert and write data' do
+        it 'succeeds' do
+          require 'csv'
+
+          schema = TestTableSchema21.new(context: context)
+          writer = TableStructure::Writer.new(schema)
+          s = String.new
+          writer.write(items, to: s) do |row_values|
+            row_values.join(',') + "\n"
+          end
+
+          expect(s).to eq "ID,Name,Pet 1,Pet 2,Pet 3,Q1,Q2,Q3\n" \
+                          "1,太郎,cat,dog,,yes,no,yes\n" \
+                          "2,花子,rabbit,turtle,squirrel,yes,yes,no\n" \
+                          "3,次郎,tiger,elephant,doragon,no,yes,\n"
+        end
+      end
+
+      context 'when passed array_items' do
+        let(:items) { array_items }
+        it_behaves_like 'to convert and write data'
+      end
+
+      context 'when passed lambda_items' do
+        let(:items) { lambda_items }
+        it_behaves_like 'to convert and write data'
+      end
+    end
   end
 end
