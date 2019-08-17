@@ -2,6 +2,15 @@ module TableStructure
   module Schema
     class Column
 
+      class Error < ::TableStructure::Error
+        attr_reader :group_index
+
+        def initialize(error_message, group_index)
+          @group_index = group_index
+          super("#{error_message} [defined position: #{group_index + 1}]")
+        end
+      end
+
       DEFAULT_DEFINITION = {
         name: nil,
         key: nil,
@@ -11,7 +20,10 @@ module TableStructure
 
       DEFAULT_SIZE = 1
 
-      def initialize(definition)
+      attr_reader :size, :group_index
+
+      def initialize(definition, group_index)
+        @group_index = group_index
         definition = DEFAULT_DEFINITION.merge(definition)
         validate(definition)
         @name = definition[:name]
@@ -38,10 +50,10 @@ module TableStructure
 
         def validate(name:, key:, size:, **)
           if !key && name.respond_to?(:call) && !size
-            raise ::TableStructure::Error.new('"size" must be specified, because column size cannot be determined.')
+            raise Error.new('"size" must be specified, because column size cannot be determined.', @group_index)
           end
           if size && size < DEFAULT_SIZE
-            raise ::TableStructure::Error.new('"size" must be positive.')
+            raise Error.new('"size" must be positive.', @group_index)
           end
         end
 

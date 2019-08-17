@@ -1,4 +1,6 @@
 module TableStructure
+  class Error < StandardError; end
+
   require 'table_structure/version'
 
   require 'table_structure/schema'
@@ -11,5 +13,4 @@ module TableStructure
   require 'table_structure/schema/utils'
   require 'table_structure/writer'
 
-  class Error < StandardError; end
 end
