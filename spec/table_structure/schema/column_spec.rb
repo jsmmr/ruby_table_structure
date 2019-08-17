@@ -455,4 +455,112 @@ RSpec.describe TableStructure::Schema::Column do
       end
     end
   end
+
+  context 'pattern 15' do
+    let(:definition) {
+      {
+        name: 'Name',
+        key: [:first_name, :last_name],
+        value: ['Taro', 'Momo']
+      }
+    }
+
+    let(:column) { described_class.new(definition, group_index) }
+
+    describe '#name' do
+      subject { column.name(header_context, table_context) }
+
+      let(:header_context) { nil }
+      let(:table_context) { nil }
+
+      it { is_expected.to eq ['Name', nil] }
+    end
+
+    describe '#key' do
+      subject { column.key }
+
+      it { is_expected.to eq [:first_name, :last_name] }
+    end
+
+    describe '#value' do
+      subject { column.value(row_context, table_context) }
+
+      let(:row_context) { nil }
+      let(:table_context) { nil }
+
+      it { is_expected.to eq ['Taro', 'Momo'] }
+    end
+  end
+
+  context 'pattern 16' do
+    let(:definition) {
+      {
+        name: ['First name', 'Last name'],
+        key: [:name],
+        value: ['Taro', 'Momo']
+      }
+    }
+
+    let(:column) { described_class.new(definition, group_index) }
+
+    describe '#name' do
+      subject { column.name(header_context, table_context) }
+
+      let(:header_context) { nil }
+      let(:table_context) { nil }
+
+      it { is_expected.to eq ['First name', 'Last name'] }
+    end
+
+    describe '#key' do
+      subject { column.key }
+
+      it { is_expected.to eq [:name, nil] }
+    end
+
+    describe '#value' do
+      subject { column.value(row_context, table_context) }
+
+      let(:row_context) { nil }
+      let(:table_context) { nil }
+
+      it { is_expected.to eq ['Taro', 'Momo'] }
+    end
+  end
+
+  context 'pattern 17' do
+    let(:definition) {
+      {
+        name: ->(*) { 'Name' },
+        key: [:first_name, :last_name],
+        value: ['Taro', 'Momo']
+      }
+    }
+
+    let(:column) { described_class.new(definition, group_index) }
+
+    describe '#name' do
+      subject { column.name(header_context, table_context) }
+
+      let(:header_context) { nil }
+      let(:table_context) { nil }
+
+      it { is_expected.to eq ['Name', nil] }
+    end
+
+    describe '#key' do
+      subject { column.key }
+
+      it { is_expected.to eq [:first_name, :last_name] }
+    end
+
+    describe '#value' do
+      subject { column.value(row_context, table_context) }
+
+      let(:row_context) { nil }
+      let(:table_context) { nil }
+
+      it { is_expected.to eq ['Taro', 'Momo'] }
+    end
+  end
 end
