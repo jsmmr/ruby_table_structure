@@ -116,11 +116,11 @@ class SampleTableSchema
 
   TableContext = Struct.new(:questions, keyword_init: true)
 
-  RowContext = Struct.new(:id, :name, :pets, :answers, keyword_init: true) {
+  RowContext = Struct.new(:id, :name, :pets, :answers, keyword_init: true) do
     def more_pets
       pets + pets
     end
-  }
+  end
 
   context_builder :table, ->(context) { TableContext.new(**context) }
   context_builder :row, ->(context) { RowContext.new(**context) }

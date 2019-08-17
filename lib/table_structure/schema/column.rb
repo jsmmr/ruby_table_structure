@@ -2,13 +2,34 @@ module TableStructure
   module Schema
     class Column
 
+      class Error < ::TableStructure::Error
+        attr_reader :group_index
+
+        def initialize(error_message, group_index)
+          @group_index = group_index
+          super("#{error_message} [defined position: #{group_index + 1}]")
+        end
+      end
+
+      DEFAULT_DEFINITION = {
+        name: nil,
+        key: nil,
+        value: nil,
+        size: nil
+      }
+
       DEFAULT_SIZE = 1
 
-      def initialize(name: nil, key: nil, value: nil, size: nil)
-        @name = name
-        @key = key
-        @value = value
-        @size = determine_size(specified_size: size)
+      attr_reader :size, :group_index
+
+      def initialize(definition, group_index)
+        @group_index = group_index
+        definition = DEFAULT_DEFINITION.merge(definition)
+        validate(definition)
+        @name = definition[:name]
+        @key = definition[:key]
+        @value = definition[:value]
+        @size = determine_size(definition)
       end
 
       def name(header_context, table_context)
@@ -17,7 +38,7 @@ module TableStructure
       end
 
       def key
-        @key
+        optimize_size(@key)
       end
 
       def value(row_context, table_context)
@@ -27,18 +48,23 @@ module TableStructure
 
       private
 
-        def determine_size(specified_size:)
-          if @name.respond_to?(:call) && !specified_size
-            raise ::TableStructure::Error.new('"size" must be specified, because column size cannot be determined.')
+        def validate(name:, key:, size:, **)
+          if !key && name.respond_to?(:call) && !size
+            raise Error.new('"size" must be specified, because column size cannot be determined.', @group_index)
           end
-          if specified_size
-            if specified_size < DEFAULT_SIZE
-              raise ::TableStructure::Error.new('"size" must be positive.')
-            end
-            return specified_size
+          if size && size < DEFAULT_SIZE
+            raise Error.new('"size" must be positive.', @group_index)
           end
-          if @name.kind_of?(Array)
-            return @name.empty? ? DEFAULT_SIZE : @name.size
+        end
+
+        def determine_size(name:, key:, size:, **)
+          return size if size
+          [calculate_size(name), calculate_size(key)].max
+        end
+
+        def calculate_size(val)
+          if val.kind_of?(Array)
+            return val.empty? ? DEFAULT_SIZE : val.size
           end
           DEFAULT_SIZE
         end

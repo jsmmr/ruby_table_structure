@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["jsmmr@icloud.com"]
 
   spec.summary       = %q{Create and output table structure data.}
-  spec.description   = %q{This gem creates and outputs table structure data. Useful for outputting large CSV file.}
+  spec.description   = %q{This gem creates and outputs table structure data. Useful for creating CSV.}
   spec.homepage      = "https://github.com/jsmmr/ruby_table_structure"
   spec.license       = "MIT"
 
