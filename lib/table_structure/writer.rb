@@ -20,7 +20,7 @@ module TableStructure
         header = yield header if block_given?
         to.send(options[:method], header)
       end
-      to_enum(items).each do |item|
+      enumerize(items).each do |item|
         row = @schema.row(context: item)
         row = yield row if block_given?
         to.send(options[:method], row)
@@ -30,7 +30,7 @@ module TableStructure
 
     private
 
-    def to_enum(items)
+    def enumerize(items)
       items.respond_to?(:call) ?
         Enumerator.new { |y| items.call(y) } :
         items
