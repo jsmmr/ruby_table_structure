@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module TableStructure
   module Schema
     class Column
-
       class Error < ::TableStructure::Error
         attr_reader :group_index
 
@@ -16,7 +17,7 @@ module TableStructure
         key: nil,
         value: nil,
         size: nil
-      }
+      }.freeze
 
       DEFAULT_SIZE = 1
 
@@ -48,43 +49,46 @@ module TableStructure
 
       private
 
-        def validate(name:, key:, size:, **)
-          if !key && name.respond_to?(:call) && !size
-            raise Error.new('"size" must be specified, because column size cannot be determined.', @group_index)
-          end
-          if size && size < DEFAULT_SIZE
-            raise Error.new('"size" must be positive.', @group_index)
-          end
+      def validate(name:, key:, size:, **)
+        if !key && name.respond_to?(:call) && !size
+          raise Error.new('"size" must be specified, because column size cannot be determined.', @group_index)
+        end
+        if size && size < DEFAULT_SIZE
+          raise Error.new('"size" must be positive.', @group_index)
+        end
+      end
+
+      def determine_size(name:, key:, size:, **)
+        return size if size
+
+        [calculate_size(name), calculate_size(key)].max
+      end
+
+      def calculate_size(val)
+        if val.is_a?(Array)
+          return val.empty? ? DEFAULT_SIZE : val.size
         end
 
-        def determine_size(name:, key:, size:, **)
-          return size if size
-          [calculate_size(name), calculate_size(key)].max
-        end
+        DEFAULT_SIZE
+      end
 
-        def calculate_size(val)
-          if val.kind_of?(Array)
-            return val.empty? ? DEFAULT_SIZE : val.size
-          end
-          DEFAULT_SIZE
-        end
+      def multiple?
+        @size > DEFAULT_SIZE
+      end
 
-        def multiple?
-          @size > DEFAULT_SIZE
-        end
+      def optimize_size(value)
+        return value unless multiple?
 
-        def optimize_size(value)
-          return value unless multiple?
-          values = value.kind_of?(Array) ? value : [value]
-          actual_size = values.size
-          if actual_size > @size
-            values[0, @size]
-          elsif actual_size < @size
-            [].concat(values).fill(nil, actual_size, (@size - actual_size))
-          else
-            values
-          end
+        values = value.is_a?(Array) ? value : [value]
+        actual_size = values.size
+        if actual_size > @size
+          values[0, @size]
+        elsif actual_size < @size
+          [].concat(values).fill(nil, actual_size, (@size - actual_size))
+        else
+          values
         end
+      end
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TableStructure
   module Schema
     def self.included(klass)
