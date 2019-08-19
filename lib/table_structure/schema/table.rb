@@ -10,7 +10,7 @@ module TableStructure
       def initialize(column_definitions, column_converters, result_builders, context, options)
         @context = context
         @options = DEFAULT_OPTIONS.merge(options)
-        @columns = build_columns(column_definitions)
+        @columns = build_columns(column_definitions, context)
         @column_converters = default_column_converters.merge(column_converters)
         @result_builders = default_result_builders.merge(result_builders)
       end
@@ -25,15 +25,11 @@ module TableStructure
 
       private
 
-      def build_columns(definitions)
-        definitions
-          .map { |definition| Utils.evaluate_callable(definition, @context) }
-          .map.with_index do |definition, i|
-            [definition]
-              .flatten
-              .map { |definition| Column.new(definition, i) }
-          end
-          .flatten
+      def build_columns(definitions, context)
+        Definition
+          .new(definitions)
+          .compile(context)
+          .map { |attrs| Column.new(attrs) }
       end
 
       def default_column_converters
