@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Definition do
+  let(:options) { {} }
+
   context 'pattern 1' do
     let(:definitions) do
       [
@@ -8,7 +10,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -48,7 +50,7 @@ RSpec.describe TableStructure::Schema::Definition do
     ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -85,7 +87,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -122,7 +124,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -160,7 +162,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -198,7 +200,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -237,7 +239,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }
@@ -291,7 +293,7 @@ RSpec.describe TableStructure::Schema::Definition do
       ]
     end
 
-    let(:compiled_definitions) { described_class.new(definitions).compile }
+    let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
     describe '#size' do
       subject { compiled_definitions.size }

@@ -12,15 +12,16 @@ module TableStructure
 
       DEFAULT_SIZE = 1
 
-      def initialize(definitions)
+      def initialize(definitions, options)
         @definitions = definitions
+        @options = options
       end
 
       def compile(context = nil)
         @definitions
           .map { |definition| Utils.evaluate_callable(definition, context) }
           .map.with_index do |definition, i|
-            validator = Validator.new(i)
+            validator = Validator.new(i, @options)
 
             [definition]
               .flatten
