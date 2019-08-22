@@ -106,6 +106,78 @@ response.headers['Content-Disposition'] = 'attachment; filename="sample.csv"'
 response_body = Enumerator.new { |y| writer.write(items, to: CSV.new(y)) }
 ```
 
+#### TableStructure::Iterator
+Specifying `result_type: :hash` option of `TableStructure::Schema` works well.
+To use this option, define `column(s)` with `:key`.
+```ruby
+class SampleTableSchema
+  include TableStructure::Schema
+
+  # If header is required, :name must also be defined.
+  column  key: :id,
+          value: ->(row, *) { row[:id] }
+
+  column  key: :name,
+          value: ->(row, *) { row[:name] }
+
+  columns key: %i[pet1 pet2 pet3],
+          value: ->(row, *) { row[:pets] }
+
+  columns ->(table) {
+    table[:questions].map do |question|
+      {
+        key: question[:id].downcase.to_sym,
+        value: ->(row, *) { row[:answers][question[:id]] }
+      }
+    end
+  }
+
+  column_converter :to_s, ->(val, *) { val.to_s }
+end
+
+context = {
+  questions: [
+    { id: 'Q1', text: 'Do you like sushi?' },
+    { id: 'Q2', text: 'Do you like yakiniku?' },
+    { id: 'Q3', text: 'Do you like ramen?' }
+  ]
+}
+
+schema = SampleTableSchema.new(context: context, result_type: :hash) # default is :array
+iterator = TableStructure::Iterator.new(schema, header_omitted: true)
+## or
+# writer = TableStructure::Writer.new(schema, header_omitted: true)
+# iterator = TableStructure::Iterator.new(writer)
+
+items = [
+  {
+    id: 1,
+    name: 'Taro',
+    pets: ['🐱', '🐶'],
+    answers: { 'Q1' => '⭕️', 'Q2' => '❌', 'Q3' => '⭕️' }
+  },
+  {
+    id: 2,
+    name: 'Hanako',
+    pets: ['🐇', '🐢', '🐿', '🦒'],
+    answers: { 'Q1' => '⭕️', 'Q2' => '⭕️', 'Q3' => '❌' }
+  }
+]
+
+enum = iterator.iterate(items)
+
+## Enumerator methods is available
+enum.each do |item|
+  # ...
+end
+
+enum.map(&:itself)
+# => [{:id=>"1", :name=>"Taro", :pet1=>"🐱", :pet2=>"🐶", :pet3=>"", :q1=>"⭕️", :q2=>"❌", :q3=>"⭕️"}, {:id=>"2", :name=>"Hanako", :pet1=>"🐇", :pet2=>"🐢", :pet3=>"🐿", :q1=>"⭕️", :q2=>"⭕️", :q3=>"❌"}]
+
+enum.lazy.select { |item| item[:q1] == '⭕️' }.take(1).force
+# => [{:id=>"1", :name=>"Taro", :pet1=>"🐱", :pet2=>"🐶", :pet3=>"", :q1=>"⭕️", :q2=>"❌", :q3=>"⭕️"}]
+```
+
 ### Advanced
 
 You can also use `context_builder`.
