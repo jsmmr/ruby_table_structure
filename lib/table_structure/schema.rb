@@ -37,5 +37,9 @@ module TableStructure
     def column_converters
       @table_structure_schema_table_.column_converters
     end
+
+    def result_builders
+      @table_structure_schema_table_.result_builders
+    end
   end
 end

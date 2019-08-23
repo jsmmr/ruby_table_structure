@@ -42,6 +42,11 @@ RSpec.describe TableStructure::Schema do
       subject { schema.column_converters.keys }
       it { is_expected.to eq [] }
     end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
+    end
   end
 
   context 'define columns' do
@@ -117,6 +122,11 @@ RSpec.describe TableStructure::Schema do
 
     describe '#column_converters' do
       subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
       it { is_expected.to eq [] }
     end
   end
@@ -198,6 +208,11 @@ RSpec.describe TableStructure::Schema do
     describe '#column_converters' do
       subject { schema.column_converters.keys }
       it { is_expected.to eq %i[nil_to_hyphen to_s] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
     end
   end
 
@@ -290,6 +305,11 @@ RSpec.describe TableStructure::Schema do
       subject { schema.column_converters.keys }
       it { is_expected.to eq %i[nil_to_hyphen to_s] }
     end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
+    end
   end
 
   context 'define result_builder' do
@@ -368,6 +388,11 @@ RSpec.describe TableStructure::Schema do
     describe '#column_converters' do
       subject { schema.column_converters.keys }
       it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [:to_struct] }
     end
   end
 
@@ -448,6 +473,11 @@ RSpec.describe TableStructure::Schema do
     describe '#column_converters' do
       subject { schema.column_converters.keys }
       it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [:to_h] }
     end
   end
 end
