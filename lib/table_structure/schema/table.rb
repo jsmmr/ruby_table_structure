@@ -3,12 +3,9 @@
 module TableStructure
   module Schema
     class Table
-      DEFAULT_OPTIONS = { result_type: :array }.freeze
-
       attr_reader :columns, :column_converters, :result_builders
 
       def initialize(column_definitions, column_converters, result_builders, context, options)
-        options = DEFAULT_OPTIONS.merge(options)
         @columns = build_columns(column_definitions, context, options)
         @column_converters = default_column_converters.merge(column_converters)
         @result_builders = default_result_builders(options).merge(result_builders)
