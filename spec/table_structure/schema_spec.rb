@@ -37,6 +37,11 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to be_nil
       end
     end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
   end
 
   context 'define columns' do
@@ -108,6 +113,11 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to eq 'yes'
         expect(subject.shift).to be_nil
       end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
     end
   end
 
@@ -183,6 +193,11 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to eq 'yes'
         expect(subject.shift).to be_nil
       end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq %i[nil_to_hyphen to_s] }
     end
   end
 
@@ -270,6 +285,11 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to be_nil
       end
     end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq %i[nil_to_hyphen to_s] }
+    end
   end
 
   context 'define result_builder' do
@@ -343,6 +363,11 @@ RSpec.describe TableStructure::Schema do
         expect(subject.q2).to eq 'no'
         expect(subject.q3).to eq 'yes'
       end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
     end
   end
 
@@ -418,6 +443,11 @@ RSpec.describe TableStructure::Schema do
         expect(subject[:q2]).to eq 'no'
         expect(subject[:q3]).to eq 'yes'
       end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
     end
   end
 end
