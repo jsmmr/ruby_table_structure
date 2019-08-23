@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Iterator do
-
   let(:context) do
     {
       questions: [

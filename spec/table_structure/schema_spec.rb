@@ -37,6 +37,16 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to be_nil
       end
     end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
+    end
   end
 
   context 'define columns' do
@@ -108,6 +118,16 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to eq 'yes'
         expect(subject.shift).to be_nil
       end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
     end
   end
 
@@ -183,6 +203,16 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to eq 'yes'
         expect(subject.shift).to be_nil
       end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq %i[nil_to_hyphen to_s] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
     end
   end
 
@@ -270,6 +300,16 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to be_nil
       end
     end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq %i[nil_to_hyphen to_s] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [] }
+    end
   end
 
   context 'define result_builder' do
@@ -344,6 +384,16 @@ RSpec.describe TableStructure::Schema do
         expect(subject.q3).to eq 'yes'
       end
     end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [:to_struct] }
+    end
   end
 
   context 'specify result_type: :hash' do
@@ -417,6 +467,104 @@ RSpec.describe TableStructure::Schema do
         expect(subject[:q1]).to eq 'yes'
         expect(subject[:q2]).to eq 'no'
         expect(subject[:q3]).to eq 'yes'
+      end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [:to_h] }
+    end
+  end
+
+  context 'define option' do
+    class TestTableSchema17
+      include TableStructure::Schema
+
+      column  name: 'ID',
+              key: :id,
+              value: ->(row, *) { row[:id] }
+
+      column  name: 'Name',
+              key: :name,
+              value: ->(row, *) { row[:name] }
+
+      option :result_type, :hash
+    end
+
+    let(:schema) { TestTableSchema17.new }
+
+    describe '#header' do
+      subject { schema.header }
+
+      it 'returns header columns' do
+        expect(subject[:id]).to eq 'ID'
+        expect(subject[:name]).to eq 'Name'
+      end
+    end
+
+    describe '#row' do
+      subject { schema.row(context: item) }
+
+      let(:item) do
+        { id: 1, name: 'Taro' }
+      end
+
+      it 'returns row columns' do
+        expect(subject[:id]).to eq 1
+        expect(subject[:name]).to eq 'Taro'
+      end
+    end
+
+    describe '#column_converters' do
+      subject { schema.column_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#result_builders' do
+      subject { schema.result_builders.keys }
+      it { is_expected.to eq [:to_h] }
+    end
+
+    context 'overwrite by argument' do
+      let(:schema) { TestTableSchema17.new(result_type: :array) }
+
+      describe '#header' do
+        subject { schema.header }
+
+        it 'returns header columns' do
+          expect(subject.shift).to eq 'ID'
+          expect(subject.shift).to eq 'Name'
+          expect(subject.shift).to be_nil
+        end
+      end
+
+      describe '#row' do
+        subject { schema.row(context: item) }
+
+        let(:item) do
+          { id: 1, name: 'Taro' }
+        end
+
+        it 'returns row columns' do
+          expect(subject.shift).to eq 1
+          expect(subject.shift).to eq 'Taro'
+          expect(subject.shift).to be_nil
+        end
+      end
+
+      describe '#column_converters' do
+        subject { schema.column_converters.keys }
+        it { is_expected.to eq [] }
+      end
+
+      describe '#result_builders' do
+        subject { schema.result_builders.keys }
+        it { is_expected.to eq [] }
       end
     end
   end
