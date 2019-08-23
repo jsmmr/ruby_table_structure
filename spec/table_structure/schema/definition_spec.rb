@@ -42,12 +42,12 @@ RSpec.describe TableStructure::Schema::Definition do
     let(:definitions) do
       [
         {
-        name: 'Name',
-        key: :name,
-        value: 'Taro',
-        size: 1
-      }
-    ]
+          name: 'Name',
+          key: :name,
+          value: 'Taro',
+          size: 1
+        }
+      ]
     end
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
