@@ -9,6 +9,7 @@ module TableStructure
   require 'table_structure/schema/dsl/column_converter'
   require 'table_structure/schema/dsl/column_definition'
   require 'table_structure/schema/dsl/context_builder'
+  require 'table_structure/schema/dsl/option'
   require 'table_structure/schema/dsl/result_builder'
   require 'table_structure/schema/definition'
   require 'table_structure/schema/definition/error'

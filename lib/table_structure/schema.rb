@@ -6,6 +6,7 @@ module TableStructure
       klass.extend(DSL::ColumnConverter)
       klass.extend(DSL::ColumnDefinition)
       klass.extend(DSL::ContextBuilder)
+      klass.extend(DSL::Option)
       klass.extend(DSL::ResultBuilder)
     end
 
@@ -14,6 +15,7 @@ module TableStructure
       column_converters = self.class.column_converters
       result_builders = self.class.result_builders
       context = self.class.context_builders[:table].call(context)
+      options = self.class.options.merge(options)
       @table_structure_schema_table_ =
         Table.new(
           column_definitions,
