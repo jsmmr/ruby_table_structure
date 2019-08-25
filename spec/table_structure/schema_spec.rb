@@ -664,4 +664,406 @@ RSpec.describe TableStructure::Schema do
       end
     end
   end
+
+  context 'nest schema' do
+    context 'as instance' do
+      class NestedTestTableSchema19
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                key: :id,
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                key: :name,
+                value: ->(row, *) { row[:name] }
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
+                value: ->(row, *) { row[:pets] }
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              key: question[:id].downcase.to_sym,
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+
+        column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
+      end
+
+      class TestTableSchema19
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                key: :id,
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                key: :name,
+                value: ->(row, *) { row[:name] }
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
+                value: ->(row, *) { row[:pets] }
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              key: question[:id].downcase.to_sym,
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+
+        columns lambda { |table|
+          NestedTestTableSchema19.new(context: table, key_prefix: 'nested_')
+        }
+
+        column_converter :to_s, ->(val, *) { val.to_s }
+      end
+
+      let(:schema) do
+        TestTableSchema19.new(
+          context: {
+            questions: [
+              { id: 'Q1', text: 'Do you like sushi?' },
+              { id: 'Q2', text: 'Do you like yakiniku?' },
+              { id: 'Q3', text: 'Do you like ramen?' }
+            ]
+          },
+          result_type: result_type
+        )
+      end
+
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
+
+      context 'result_type: :array' do
+        let(:result_type) { :array }
+
+        describe '#header' do
+          subject { schema.header }
+
+          it 'returns header columns' do
+            expect(subject.shift).to eq 'ID'
+            expect(subject.shift).to eq 'Name'
+            expect(subject.shift).to eq 'Pet 1'
+            expect(subject.shift).to eq 'Pet 2'
+            expect(subject.shift).to eq 'Pet 3'
+            expect(subject.shift).to eq 'Q1'
+            expect(subject.shift).to eq 'Q2'
+            expect(subject.shift).to eq 'Q3'
+            expect(subject.shift).to eq 'ID'
+            expect(subject.shift).to eq 'Name'
+            expect(subject.shift).to eq 'Pet 1'
+            expect(subject.shift).to eq 'Pet 2'
+            expect(subject.shift).to eq 'Pet 3'
+            expect(subject.shift).to eq 'Q1'
+            expect(subject.shift).to eq 'Q2'
+            expect(subject.shift).to eq 'Q3'
+            expect(subject.shift).to be_nil
+          end
+        end
+
+        describe '#row' do
+          subject { schema.row(context: item) }
+
+          it 'returns row columns' do
+            expect(subject.shift).to eq '1'
+            expect(subject.shift).to eq 'Taro'
+            expect(subject.shift).to eq 'cat'
+            expect(subject.shift).to eq 'dog'
+            expect(subject.shift).to eq ''
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to eq 'no'
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to eq '1'
+            expect(subject.shift).to eq 'Taro'
+            expect(subject.shift).to eq 'cat'
+            expect(subject.shift).to eq 'dog'
+            expect(subject.shift).to eq '-'
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to eq 'no'
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to be_nil
+          end
+        end
+
+        describe '#column_converters' do
+          subject { schema.column_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#result_builders' do
+          subject { schema.result_builders.keys }
+          it { is_expected.to eq [] }
+        end
+      end
+
+      context 'result_type: :hash' do
+        let(:result_type) { :hash }
+
+        describe '#header' do
+          subject { schema.header }
+
+          it 'returns header columns' do
+            expect(subject[:id]).to eq 'ID'
+            expect(subject[:name]).to eq 'Name'
+            expect(subject[:pet1]).to eq 'Pet 1'
+            expect(subject[:pet2]).to eq 'Pet 2'
+            expect(subject[:pet3]).to eq 'Pet 3'
+            expect(subject[:q1]).to eq 'Q1'
+            expect(subject[:q2]).to eq 'Q2'
+            expect(subject[:q3]).to eq 'Q3'
+            expect(subject[:nested_id]).to eq 'ID'
+            expect(subject[:nested_name]).to eq 'Name'
+            expect(subject[:nested_pet1]).to eq 'Pet 1'
+            expect(subject[:nested_pet2]).to eq 'Pet 2'
+            expect(subject[:nested_pet3]).to eq 'Pet 3'
+            expect(subject[:nested_q1]).to eq 'Q1'
+            expect(subject[:nested_q2]).to eq 'Q2'
+            expect(subject[:nested_q3]).to eq 'Q3'
+          end
+        end
+
+        describe '#row' do
+          subject { schema.row(context: item) }
+
+          it 'returns row columns' do
+            expect(subject[:id]).to eq '1'
+            expect(subject[:name]).to eq 'Taro'
+            expect(subject[:pet1]).to eq 'cat'
+            expect(subject[:pet2]).to eq 'dog'
+            expect(subject[:pet3]).to eq ''
+            expect(subject[:q1]).to eq 'yes'
+            expect(subject[:q2]).to eq 'no'
+            expect(subject[:q3]).to eq 'yes'
+            expect(subject[:nested_id]).to eq '1'
+            expect(subject[:nested_name]).to eq 'Taro'
+            expect(subject[:nested_pet1]).to eq 'cat'
+            expect(subject[:nested_pet2]).to eq 'dog'
+            expect(subject[:nested_pet3]).to eq '-'
+            expect(subject[:nested_q1]).to eq 'yes'
+            expect(subject[:nested_q2]).to eq 'no'
+            expect(subject[:nested_q3]).to eq 'yes'
+          end
+        end
+
+        describe '#column_converters' do
+          subject { schema.column_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#result_builders' do
+          subject { schema.result_builders.keys }
+          it { is_expected.to eq [:to_h] }
+        end
+      end
+    end
+
+    xcontext 'as class' do
+      class NestedTestTableSchema1A
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                key: :nested_id,
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                key: :nested_name,
+                value: ->(row, *) { row[:name] }
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[nested_pet1 nested_pet2 nested_pet3],
+                value: ->(row, *) { row[:pets] }
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              key: "nested_#{question[:id]}".downcase.to_sym,
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+
+        column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
+      end
+
+      class TestTableSchema1A
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                key: :id,
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                key: :name,
+                value: ->(row, *) { row[:name] }
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
+                value: ->(row, *) { row[:pets] }
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              key: question[:id].downcase.to_sym,
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+
+        columns NestedTestTableSchema1A
+
+        column_converter :to_s, ->(val, *) { val.to_s }
+      end
+
+      let(:schema) do
+        TestTableSchema1A.new(
+          context: {
+            questions: [
+              { id: 'Q1', text: 'Do you like sushi?' },
+              { id: 'Q2', text: 'Do you like yakiniku?' },
+              { id: 'Q3', text: 'Do you like ramen?' }
+            ]
+          },
+          result_type: result_type
+        )
+      end
+
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
+
+      context 'result_type: :array' do
+        let(:result_type) { :array }
+
+        describe '#header' do
+          subject { schema.header }
+
+          it 'returns header columns' do
+            expect(subject.shift).to eq 'ID'
+            expect(subject.shift).to eq 'Name'
+            expect(subject.shift).to eq 'Pet 1'
+            expect(subject.shift).to eq 'Pet 2'
+            expect(subject.shift).to eq 'Pet 3'
+            expect(subject.shift).to eq 'Q1'
+            expect(subject.shift).to eq 'Q2'
+            expect(subject.shift).to eq 'Q3'
+            expect(subject.shift).to eq 'ID'
+            expect(subject.shift).to eq 'Name'
+            expect(subject.shift).to eq 'Pet 1'
+            expect(subject.shift).to eq 'Pet 2'
+            expect(subject.shift).to eq 'Pet 3'
+            expect(subject.shift).to eq 'Q1'
+            expect(subject.shift).to eq 'Q2'
+            expect(subject.shift).to eq 'Q3'
+            expect(subject.shift).to be_nil
+          end
+        end
+
+        describe '#row' do
+          subject { schema.row(context: item) }
+
+          it 'returns row columns' do
+            expect(subject.shift).to eq '1'
+            expect(subject.shift).to eq 'Taro'
+            expect(subject.shift).to eq 'cat'
+            expect(subject.shift).to eq 'dog'
+            expect(subject.shift).to eq ''
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to eq 'no'
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to eq '1'
+            expect(subject.shift).to eq 'Taro'
+            expect(subject.shift).to eq 'cat'
+            expect(subject.shift).to eq 'dog'
+            expect(subject.shift).to eq '-'
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to eq 'no'
+            expect(subject.shift).to eq 'yes'
+            expect(subject.shift).to be_nil
+          end
+        end
+
+        describe '#column_converters' do
+          subject { schema.column_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#result_builders' do
+          subject { schema.result_builders.keys }
+          it { is_expected.to eq [] }
+        end
+      end
+
+      context 'result_type: :hash' do
+        let(:result_type) { :hash }
+
+        describe '#header' do
+          subject { schema.header }
+
+          it 'returns header columns' do
+            expect(subject[:id]).to eq 'ID'
+            expect(subject[:name]).to eq 'Name'
+            expect(subject[:pet1]).to eq 'Pet 1'
+            expect(subject[:pet2]).to eq 'Pet 2'
+            expect(subject[:pet3]).to eq 'Pet 3'
+            expect(subject[:q1]).to eq 'Q1'
+            expect(subject[:q2]).to eq 'Q2'
+            expect(subject[:q3]).to eq 'Q3'
+            expect(subject[:nested_id]).to eq 'ID'
+            expect(subject[:nested_name]).to eq 'Name'
+            expect(subject[:nested_pet1]).to eq 'Pet 1'
+            expect(subject[:nested_pet2]).to eq 'Pet 2'
+            expect(subject[:nested_pet3]).to eq 'Pet 3'
+            expect(subject[:nested_q1]).to eq 'Q1'
+            expect(subject[:nested_q2]).to eq 'Q2'
+            expect(subject[:nested_q3]).to eq 'Q3'
+          end
+        end
+
+        describe '#row' do
+          subject { schema.row(context: item) }
+
+          it 'returns row columns' do
+            expect(subject[:id]).to eq '1'
+            expect(subject[:name]).to eq 'Taro'
+            expect(subject[:pet1]).to eq 'cat'
+            expect(subject[:pet2]).to eq 'dog'
+            expect(subject[:pet3]).to eq ''
+            expect(subject[:q1]).to eq 'yes'
+            expect(subject[:q2]).to eq 'no'
+            expect(subject[:q3]).to eq 'yes'
+            expect(subject[:nested_id]).to eq '1'
+            expect(subject[:nested_name]).to eq 'Taro'
+            expect(subject[:nested_pet1]).to eq 'cat'
+            expect(subject[:nested_pet2]).to eq 'dog'
+            expect(subject[:nested_pet3]).to eq '-'
+            expect(subject[:nested_q1]).to eq 'yes'
+            expect(subject[:nested_q2]).to eq 'no'
+            expect(subject[:nested_q3]).to eq 'yes'
+          end
+        end
+
+        describe '#column_converters' do
+          subject { schema.column_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#result_builders' do
+          subject { schema.result_builders.keys }
+          it { is_expected.to eq [:to_h] }
+        end
+      end
+    end
+  end
 end

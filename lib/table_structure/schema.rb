@@ -10,7 +10,9 @@ module TableStructure
       klass.extend(DSL::ResultBuilder)
     end
 
-    DEFAULT_OPTIONS = { result_type: :array }.freeze
+    DEFAULT_OPTIONS = {
+      result_type: :array
+    }.freeze
 
     def initialize(context: nil, **options)
       column_definitions = self.class.column_definitions

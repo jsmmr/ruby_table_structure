@@ -26,18 +26,24 @@ module TableStructure
 
             [definition]
               .flatten
-              .map { |definition| DEFAULT_ATTRS.merge(definition) }
-              .reject do |definition|
-                omitted = definition.delete(:omitted)
-                Utils.evaluate_callable(omitted, context)
-              end
               .map do |definition|
-                validator.validate(definition)
-                definition[:size] = determine_size(definition)
-                definition
+                if definition.is_a?(Hash)
+                  definition = DEFAULT_ATTRS.merge(definition)
+                  omitted = definition.delete(:omitted)
+                  next if Utils.evaluate_callable(omitted, context)
+                  validator.validate(definition)
+                  definition[:size] = determine_size(definition)
+                  definition
+                elsif Utils.schema_instance?(definition)
+                  definition
+                # elsif Utils.schema_class?(definition)
+                #   # TODO: This doesn't work as expected when result_type: :hash is specified.
+                #   definition.new(context: context, **@options)
+                end
               end
           end
           .flatten
+          .compact
       end
 
       private

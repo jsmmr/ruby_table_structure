@@ -233,5 +233,58 @@ RSpec.describe TableStructure::Schema::Definition do
         end
       end
     end
+
+    context 'when schema is nested' do
+      class TestTableSchema41
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                value: ->(row, *) { row[:name] }
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                value: ->(row, *) { row[:pets] }
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+      end
+
+      let(:context) do
+        {
+          questions: [
+            { id: 'Q1', text: 'Do you like sushi?' },
+            { id: 'Q2', text: 'Do you like yakiniku?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
+          ]
+        }
+      end
+
+      subject { described_class.new(definitions, options).compile(context) }
+
+      xcontext 'that is class' do
+        let(:definitions) { [ TestTableSchema41 ] }
+
+        it 'compiles definitions' do
+          expect(subject.size).to eq 1
+          expect(subject[0]).to be_a TestTableSchema41
+        end
+      end
+
+      context 'that is instance' do
+        let(:definitions) { [ TestTableSchema41.new(context: context) ] }
+
+        it 'compiles definitions' do
+          expect(subject[0]).to be_a TestTableSchema41
+        end
+      end
+    end
   end
 end

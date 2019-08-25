@@ -26,7 +26,7 @@ module TableStructure
         Definition
           .new(definitions, options)
           .compile(context)
-          .map { |attrs| Column.new(attrs) }
+          .map { |definition| Column.create(definition, options) }
       end
 
       def default_column_converters
