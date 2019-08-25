@@ -24,6 +24,9 @@ module TableStructure
           if @options[:result_type] == :hash && !key
             raise Error.new('"key" must be defined when "result_type: :hash" is specified.', @index)
           end
+          if key && size && [key].flatten.size < size
+            raise Error.new('"key" size must be greater than or equal to specified "size".', @index)
+          end
 
           true
         end

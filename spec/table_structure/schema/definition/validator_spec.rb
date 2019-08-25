@@ -83,4 +83,24 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       end
     end
   end
+
+  context 'When both key and size are specified and key\'s size is not enough' do
+    let(:attrs) do
+      {
+        name: 'Name',
+        key: :name,
+        value: nil,
+        size: 2
+      }
+    end
+
+    let(:options) { {} }
+
+    describe '.new' do
+      it 'raises error' do
+        expect { validator.validate(attrs) }
+          .to raise_error '"key" size must be greater than or equal to specified "size". [defined position of column(s): 1]'
+      end
+    end
+  end
 end

@@ -482,43 +482,6 @@ RSpec.describe TableStructure::Schema::Column do
     end
   end
 
-  context 'pattern 14' do
-    let(:attrs) do
-      {
-        name: ['First name', 'Last name'],
-        key: [:name],
-        value: %w[Taro Momo],
-        size: 2
-      }
-    end
-
-    let(:column) { described_class.new(attrs) }
-
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
-
-      let(:header_context) { nil }
-      let(:table_context) { nil }
-
-      it { is_expected.to eq ['First name', 'Last name'] }
-    end
-
-    describe '#key' do
-      subject { column.key }
-
-      it { is_expected.to eq [:name, nil] }
-    end
-
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
-
-      let(:row_context) { nil }
-      let(:table_context) { nil }
-
-      it { is_expected.to eq %w[Taro Momo] }
-    end
-  end
-
   context 'pattern 15' do
     let(:attrs) do
       {
