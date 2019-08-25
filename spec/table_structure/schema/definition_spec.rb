@@ -12,7 +12,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 1 }
     end
@@ -52,7 +52,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 1 }
     end
@@ -89,7 +89,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 1 }
     end
@@ -126,7 +126,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 1 }
     end
@@ -164,7 +164,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 1 }
     end
@@ -202,7 +202,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 1 }
     end
@@ -225,45 +225,6 @@ RSpec.describe TableStructure::Schema::Definition do
     describe '#size' do
       subject { compiled_definitions[0][:size] }
       it { is_expected.to eq 3 }
-    end
-  end
-
-  context 'pattern 7' do
-    let(:definitions) do
-      [
-        {
-          name: ['Pet 1', 'Pet 2'],
-          key: %i[pet1 pet2 pet3],
-          size: 4
-        }
-      ]
-    end
-
-    let(:compiled_definitions) { described_class.new(definitions, options).compile }
-
-    describe '#size' do
-      subject { compiled_definitions.size }
-      it { is_expected.to eq 1 }
-    end
-
-    describe '#name' do
-      subject { compiled_definitions[0][:name] }
-      it { is_expected.to eq ['Pet 1', 'Pet 2'] }
-    end
-
-    describe '#key' do
-      subject { compiled_definitions[0][:key] }
-      it { is_expected.to eq %i[pet1 pet2 pet3] }
-    end
-
-    describe '#value' do
-      subject { compiled_definitions[0][:value] }
-      it { is_expected.to be_nil }
-    end
-
-    describe '#size' do
-      subject { compiled_definitions[0][:size] }
-      it { is_expected.to eq 4 }
     end
   end
 
@@ -295,7 +256,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:compiled_definitions) { described_class.new(definitions, options).compile }
 
-    describe '#size' do
+    describe 'compiled definitions size' do
       subject { compiled_definitions.size }
       it { is_expected.to eq 6 }
     end
