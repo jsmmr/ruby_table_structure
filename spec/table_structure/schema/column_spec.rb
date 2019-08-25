@@ -338,9 +338,9 @@ RSpec.describe TableStructure::Schema::Column do
     let(:attrs) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        key: nil,
+        key: %i[pet1 pet2 pet3],
         value: %w[tiger elephant doragon],
-        size: 3
+        size: 1
       }
     end
 
@@ -352,13 +352,13 @@ RSpec.describe TableStructure::Schema::Column do
       let(:header_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
+      it { is_expected.to eq ['Pet 1'] }
     end
 
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to eq [nil, nil, nil] }
+      it { is_expected.to eq %i[pet1] }
     end
 
     describe '#value' do
@@ -367,7 +367,7 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq %w[tiger elephant doragon] }
+      it { is_expected.to eq %w[tiger] }
     end
   end
 

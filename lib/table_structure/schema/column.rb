@@ -29,7 +29,7 @@ module TableStructure
       private
 
       def optimize_size(value)
-        return value if @size == 1
+        return value if @size == 1 && !value.is_a?(Array)
 
         values = [value].flatten
         actual_size = values.size
