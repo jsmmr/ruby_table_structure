@@ -39,7 +39,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"size" must be specified, because column size cannot be determined. [defined position of column(s): 1]'
+          .to raise_error '"size" must be defined, because column size cannot be determined. [defined position of column(s): 1]'
       end
     end
   end
@@ -79,7 +79,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"key" must be specified when "result_type: :hash" is specified. [defined position of column(s): 1]'
+          .to raise_error '"key" must be defined when "result_type: :hash" is specified. [defined position of column(s): 1]'
       end
     end
   end
