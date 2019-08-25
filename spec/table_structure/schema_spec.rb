@@ -568,4 +568,100 @@ RSpec.describe TableStructure::Schema do
       end
     end
   end
+
+  context 'define column with :omitted' do
+    class TestTableSchema18
+      include TableStructure::Schema
+
+      column  name: 'ID',
+              value: ->(row, *) { row[:id] }
+
+      column  name: 'Name',
+              value: ->(row, *) { row[:name] }
+
+      column  name: 'Secret',
+              value: '**********',
+              omitted: ->(table) { !table[:admin] }
+    end
+
+    let(:schema) { TestTableSchema18.new(context: context) }
+
+    context 'as true' do
+      let(:context) { { admin: false } }
+
+      describe '#header' do
+        subject { schema.header }
+
+        it 'returns header columns' do
+          expect(subject.shift).to eq 'ID'
+          expect(subject.shift).to eq 'Name'
+          expect(subject.shift).to be_nil
+        end
+      end
+
+      describe '#row' do
+        subject { schema.row(context: item) }
+
+        let(:item) do
+          { id: 1, name: 'Taro' }
+        end
+
+        it 'returns row columns' do
+          expect(subject.shift).to eq 1
+          expect(subject.shift).to eq 'Taro'
+          expect(subject.shift).to be_nil
+        end
+      end
+
+      describe '#column_converters' do
+        subject { schema.column_converters.keys }
+        it { is_expected.to eq [] }
+      end
+
+      describe '#result_builders' do
+        subject { schema.result_builders.keys }
+        it { is_expected.to eq [] }
+      end
+    end
+
+    context 'as false' do
+      let(:context) { { admin: true } }
+
+      describe '#header' do
+        subject { schema.header }
+
+        it 'returns header columns' do
+          expect(subject.shift).to eq 'ID'
+          expect(subject.shift).to eq 'Name'
+          expect(subject.shift).to eq 'Secret'
+          expect(subject.shift).to be_nil
+        end
+      end
+
+      describe '#row' do
+        subject { schema.row(context: item) }
+
+        let(:item) do
+          { id: 1, name: 'Taro' }
+        end
+
+        it 'returns row columns' do
+          expect(subject.shift).to eq 1
+          expect(subject.shift).to eq 'Taro'
+          expect(subject.shift).to eq '**********'
+          expect(subject.shift).to be_nil
+        end
+      end
+
+      describe '#column_converters' do
+        subject { schema.column_converters.keys }
+        it { is_expected.to eq [] }
+      end
+
+      describe '#result_builders' do
+        subject { schema.result_builders.keys }
+        it { is_expected.to eq [] }
+      end
+    end
+  end
 end

@@ -7,7 +7,8 @@ module TableStructure
         name: nil,
         key: nil,
         value: nil,
-        size: nil
+        size: nil,
+        omitted: false
       }.freeze
 
       DEFAULT_SIZE = 1
@@ -25,8 +26,12 @@ module TableStructure
 
             [definition]
               .flatten
+              .map { |definition| DEFAULT_ATTRS.merge(definition) }
+              .reject do |definition|
+                omitted = definition.delete(:omitted)
+                Utils.evaluate_callable(omitted, context)
+              end
               .map do |definition|
-                definition = DEFAULT_ATTRS.merge(definition)
                 validator.validate(definition)
                 definition[:size] = determine_size(definition)
                 definition

@@ -159,5 +159,79 @@ RSpec.describe TableStructure::Schema::Definition do
         expect(subject.size).to eq 6
       end
     end
+
+    context 'when "omitted" is defined' do
+      let(:definitions) do
+        [
+          {
+            name: 'ID',
+            value: 1,
+            omitted: omitted
+          },
+          {
+            name: 'Name',
+            value: 'Taro'
+          }
+        ]
+      end
+
+      context 'by other than lambda' do
+        subject { described_class.new(definitions, options).compile }
+
+        context 'as true' do
+          let(:omitted) { true }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 1
+            expect(subject[0][:name]).to eq 'Name'
+            expect(subject[0][:key]).to be_nil
+            expect(subject[0][:value]).to eq 'Taro'
+            expect(subject[0][:size]).to eq 1
+          end
+        end
+
+        context 'as false' do
+          let(:omitted) { false }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 2
+            expect(subject[0][:name]).to eq 'ID'
+            expect(subject[0][:key]).to be_nil
+            expect(subject[0][:value]).to eq 1
+            expect(subject[0][:size]).to eq 1
+          end
+        end
+      end
+
+      context 'by lambda' do
+        subject { described_class.new(definitions, options).compile(context) }
+
+        context 'as true' do
+          let(:omitted) { ->(table) { !table[:admin] } }
+          let(:context) { { admin: false } }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 1
+            expect(subject[0][:name]).to eq 'Name'
+            expect(subject[0][:key]).to be_nil
+            expect(subject[0][:value]).to eq 'Taro'
+            expect(subject[0][:size]).to eq 1
+          end
+        end
+
+        context 'as false' do
+          let(:omitted) { ->(table) { !table[:admin] } }
+          let(:context) { { admin: true } }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 2
+            expect(subject[0][:name]).to eq 'ID'
+            expect(subject[0][:key]).to be_nil
+            expect(subject[0][:value]).to eq 1
+            expect(subject[0][:size]).to eq 1
+          end
+        end
+      end
+    end
   end
 end
