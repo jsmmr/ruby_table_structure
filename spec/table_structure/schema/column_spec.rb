@@ -338,9 +338,9 @@ RSpec.describe TableStructure::Schema::Column do
     let(:attrs) do
       {
         name: ['Pet 1', 'Pet 2', 'Pet 3'],
-        key: nil,
+        key: %i[pet1 pet2 pet3],
         value: %w[tiger elephant doragon],
-        size: 3
+        size: 1
       }
     end
 
@@ -352,13 +352,13 @@ RSpec.describe TableStructure::Schema::Column do
       let(:header_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
+      it { is_expected.to eq ['Pet 1'] }
     end
 
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to eq [nil, nil, nil] }
+      it { is_expected.to eq %i[pet1] }
     end
 
     describe '#value' do
@@ -367,7 +367,7 @@ RSpec.describe TableStructure::Schema::Column do
       let(:row_context) { nil }
       let(:table_context) { nil }
 
-      it { is_expected.to eq %w[tiger elephant doragon] }
+      it { is_expected.to eq %w[tiger] }
     end
   end
 
@@ -470,43 +470,6 @@ RSpec.describe TableStructure::Schema::Column do
       subject { column.key }
 
       it { is_expected.to eq %i[first_name last_name] }
-    end
-
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
-
-      let(:row_context) { nil }
-      let(:table_context) { nil }
-
-      it { is_expected.to eq %w[Taro Momo] }
-    end
-  end
-
-  context 'pattern 14' do
-    let(:attrs) do
-      {
-        name: ['First name', 'Last name'],
-        key: [:name],
-        value: %w[Taro Momo],
-        size: 2
-      }
-    end
-
-    let(:column) { described_class.new(attrs) }
-
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
-
-      let(:header_context) { nil }
-      let(:table_context) { nil }
-
-      it { is_expected.to eq ['First name', 'Last name'] }
-    end
-
-    describe '#key' do
-      subject { column.key }
-
-      it { is_expected.to eq [:name, nil] }
     end
 
     describe '#value' do
