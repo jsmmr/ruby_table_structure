@@ -7,7 +7,8 @@ module TableStructure
         name: nil,
         key: nil,
         value: nil,
-        size: nil
+        size: nil,
+        omitted: false
       }.freeze
 
       DEFAULT_SIZE = 1
@@ -26,13 +27,24 @@ module TableStructure
             [definition]
               .flatten
               .map do |definition|
-                definition = DEFAULT_ATTRS.merge(definition)
-                validator.validate(definition)
-                definition[:size] = determine_size(definition)
-                definition
+                if definition.is_a?(Hash)
+                  definition = DEFAULT_ATTRS.merge(definition)
+                  omitted = definition.delete(:omitted)
+                  next if Utils.evaluate_callable(omitted, context)
+
+                  validator.validate(definition)
+                  definition[:size] = determine_size(definition)
+                  definition
+                elsif Utils.schema_instance?(definition)
+                  definition
+                # elsif Utils.schema_class?(definition)
+                #   # TODO: This doesn't work as expected when result_type: :hash is specified.
+                #   definition.new(context: context, **@options)
+                end
               end
           end
           .flatten
+          .compact
       end
 
       private

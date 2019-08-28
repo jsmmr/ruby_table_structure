@@ -10,7 +10,11 @@ module TableStructure
       klass.extend(DSL::ResultBuilder)
     end
 
-    DEFAULT_OPTIONS = { result_type: :array }.freeze
+    DEFAULT_OPTIONS = {
+      result_type: :array,
+      key_prefix: nil,
+      key_suffix: nil
+    }.freeze
 
     def initialize(context: nil, **options)
       column_definitions = self.class.column_definitions
@@ -30,12 +34,12 @@ module TableStructure
 
     def header(context: nil)
       context = self.class.context_builders[:header].call(context)
-      @table_structure_schema_table_.header(context)
+      @table_structure_schema_table_.header_values(context)
     end
 
     def row(context: nil)
       context = self.class.context_builders[:row].call(context)
-      @table_structure_schema_table_.row(context)
+      @table_structure_schema_table_.row_values(context)
     end
 
     def column_converters

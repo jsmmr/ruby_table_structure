@@ -10,14 +10,19 @@ module TableStructure
         @column_converters = default_column_converters.merge(column_converters)
         @result_builders = default_result_builders(options).merge(result_builders)
         @context = context
+        @options = options
       end
 
-      def header(context)
+      def header_values(context)
         values(:name, context)
       end
 
-      def row(context)
+      def row_values(context)
         values(:value, context)
+      end
+
+      def keys
+        @columns.map(&:key).flatten
       end
 
       private
@@ -26,7 +31,7 @@ module TableStructure
         Definition
           .new(definitions, options)
           .compile(context)
-          .map { |attrs| Column.new(attrs) }
+          .map { |definition| Column.create(definition, options) }
       end
 
       def default_column_converters
@@ -39,10 +44,6 @@ module TableStructure
           result_builders[:to_h] = ->(array, *) { (@keys ||= keys).zip(array).to_h }
         end
         result_builders
-      end
-
-      def keys
-        @columns.map(&:key).flatten
       end
 
       def values(method, context)
