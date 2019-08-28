@@ -11,7 +11,9 @@ module TableStructure
     end
 
     DEFAULT_OPTIONS = {
-      result_type: :array
+      result_type: :array,
+      key_prefix: nil,
+      key_suffix: nil
     }.freeze
 
     def initialize(context: nil, **options)

@@ -160,7 +160,6 @@ RSpec.describe TableStructure::Schema::Table do
         ]
       }
     end
-    let(:options) { {} }
 
     let(:header_context) { nil }
     let(:row_context) { nil }
@@ -168,7 +167,28 @@ RSpec.describe TableStructure::Schema::Table do
     subject { table.keys }
 
     # Nested schema does not have defined key
-    it { is_expected.to eq [ 'id', 1, :pet1, :pet2, :pet3, 'q1', 'q2', 'q3', nil, nil, nil, nil, nil, nil, nil, nil ] }
+    context 'when option is not specified' do
+      let(:options) { {} }
+      it { is_expected.to eq [ 'id', 1, :pet1, :pet2, :pet3, 'q1', 'q2', 'q3', nil, nil, nil, nil, nil, nil, nil, nil ] }
+    end
+
+    context 'when :key_prefix option is specified' do
+      let(:options) { { key_prefix: 'p_' } }
+
+      it { is_expected.to eq [ 'p_id', 'p_1', :p_pet1, :p_pet2, :p_pet3, 'p_q1', 'p_q2', 'p_q3', nil, nil, nil, nil, nil, nil, nil, nil ] }
+    end
+
+    context 'when :key_suffix option is specified' do
+      let(:options) { { key_suffix: :_s } }
+
+      it { is_expected.to eq [ 'id_s', '1_s', :pet1_s, :pet2_s, :pet3_s, 'q1_s', 'q2_s', 'q3_s', nil, nil, nil, nil, nil, nil, nil, nil ] }
+    end
+
+    context 'when both :key_prefix and :key_suffix options are specified' do
+      let(:options) { { key_prefix: :p_, key_suffix: '_s' } }
+
+      it { is_expected.to eq [ 'p_id_s', 'p_1_s', :p_pet1_s, :p_pet2_s, :p_pet3_s, 'p_q1_s', 'p_q2_s', 'p_q3_s', nil, nil, nil, nil, nil, nil, nil, nil ] }
+    end
   end
 
   describe '#columns' do

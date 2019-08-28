@@ -18,7 +18,8 @@ module TableStructure
         end
 
         def key
-          optimize_size(@key)
+          key = optimize_size(@key)
+          decorate_key(key)
         end
 
         def value(row_context, table_context)
@@ -40,6 +41,16 @@ module TableStructure
             [].concat(values).fill(nil, actual_size, (expected_size - actual_size))
           else
             values
+          end
+        end
+
+        def decorate_key(key)
+          return key unless @options[:key_prefix] || @options[:key_suffix]
+          [key].flatten.map do |key|
+            next key unless key
+            decorated_key = "#{@options[:key_prefix]}#{key}#{@options[:key_suffix]}"
+            decorated_key = decorated_key.to_sym if key.is_a?(Symbol)
+            decorated_key
           end
         end
       end
