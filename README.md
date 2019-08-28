@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/jsmmr/ruby_table_structure.svg?branch=master)](https://travis-ci.org/jsmmr/ruby_table_structure)
 
 `TableStructure` has two major functions.
-The functions are `TableStructure::Schema` that defines the schema of a table using DSL and ` TableStructure::Writer` that converts and outputs data with that schema.
+The functions are `TableStructure::Schema` that defines the schema of a table using DSL and ` TableStructure::Writer` that converts and outputs data with the schema.
 
 ## Installation
 
@@ -132,6 +132,10 @@ class SampleTableSchema
     end
   }
 
+  ## When nesting schemas, same key must not exist in parent and child schemas.
+  ## This can also be avoided by specifying :key_prefix or :key_suffix option.
+  # columns ->(table) { NestedSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
+
   column_converter :to_s, ->(val, *) { val.to_s }
 end
 
@@ -180,6 +184,76 @@ enum.lazy.select { |item| item[:q1] == '⭕️' }.take(1).force
 
 ### Advanced
 
+You can also omit columns by defining `:omitted`.
+```ruby
+class SampleTableSchema
+  include TableStructure::Schema
+
+  column  name: 'ID',
+          value: ->(row, _table) { row[:id] }
+
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+
+  column  name: 'Secret',
+          value: ->(row, *) { row[:secret] },
+          omitted: ->(table) { !table[:admin] }
+end
+
+context = { admin: true }
+
+schema = SampleTableSchema.new(context: context)
+```
+
+You can also nest schemas.
+```ruby
+class PetsSchema
+  include TableStructure::Schema
+
+  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          value: ->(row, *) { row[:pets] }
+end
+
+class QuestionsSchema
+  include TableStructure::Schema
+
+  columns ->(table) {
+    table[:questions].map do |question|
+      {
+        name: question[:id],
+        value: ->(row, *) { row[:answers][question[:id]] }
+      }
+    end
+  }
+end
+
+class SampleTableSchema
+  include TableStructure::Schema
+
+  column  name: 'ID',
+          value: ->(row, _table) { row[:id] }
+
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+
+  columns ->(table) { PetsSchema.new(context: table) }
+
+  columns ->(table) { QuestionsSchema.new(context: table) }
+
+  column_converter :to_s, ->(val, *) { val.to_s }
+end
+
+context = {
+  questions: [
+    { id: 'Q1', text: 'Do you like sushi?' },
+    { id: 'Q2', text: 'Do you like yakiniku?' },
+    { id: 'Q3', text: 'Do you like ramen?' }
+  ]
+}
+
+schema = SampleTableSchema.new(context: context)
+```
+
 You can also use `context_builder`.
 This may be useful when `column` definition lambda is complicated.
 ```ruby
@@ -219,7 +293,7 @@ class SampleTableSchema
 end
 ```
 
-If you want to convert CSV character code, see the code below.
+If you want to convert CSV character code, you do so within block of `write` method.
 ```ruby
 File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f)) do |row_values|
