@@ -12,11 +12,11 @@ module TableStructure
         @context = context
       end
 
-      def header(context)
+      def header_values(context)
         values(:name, context)
       end
 
-      def row(context)
+      def row_values(context)
         values(:value, context)
       end
 

@@ -30,12 +30,12 @@ module TableStructure
 
     def header(context: nil)
       context = self.class.context_builders[:header].call(context)
-      @table_structure_schema_table_.header(context)
+      @table_structure_schema_table_.header_values(context)
     end
 
     def row(context: nil)
       context = self.class.context_builders[:row].call(context)
-      @table_structure_schema_table_.row(context)
+      @table_structure_schema_table_.row_values(context)
     end
 
     def column_converters
