@@ -16,6 +16,8 @@ module TableStructure
   require 'table_structure/schema/definition/validator'
   require 'table_structure/schema/table'
   require 'table_structure/schema/column'
+  require 'table_structure/schema/column/attrs'
+  require 'table_structure/schema/column/schema'
   require 'table_structure/schema/utils'
   require 'table_structure/writer'
   require 'table_structure/iterator'
