@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TableStructure
   module Schema
     module Column
@@ -46,8 +48,10 @@ module TableStructure
 
         def decorate_key(key)
           return key unless @options[:key_prefix] || @options[:key_suffix]
+
           [key].flatten.map do |key|
             next key unless key
+
             decorated_key = "#{@options[:key_prefix]}#{key}#{@options[:key_suffix]}"
             decorated_key = decorated_key.to_sym if key.is_a?(Symbol)
             decorated_key

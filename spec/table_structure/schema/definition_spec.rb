@@ -270,7 +270,7 @@ RSpec.describe TableStructure::Schema::Definition do
       subject { described_class.new(definitions, options).compile(context) }
 
       xcontext 'that is class' do
-        let(:definitions) { [ TestTableSchema41 ] }
+        let(:definitions) { [TestTableSchema41] }
 
         it 'compiles definitions' do
           expect(subject.size).to eq 1
@@ -279,7 +279,7 @@ RSpec.describe TableStructure::Schema::Definition do
       end
 
       context 'that is instance' do
-        let(:definitions) { [ TestTableSchema41.new(context: context) ] }
+        let(:definitions) { [TestTableSchema41.new(context: context)] }
 
         it 'compiles definitions' do
           expect(subject[0]).to be_a TestTableSchema41
