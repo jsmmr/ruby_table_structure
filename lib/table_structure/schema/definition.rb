@@ -37,9 +37,10 @@ module TableStructure
                   definition
                 elsif Utils.schema_instance?(definition)
                   definition
-                # elsif Utils.schema_class?(definition)
-                #   # TODO: This doesn't work as expected when result_type: :hash is specified.
-                #   definition.new(context: context, **@options)
+                elsif Utils.schema_class?(definition)
+                  definition.new(context: context)
+                else
+                  raise Error.new('Invalid definition.', i)
                 end
               end
           end

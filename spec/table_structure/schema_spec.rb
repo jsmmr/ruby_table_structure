@@ -477,7 +477,7 @@ RSpec.describe TableStructure::Schema do
 
     describe '#result_builders' do
       subject { schema.result_builders.keys }
-      it { is_expected.to eq [:to_h] }
+      it { is_expected.to eq [] }
     end
   end
 
@@ -527,7 +527,7 @@ RSpec.describe TableStructure::Schema do
 
     describe '#result_builders' do
       subject { schema.result_builders.keys }
-      it { is_expected.to eq [:to_h] }
+      it { is_expected.to eq [] }
     end
 
     context 'overwrite by argument' do
@@ -862,12 +862,12 @@ RSpec.describe TableStructure::Schema do
 
         describe '#result_builders' do
           subject { schema.result_builders.keys }
-          it { is_expected.to eq [:to_h] }
+          it { is_expected.to eq [] }
         end
       end
     end
 
-    xcontext 'as class' do
+    context 'as class' do
       class NestedTestTableSchema1A
         include TableStructure::Schema
 
@@ -1061,7 +1061,7 @@ RSpec.describe TableStructure::Schema do
 
         describe '#result_builders' do
           subject { schema.result_builders.keys }
-          it { is_expected.to eq [:to_h] }
+          it { is_expected.to eq [] }
         end
       end
     end
