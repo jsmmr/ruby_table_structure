@@ -867,7 +867,7 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    xcontext 'as class' do
+    context 'as class' do
       class NestedTestTableSchema1A
         include TableStructure::Schema
 

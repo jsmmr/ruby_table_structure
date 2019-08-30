@@ -269,7 +269,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
       subject { described_class.new(definitions, options).compile(context) }
 
-      xcontext 'that is class' do
+      context 'that is class' do
         let(:definitions) { [TestTableSchema41] }
 
         it 'compiles definitions' do
