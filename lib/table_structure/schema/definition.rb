@@ -39,6 +39,8 @@ module TableStructure
                   definition
                 elsif Utils.schema_class?(definition)
                   definition.new(context: context)
+                else
+                  raise Error.new('Invalid definition.', i)
                 end
               end
           end
