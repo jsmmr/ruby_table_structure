@@ -11,7 +11,7 @@ module TableStructure
     end
 
     DEFAULT_OPTIONS = {
-      result_type: :array,
+      result_type: :array, # deprecated: Change to pass as argument of method.
       key_prefix: nil,
       key_suffix: nil
     }.freeze
@@ -32,14 +32,18 @@ module TableStructure
         )
     end
 
-    def header(context: nil)
+    def header(context: nil, result_type: nil)
+      # TODO
+      result_type ||= @table_structure_schema_table_.options[:result_type]
       context = self.class.context_builders[:header].call(context)
-      @table_structure_schema_table_.header_values(context)
+      @table_structure_schema_table_.header_values(context, result_type)
     end
 
-    def row(context: nil)
+    def row(context: nil, result_type: nil)
+      # TODO
+      result_type ||= @table_structure_schema_table_.options[:result_type]
       context = self.class.context_builders[:row].call(context)
-      @table_structure_schema_table_.row_values(context)
+      @table_structure_schema_table_.row_values(context, result_type)
     end
 
     def column_converters
