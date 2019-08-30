@@ -3,26 +3,30 @@
 module TableStructure
   module Schema
     class Table
-      attr_reader :columns, :column_converters, :result_builders
+      RESULT_BUILDERS = {
+        hash: ->(values, keys, *) { keys.zip(values).to_h }
+      }.freeze
+
+      attr_reader :columns, :column_converters, :result_builders, :options
 
       def initialize(column_definitions, column_converters, result_builders, context, options)
         @columns = build_columns(column_definitions, context, options)
-        @column_converters = default_column_converters.merge(column_converters)
-        @result_builders = default_result_builders(options).merge(result_builders)
+        @column_converters = column_converters
+        @result_builders = result_builders
         @context = context
         @options = options
       end
 
-      def header_values(context)
-        values(:name, context)
+      def header_values(context, result_type = nil) # TODO
+        values(:name, result_type, context)
       end
 
-      def row_values(context)
-        values(:value, context)
+      def row_values(context, result_type = nil) # TODO
+        values(:value, result_type, context)
       end
 
       def keys
-        @columns.map(&:key).flatten
+        @keys ||= @columns.map(&:key).flatten
       end
 
       private
@@ -34,28 +38,23 @@ module TableStructure
           .map { |definition| Column.create(definition, options) }
       end
 
-      def default_column_converters
-        {}
-      end
+      def values(method, result_type, context)
+        columns =
+          @columns
+          .map { |column| column.send(method, context, @context) }
+          .flatten
+          .map do |val|
+            @column_converters.reduce(val) do |val, (_, column_converter)|
+              column_converter.call(val, context, @context)
+            end
+          end
 
-      def default_result_builders(options)
-        result_builders = {}
-        if options[:result_type] == :hash
-          result_builders[:to_h] = ->(array, *) { (@keys ||= keys).zip(array).to_h }
-        end
-        result_builders
-      end
-
-      def values(method, context)
-        columns = @columns
-                  .map { |column| column.send(method, context, @context) }
-                  .flatten
-                  .map { |val| reduce_callables(@column_converters, val, context) }
-        reduce_callables(@result_builders, columns, context)
-      end
-
-      def reduce_callables(callables, val, context)
-        callables.reduce(val) { |val, (_, callable)| callable.call(val, context, @context) }
+        RESULT_BUILDERS
+          .select { |k, _v| k == result_type }
+          .merge(@result_builders)
+          .reduce(columns) do |columns, (_, result_builder)|
+            result_builder.call(columns, keys, context, @context)
+          end
       end
     end
   end

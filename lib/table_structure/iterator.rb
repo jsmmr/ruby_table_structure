@@ -13,8 +13,8 @@ module TableStructure
       end
     end
 
-    def iterate(items)
-      Enumerator.new { |y| @writer.write(items, to: y) }
+    def iterate(items, **options)
+      Enumerator.new { |y| @writer.write(items, to: y, **options) }
     end
   end
 end
