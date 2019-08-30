@@ -147,10 +147,10 @@ context = {
   ]
 }
 
-schema = SampleTableSchema.new(context: context, result_type: :hash) # default is :array
-iterator = TableStructure::Iterator.new(schema, header_omitted: true)
+schema = SampleTableSchema.new(context: context)
+iterator = TableStructure::Iterator.new(schema, result_type: :hash, header_omitted: true)
 ## or
-# writer = TableStructure::Writer.new(schema, header_omitted: true)
+# writer = TableStructure::Writer.new(schema, result_type: :hash, header_omitted: true)
 # iterator = TableStructure::Iterator.new(writer)
 
 items = [
@@ -293,7 +293,7 @@ class SampleTableSchema
 end
 ```
 
-If you want to convert CSV character code, you do so within block of `write` method.
+If you want to convert CSV character code, you can do so within block of `write` method.
 ```ruby
 File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f)) do |row_values|
