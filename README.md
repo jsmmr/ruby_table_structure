@@ -107,7 +107,7 @@ response_body = Enumerator.new { |y| writer.write(items, to: CSV.new(y)) }
 ```
 
 #### TableStructure::Iterator
-Specifying `result_type: :hash` option of `TableStructure::Schema` works well.
+Specifying `result_type: :hash` option works well.
 To use this option, define `column(s)` with `:key`.
 ```ruby
 class SampleTableSchema
