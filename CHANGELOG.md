@@ -1,8 +1,11 @@
 # 0.3.1
 Changes:
+- `TableStructure::Writer`
+  - Make `:result_type` option available.
+- `TableStructure::Iterator`
+  - Make `:result_type` option available.
 - `TableStructure::Schema`
-  - Make `:result_type` option available for `TableStructure::Write` and `TableStructure::Iterator`.
-    - `:result_type` option for `TableStructure::Schema` is deprecated.
+  - `:result_type` option is deprecated.
 
 # 0.3.0
 Changes:
