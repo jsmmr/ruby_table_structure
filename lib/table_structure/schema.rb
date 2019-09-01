@@ -16,7 +16,7 @@ module TableStructure
       key_suffix: nil
     }.freeze
 
-    def initialize(context: nil, **options)
+    def initialize(context: nil, name: self.class.name, **options)
       column_definitions = self.class.column_definitions
       column_converters = self.class.column_converters
       result_builders = self.class.result_builders
@@ -24,6 +24,7 @@ module TableStructure
       options = DEFAULT_OPTIONS.merge(self.class.options).merge(options)
       @table_structure_schema_table_ =
         Table.new(
+          name,
           column_definitions,
           column_converters,
           result_builders,

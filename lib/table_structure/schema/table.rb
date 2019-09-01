@@ -9,8 +9,9 @@ module TableStructure
 
       attr_reader :columns, :column_converters, :result_builders, :options
 
-      def initialize(column_definitions, column_converters, result_builders, context, options)
-        @columns = build_columns(column_definitions, context, options)
+      def initialize(name, column_definitions, column_converters, result_builders, context, options)
+        @name = name
+        @columns = build_columns(name, column_definitions, context, options)
         @column_converters = column_converters
         @result_builders = result_builders
         @context = context
@@ -31,9 +32,9 @@ module TableStructure
 
       private
 
-      def build_columns(definitions, context, options)
+      def build_columns(name, definitions, context, options)
         Definition
-          .new(definitions, options)
+          .new(name, definitions, options)
           .compile(context)
           .map { |definition| Column.create(definition, options) }
       end
