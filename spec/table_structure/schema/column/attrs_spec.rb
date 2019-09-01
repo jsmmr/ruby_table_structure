@@ -38,6 +38,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to be_nil }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 1 }
+    end
   end
 
   context 'pattern 2' do
@@ -74,6 +80,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq 'Taro' }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 1 }
     end
   end
 
@@ -112,6 +124,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 'Taro' }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 1 }
+    end
   end
 
   context 'pattern 4' do
@@ -148,6 +166,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq 'Taro' }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 1 }
     end
   end
 
@@ -186,6 +210,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq ['cat', 'dog', nil] }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 3 }
+    end
   end
 
   context 'pattern 6' do
@@ -222,6 +252,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq %w[tiger elephant doragon] }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 3 }
     end
   end
 
@@ -260,6 +296,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq %w[rabbit turtle squirrel] }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 3 }
+    end
   end
 
   context 'pattern 8' do
@@ -296,6 +338,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq [nil, nil, nil] }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 3 }
     end
   end
 
@@ -334,6 +382,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq [nil, nil, nil] }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 3 }
+    end
   end
 
   context 'pattern 10' do
@@ -370,6 +424,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq %w[tiger] }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 1 }
     end
   end
 
@@ -408,6 +468,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq %w[tiger elephant] }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 2 }
+    end
   end
 
   context 'pattern 12' do
@@ -444,6 +510,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq ['tiger', 'elephant', 'doragon', nil] }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 4 }
     end
   end
 
@@ -482,6 +554,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq %w[Taro Momo] }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 2 }
+    end
   end
 
   context 'pattern 15' do
@@ -518,6 +596,12 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       let(:table_context) { nil }
 
       it { is_expected.to eq %w[Taro Momo] }
+    end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 2 }
     end
   end
 end
