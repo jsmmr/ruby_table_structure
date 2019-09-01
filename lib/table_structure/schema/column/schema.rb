@@ -23,6 +23,12 @@ module TableStructure
         def value(row_context, _table_context)
           schema.row(context: row_context)
         end
+
+        def size
+          schema
+            .instance_variable_get(:@table_structure_schema_table_)
+            .send(:size)
+        end
       end
     end
   end

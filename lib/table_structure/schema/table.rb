@@ -30,6 +30,10 @@ module TableStructure
         @keys ||= @columns.map(&:key).flatten
       end
 
+      def size
+        @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
+      end
+
       private
 
       def build_columns(name, definitions, context, options)

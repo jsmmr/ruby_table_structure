@@ -71,5 +71,11 @@ RSpec.describe TableStructure::Schema::Column::Schema do
 
       it { is_expected.to eq ['1', 'Taro', 'cat', 'dog', '-', 'yes', 'no', 'yes'] }
     end
+
+    describe '#size' do
+      subject { column.size }
+
+      it { is_expected.to eq 8 }
+    end
   end
 end
