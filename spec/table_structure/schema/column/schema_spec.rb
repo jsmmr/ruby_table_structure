@@ -32,6 +32,8 @@ RSpec.describe TableStructure::Schema::Column::Schema do
     end
   end
 
+  let(:indexer) { TableStructure::Schema::Indexer.new }
+
   context 'pattern 1' do
     let(:schema) do
       described_class::Spec::TestTableSchema1.new(
@@ -44,7 +46,7 @@ RSpec.describe TableStructure::Schema::Column::Schema do
         }
       )
     end
-    let(:column) { described_class.new(schema) }
+    let(:column) { described_class.new(schema, indexer) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -76,6 +78,12 @@ RSpec.describe TableStructure::Schema::Column::Schema do
       subject { column.size }
 
       it { is_expected.to eq 8 }
+    end
+
+    describe '#indexes' do
+      subject { column.indexes }
+
+      it { is_expected.to eq [0, 1, 2, 3, 4, 5, 6, 7] }
     end
   end
 end
