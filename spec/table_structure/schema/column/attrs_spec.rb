@@ -27,7 +27,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil] }
     end
 
     describe '#value' do
@@ -70,7 +70,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil] }
     end
 
     describe '#value' do
@@ -113,7 +113,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil] }
     end
 
     describe '#value' do
@@ -156,7 +156,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
     describe '#key' do
       subject { column.key }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq [nil] }
     end
 
     describe '#value' do
