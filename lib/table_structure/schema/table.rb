@@ -39,13 +39,10 @@ module TableStructure
       private
 
       def build_columns(name, definitions, context, options)
-        indexer = Indexer.new
         Definition
           .new(name, definitions, options)
           .compile(context)
-          .map do |definition|
-            Column.create(definition, indexer, options)
-          end
+          .map { |definition| Column.create(definition, options) }
       end
 
       def values(method, result_type, context)

@@ -4,14 +4,13 @@ module TableStructure
   module Schema
     module Column
       class Attrs
-        attr_reader :size, :indexes
+        attr_reader :name, :key, :vlaue, :size
 
-        def initialize(definition, indexer, options)
+        def initialize(definition, options)
           @name = definition[:name]
           @keys = optimize_size([definition[:key]].flatten, definition[:size])
           @value = definition[:value]
           @size = definition[:size]
-          @indexes = indexer.next_values(size: size)
           @options = options
         end
 

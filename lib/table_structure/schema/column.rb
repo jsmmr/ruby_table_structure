@@ -3,11 +3,11 @@
 module TableStructure
   module Schema
     module Column
-      def self.create(definition, indexer, options)
+      def self.create(definition, options)
         if definition.is_a?(Hash)
-          Attrs.new(definition, indexer, options)
+          Attrs.new(definition, options)
         else
-          Schema.new(definition, indexer)
+          Schema.new(definition)
         end
       end
     end

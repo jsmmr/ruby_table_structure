@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Column::Attrs do
-  let(:indexer) { TableStructure::Schema::Indexer.new }
   let(:options) { {} }
 
   context 'pattern 1' do
@@ -14,7 +13,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -45,12 +44,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 1 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0] }
-    end
   end
 
   context 'pattern 2' do
@@ -63,7 +56,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -94,12 +87,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 1 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0] }
-    end
   end
 
   context 'pattern 3' do
@@ -112,7 +99,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -143,12 +130,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 1 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0] }
-    end
   end
 
   context 'pattern 4' do
@@ -161,7 +142,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -192,12 +173,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 1 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0] }
-    end
   end
 
   context 'pattern 5' do
@@ -210,7 +185,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -241,12 +216,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 3 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1, 2] }
-    end
   end
 
   context 'pattern 6' do
@@ -259,7 +228,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -290,12 +259,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 3 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1, 2] }
-    end
   end
 
   context 'pattern 7' do
@@ -308,7 +271,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -339,12 +302,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 3 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1, 2] }
-    end
   end
 
   context 'pattern 8' do
@@ -357,7 +314,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -387,12 +344,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       subject { column.size }
 
       it { is_expected.to eq 3 }
-    end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1, 2] }
     end
   end
 
@@ -406,7 +357,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -437,12 +388,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 3 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1, 2] }
-    end
   end
 
   context 'pattern 10' do
@@ -455,7 +400,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -486,12 +431,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 1 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0] }
-    end
   end
 
   context 'pattern 11' do
@@ -504,7 +443,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -535,12 +474,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 2 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1] }
-    end
   end
 
   context 'pattern 12' do
@@ -553,7 +486,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -584,12 +517,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
 
       it { is_expected.to eq 4 }
     end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1, 2, 3] }
-    end
   end
 
   context 'pattern 13' do
@@ -602,7 +529,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -632,12 +559,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       subject { column.size }
 
       it { is_expected.to eq 2 }
-    end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1] }
     end
   end
 
@@ -651,7 +572,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, indexer, options) }
+    let(:column) { described_class.new(attrs, options) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -681,12 +602,6 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       subject { column.size }
 
       it { is_expected.to eq 2 }
-    end
-
-    describe '#indexes' do
-      subject { column.indexes }
-
-      it { is_expected.to eq [0, 1] }
     end
   end
 end

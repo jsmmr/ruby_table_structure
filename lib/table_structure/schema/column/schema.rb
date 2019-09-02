@@ -4,11 +4,10 @@ module TableStructure
   module Schema
     module Column
       class Schema
-        attr_reader :schema, :indexes
+        attr_reader :schema
 
-        def initialize(schema, indexer)
+        def initialize(schema)
           @schema = schema
-          @indexes = indexer.next_values(size: size)
         end
 
         def name(header_context, _table_context)
