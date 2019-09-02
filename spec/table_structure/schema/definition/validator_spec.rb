@@ -77,31 +77,6 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
     end
   end
 
-  context 'when key is not present with "result_type: :hash"' do
-    let(:attrs) do
-      {
-        name: nil,
-        key: nil,
-        value: nil,
-        size: nil
-      }
-    end
-
-    let(:options) do
-      {
-        name: 'TestTableSchema',
-        result_type: :hash
-      }
-    end
-
-    describe '.new' do
-      it 'raises error' do
-        expect { validator.validate(attrs) }
-          .to raise_error '"key" must be defined when "result_type: :hash" is specified. [TestTableSchema] defined position of column(s): 1'
-      end
-    end
-  end
-
   context 'When both key and size are specified and key\'s size is not enough' do
     let(:attrs) do
       {
