@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Definition::Validator do
-  let(:validator) { described_class.new(index, options) }
+  let(:validator) { described_class.new(name, index, options) }
+  let(:name) { 'TestTableSchema' }
   let(:index) { 0 }
 
   context 'when key is lambda' do
@@ -14,12 +15,16 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       }
     end
 
-    let(:options) { {} }
+    let(:options) do
+      {
+        name: 'TestTableSchema'
+      }
+    end
 
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"key" must not be lambda. [defined position of column(s): 1]'
+          .to raise_error '"key" must not be lambda. [TestTableSchema] defined position of column(s): 1'
       end
     end
   end
@@ -34,12 +39,16 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       }
     end
 
-    let(:options) { {} }
+    let(:options) do
+      {
+        name: 'TestTableSchema'
+      }
+    end
 
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"size" must be defined, because column size cannot be determined. [defined position of column(s): 1]'
+          .to raise_error '"size" must be defined, because column size cannot be determined. [TestTableSchema] defined position of column(s): 1'
       end
     end
   end
@@ -54,32 +63,16 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       }
     end
 
-    let(:options) { {} }
-
-    describe '.new' do
-      it 'raises error' do
-        expect { validator.validate(attrs) }
-          .to raise_error '"size" must be positive. [defined position of column(s): 1]'
-      end
-    end
-  end
-
-  context 'when key is not present with "result_type: :hash"' do
-    let(:attrs) do
+    let(:options) do
       {
-        name: nil,
-        key: nil,
-        value: nil,
-        size: nil
+        name: 'TestTableSchema'
       }
     end
 
-    let(:options) { { result_type: :hash } }
-
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"key" must be defined when "result_type: :hash" is specified. [defined position of column(s): 1]'
+          .to raise_error '"size" must be positive. [TestTableSchema] defined position of column(s): 1'
       end
     end
   end
@@ -94,12 +87,16 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       }
     end
 
-    let(:options) { {} }
+    let(:options) do
+      {
+        name: 'TestTableSchema'
+      }
+    end
 
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"key" size must be greater than or equal to specified "size". [defined position of column(s): 1]'
+          .to raise_error '"key" size must be greater than or equal to specified "size". [TestTableSchema] defined position of column(s): 1'
       end
     end
   end

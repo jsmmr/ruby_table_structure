@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Table do
-  let(:table) { described_class.new(column_definitions, column_converters, result_builders, context, options) }
+  let(:table) { described_class.new(name, column_definitions, column_converters, result_builders, context, options) }
 
   class NestedTestTableSchema
     include TableStructure::Schema
@@ -24,6 +24,8 @@ RSpec.describe TableStructure::Schema::Table do
       end
     }
   end
+
+  let(:name) { 'TestTableSchema' }
 
   describe '#header_values' do
     let(:column_definitions) do

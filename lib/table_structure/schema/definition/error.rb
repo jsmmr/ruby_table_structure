@@ -4,11 +4,12 @@ module TableStructure
   module Schema
     class Definition
       class Error < ::TableStructure::Error
-        attr_reader :index
+        attr_reader :schema_name, :definition_index
 
-        def initialize(error_message, index)
-          @index = index
-          super("#{error_message} [defined position of column(s): #{index + 1}]")
+        def initialize(error_message, schema_name, definition_index)
+          @schema_name = schema_name
+          @definition_index = definition_index
+          super("#{error_message} [#{schema_name}] defined position of column(s): #{definition_index + 1}")
         end
       end
     end

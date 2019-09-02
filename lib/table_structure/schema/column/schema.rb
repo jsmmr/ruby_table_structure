@@ -11,17 +11,25 @@ module TableStructure
         end
 
         def name(header_context, _table_context)
-          schema.header(context: header_context)
+          @schema.header(context: header_context)
         end
 
         def key
-          schema
-            .instance_variable_get(:@table_structure_schema_table_)
-            .send(:keys)
+          table.send(:keys)
         end
 
         def value(row_context, _table_context)
-          schema.row(context: row_context)
+          @schema.row(context: row_context)
+        end
+
+        def size
+          table.send(:size)
+        end
+
+        private
+
+        def table
+          @schema.instance_variable_get(:@table_structure_schema_table_)
         end
       end
     end
