@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Definition do
+  let(:name) { 'TestTableSchema' }
   let(:options) { {} }
 
   describe '#compile' do
@@ -11,7 +12,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
@@ -34,7 +35,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
@@ -54,7 +55,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
@@ -74,7 +75,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
@@ -95,7 +96,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
@@ -116,7 +117,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
@@ -153,7 +154,7 @@ RSpec.describe TableStructure::Schema::Definition do
         ]
       end
 
-      subject { described_class.new(definitions, options).compile }
+      subject { described_class.new(name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 6
@@ -176,7 +177,7 @@ RSpec.describe TableStructure::Schema::Definition do
       end
 
       context 'by other than lambda' do
-        subject { described_class.new(definitions, options).compile }
+        subject { described_class.new(name, definitions, options).compile }
 
         context 'as true' do
           let(:omitted) { true }
@@ -204,7 +205,7 @@ RSpec.describe TableStructure::Schema::Definition do
       end
 
       context 'by lambda' do
-        subject { described_class.new(definitions, options).compile(context) }
+        subject { described_class.new(name, definitions, options).compile(context) }
 
         context 'as true' do
           let(:omitted) { ->(table) { !table[:admin] } }
@@ -267,7 +268,7 @@ RSpec.describe TableStructure::Schema::Definition do
         }
       end
 
-      subject { described_class.new(definitions, options).compile(context) }
+      subject { described_class.new(name, definitions, options).compile(context) }
 
       context 'that is class' do
         let(:definitions) { [TestTableSchema41] }

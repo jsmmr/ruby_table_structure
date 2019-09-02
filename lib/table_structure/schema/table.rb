@@ -4,13 +4,16 @@ module TableStructure
   module Schema
     class Table
       RESULT_BUILDERS = {
-        hash: ->(values, keys, *) { keys.zip(values).to_h }
+        hash: lambda { |values, keys, *|
+          keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+        }
       }.freeze
 
       attr_reader :columns, :column_converters, :result_builders, :options
 
-      def initialize(column_definitions, column_converters, result_builders, context, options)
-        @columns = build_columns(column_definitions, context, options)
+      def initialize(name, column_definitions, column_converters, result_builders, context, options)
+        @name = name
+        @columns = build_columns(name, column_definitions, context, options)
         @column_converters = column_converters
         @result_builders = result_builders
         @context = context
@@ -29,11 +32,15 @@ module TableStructure
         @keys ||= @columns.map(&:key).flatten
       end
 
+      def size
+        @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
+      end
+
       private
 
-      def build_columns(definitions, context, options)
+      def build_columns(name, definitions, context, options)
         Definition
-          .new(definitions, options)
+          .new(name, definitions, options)
           .compile(context)
           .map { |definition| Column.create(definition, options) }
       end

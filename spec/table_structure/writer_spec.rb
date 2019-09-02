@@ -221,63 +221,126 @@ RSpec.describe TableStructure::Writer do
     end
 
     context 'when output to array' do
-      shared_examples 'to convert and write data' do
-        it 'succeeds' do
-          schema = TestTableSchema21.new(context: context)
-          writer = TableStructure::Writer.new(schema)
-          table = []
-          writer.write(items, to: table)
+      context 'with result_type: :array' do
+        let(:options) { { result_type: :array } }
 
-          expect(table[0].shift).to eq 'ID'
-          expect(table[0].shift).to eq 'Name'
-          expect(table[0].shift).to eq 'Pet 1'
-          expect(table[0].shift).to eq 'Pet 2'
-          expect(table[0].shift).to eq 'Pet 3'
-          expect(table[0].shift).to eq 'Q1'
-          expect(table[0].shift).to eq 'Q2'
-          expect(table[0].shift).to eq 'Q3'
-          expect(table[0].shift).to be_nil
+        shared_examples 'to convert and write data' do
+          it 'succeeds' do
+            schema = TestTableSchema21.new(context: context)
+            writer = TableStructure::Writer.new(schema)
+            table = []
+            writer.write(items, to: table)
 
-          expect(table[1].shift).to eq '1'
-          expect(table[1].shift).to eq '太郎'
-          expect(table[1].shift).to eq 'cat'
-          expect(table[1].shift).to eq 'dog'
-          expect(table[1].shift).to eq ''
-          expect(table[1].shift).to eq 'yes'
-          expect(table[1].shift).to eq 'no'
-          expect(table[1].shift).to eq 'yes'
-          expect(table[1].shift).to be_nil
+            expect(table[0].shift).to eq 'ID'
+            expect(table[0].shift).to eq 'Name'
+            expect(table[0].shift).to eq 'Pet 1'
+            expect(table[0].shift).to eq 'Pet 2'
+            expect(table[0].shift).to eq 'Pet 3'
+            expect(table[0].shift).to eq 'Q1'
+            expect(table[0].shift).to eq 'Q2'
+            expect(table[0].shift).to eq 'Q3'
+            expect(table[0].shift).to be_nil
 
-          expect(table[2].shift).to eq '2'
-          expect(table[2].shift).to eq '花子'
-          expect(table[2].shift).to eq 'rabbit'
-          expect(table[2].shift).to eq 'turtle'
-          expect(table[2].shift).to eq 'squirrel'
-          expect(table[2].shift).to eq 'yes'
-          expect(table[2].shift).to eq 'yes'
-          expect(table[2].shift).to eq 'no'
-          expect(table[2].shift).to be_nil
+            expect(table[1].shift).to eq '1'
+            expect(table[1].shift).to eq '太郎'
+            expect(table[1].shift).to eq 'cat'
+            expect(table[1].shift).to eq 'dog'
+            expect(table[1].shift).to eq ''
+            expect(table[1].shift).to eq 'yes'
+            expect(table[1].shift).to eq 'no'
+            expect(table[1].shift).to eq 'yes'
+            expect(table[1].shift).to be_nil
 
-          expect(table[3].shift).to eq '3'
-          expect(table[3].shift).to eq '次郎'
-          expect(table[3].shift).to eq 'tiger'
-          expect(table[3].shift).to eq 'elephant'
-          expect(table[3].shift).to eq 'doragon'
-          expect(table[3].shift).to eq 'no'
-          expect(table[3].shift).to eq 'yes'
-          expect(table[3].shift).to eq ''
-          expect(table[3].shift).to be_nil
+            expect(table[2].shift).to eq '2'
+            expect(table[2].shift).to eq '花子'
+            expect(table[2].shift).to eq 'rabbit'
+            expect(table[2].shift).to eq 'turtle'
+            expect(table[2].shift).to eq 'squirrel'
+            expect(table[2].shift).to eq 'yes'
+            expect(table[2].shift).to eq 'yes'
+            expect(table[2].shift).to eq 'no'
+            expect(table[2].shift).to be_nil
+
+            expect(table[3].shift).to eq '3'
+            expect(table[3].shift).to eq '次郎'
+            expect(table[3].shift).to eq 'tiger'
+            expect(table[3].shift).to eq 'elephant'
+            expect(table[3].shift).to eq 'doragon'
+            expect(table[3].shift).to eq 'no'
+            expect(table[3].shift).to eq 'yes'
+            expect(table[3].shift).to eq ''
+            expect(table[3].shift).to be_nil
+          end
+        end
+
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data'
+        end
+
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data'
         end
       end
 
-      context 'when passed array_items' do
-        let(:items) { array_items }
-        it_behaves_like 'to convert and write data'
-      end
+      context 'with result_type: :hash' do
+        let(:options) { { result_type: :hash } }
 
-      context 'when passed lambda_items' do
-        let(:items) { lambda_items }
-        it_behaves_like 'to convert and write data'
+        shared_examples 'to convert and write data' do
+          it 'succeeds' do
+            schema = TestTableSchema21.new(context: context)
+            writer = TableStructure::Writer.new(schema)
+            table = []
+            writer.write(items, to: table)
+
+            expect(table[0].fetch(0)).to eq 'ID'
+            expect(table[0].fetch(1)).to eq 'Name'
+            expect(table[0].fetch(2)).to eq 'Pet 1'
+            expect(table[0].fetch(3)).to eq 'Pet 2'
+            expect(table[0].fetch(4)).to eq 'Pet 3'
+            expect(table[0].fetch(5)).to eq 'Q1'
+            expect(table[0].fetch(6)).to eq 'Q2'
+            expect(table[0].fetch(7)).to eq 'Q3'
+
+            expect(table[1].fetch(0)).to eq '1'
+            expect(table[1].fetch(1)).to eq '太郎'
+            expect(table[1].fetch(2)).to eq 'cat'
+            expect(table[1].fetch(3)).to eq 'dog'
+            expect(table[1].fetch(4)).to eq ''
+            expect(table[1].fetch(5)).to eq 'yes'
+            expect(table[1].fetch(6)).to eq 'no'
+            expect(table[1].fetch(7)).to eq 'yes'
+
+            expect(table[2].fetch(0)).to eq '2'
+            expect(table[2].fetch(1)).to eq '花子'
+            expect(table[2].fetch(2)).to eq 'rabbit'
+            expect(table[2].fetch(3)).to eq 'turtle'
+            expect(table[2].fetch(4)).to eq 'squirrel'
+            expect(table[2].fetch(5)).to eq 'yes'
+            expect(table[2].fetch(6)).to eq 'yes'
+            expect(table[2].fetch(7)).to eq 'no'
+
+            expect(table[3].fetch(0)).to eq '3'
+            expect(table[3].fetch(1)).to eq '次郎'
+            expect(table[3].fetch(2)).to eq 'tiger'
+            expect(table[3].fetch(3)).to eq 'elephant'
+            expect(table[3].fetch(4)).to eq 'doragon'
+            expect(table[3].fetch(5)).to eq 'no'
+            expect(table[3].fetch(6)).to eq 'yes'
+            expect(table[3].fetch(7)).to eq ''
+          end
+        end
+
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data'
+        end
+
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data'
+        end
       end
     end
 

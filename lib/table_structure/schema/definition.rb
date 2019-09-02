@@ -13,7 +13,8 @@ module TableStructure
 
       DEFAULT_SIZE = 1
 
-      def initialize(definitions, options)
+      def initialize(name, definitions, options)
+        @name = name
         @definitions = definitions
         @options = options
       end
@@ -22,7 +23,7 @@ module TableStructure
         @definitions
           .map { |definition| Utils.evaluate_callable(definition, context) }
           .map.with_index do |definition, i|
-            validator = Validator.new(i, @options)
+            validator = Validator.new(@name, i, @options)
 
             [definition]
               .flatten
@@ -40,7 +41,7 @@ module TableStructure
                 elsif Utils.schema_class?(definition)
                   definition.new(context: context)
                 else
-                  raise Error.new('Invalid definition.', i)
+                  raise Error.new('Invalid definition.', @name, i)
                 end
               end
           end

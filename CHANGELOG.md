@@ -1,9 +1,14 @@
+# 0.3.2
+Changes:
+  - `TableStructure::Writer`
+    - When `result_type: :hash` option is specified and `column(s)` key of the schema is undefined, index number is used as the key.
+
 # 0.3.1
 Changes:
 - `TableStructure::Writer`
   - Make `:result_type` option available.
 - `TableStructure::Iterator`
-  - Make `:result_type` option available.
+  - Make `:result_type` option available. (Passed to the writer internally.)
 - `TableStructure::Schema`
   - `:result_type` option is deprecated.
 
