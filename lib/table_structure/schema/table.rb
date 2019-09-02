@@ -4,7 +4,9 @@ module TableStructure
   module Schema
     class Table
       RESULT_BUILDERS = {
-        hash: ->(values, keys, *) { keys.zip(values).to_h }
+        hash: lambda { |values, keys, *|
+          keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+        }
       }.freeze
 
       attr_reader :columns, :column_converters, :result_builders, :options
