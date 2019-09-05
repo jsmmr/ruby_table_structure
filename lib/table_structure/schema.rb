@@ -17,15 +17,16 @@ module TableStructure
     }.freeze
 
     def initialize(context: nil, name: self.class.name, **options)
-      column_definitions = self.class.column_definitions
-      column_converters = self.class.column_converters
-      result_builders = self.class.result_builders
-      context = self.class.context_builders[:table].call(context)
+      column_definitions = [].concat(self.class.column_definitions)
+      context_builders = {}.merge!(self.class.context_builders)
+      column_converters = {}.merge!(self.class.column_converters)
+      result_builders = {}.merge!(self.class.result_builders)
       options = DEFAULT_OPTIONS.merge(self.class.options).merge(options)
-      @table_structure_schema_table_ =
-        Table.new(
+      @table_structure_schema_definition_ =
+        Definition.new(
           name,
           column_definitions,
+          context_builders,
           column_converters,
           result_builders,
           context,
@@ -33,26 +34,10 @@ module TableStructure
         )
     end
 
-    def header(context: nil, result_type: nil)
-      # TODO
-      result_type ||= @table_structure_schema_table_.options[:result_type]
-      context = self.class.context_builders[:header].call(context)
-      @table_structure_schema_table_.header_values(context, result_type)
-    end
-
-    def row(context: nil, result_type: nil)
-      # TODO
-      result_type ||= @table_structure_schema_table_.options[:result_type]
-      context = self.class.context_builders[:row].call(context)
-      @table_structure_schema_table_.row_values(context, result_type)
-    end
-
-    def column_converters
-      @table_structure_schema_table_.column_converters
-    end
-
-    def result_builders
-      @table_structure_schema_table_.result_builders
+    def create_table(result_type: nil, **options)
+      options = @table_structure_schema_definition_.options.merge(options)
+      result_type ||= options[:result_type] # TODO: remove
+      @table_structure_schema_definition_.create_table(result_type: result_type, **options)
     end
   end
 end

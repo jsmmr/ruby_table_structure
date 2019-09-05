@@ -4,7 +4,7 @@ module TableStructure
   module Schema
     module Column
       class Attrs
-        attr_reader :name, :key, :vlaue, :size
+        attr_reader :keys, :size
 
         def initialize(definition, options)
           @name = definition[:name]
@@ -17,14 +17,6 @@ module TableStructure
         def name(header_context, table_context)
           name = Utils.evaluate_callable(@name, header_context, table_context)
           optimize_size(name, @size)
-        end
-
-        def key
-          if @options[:key_prefix] || @options[:key_suffix]
-            decorate_keys
-          else
-            @keys
-          end
         end
 
         def value(row_context, table_context)
@@ -45,16 +37,6 @@ module TableStructure
             [].concat(values).fill(nil, actual_size, (expected_size - actual_size))
           else
             values
-          end
-        end
-
-        def decorate_keys
-          @keys.map do |key|
-            next key unless key
-
-            decorated_key = "#{@options[:key_prefix]}#{key}#{@options[:key_suffix]}"
-            decorated_key = decorated_key.to_sym if key.is_a?(Symbol)
-            decorated_key
           end
         end
       end
