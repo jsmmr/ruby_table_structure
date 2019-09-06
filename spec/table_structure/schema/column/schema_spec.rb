@@ -55,8 +55,8 @@ RSpec.describe TableStructure::Schema::Column::Schema do
       it { is_expected.to eq ['ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq %i[id name pet1 pet2 pet3 q1 q2 q3] }
     end
