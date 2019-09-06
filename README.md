@@ -305,9 +305,10 @@ end
 You can also use only `TableStructure::Schema`.
 ```ruby
 schema = SampleTableSchema.new
-header = schema.header
+table = schema.create_table
+header = table.header
 items.each do |item|
-  row = schema.row(context: item)
+  row = table.row(context: item)
   ...
 end
 ```
