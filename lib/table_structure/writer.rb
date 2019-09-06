@@ -16,19 +16,16 @@ module TableStructure
 
     def write(items, to:, **options)
       options = @options.merge(options)
+      table = @schema.create_table(options)
       unless options[:header_omitted]
-        header = @schema.header(
-          context: options[:header_context],
-          result_type: options[:result_type]
+        header = table.header(
+          context: options[:header_context]
         )
         header = yield header if block_given?
         to.send(options[:method], header)
       end
       enumerize(items).each do |item|
-        row = @schema.row(
-          context: item,
-          result_type: options[:result_type]
-        )
+        row = table.row(context: item)
         row = yield row if block_given?
         to.send(options[:method], row)
       end

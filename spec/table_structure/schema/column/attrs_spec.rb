@@ -24,8 +24,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to be_nil }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil] }
     end
@@ -67,8 +67,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq 'Name' }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil] }
     end
@@ -110,8 +110,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq 'Name' }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil] }
     end
@@ -153,8 +153,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq 'Name' }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil] }
     end
@@ -196,8 +196,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil, nil] }
     end
@@ -239,8 +239,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil, nil] }
     end
@@ -282,8 +282,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil, nil] }
     end
@@ -325,8 +325,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil, nil] }
     end
@@ -368,8 +368,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil, nil] }
     end
@@ -411,8 +411,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq %i[pet1] }
     end
@@ -454,8 +454,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2'] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil] }
     end
@@ -497,8 +497,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Pet 1', 'Pet 2', 'Pet 3', nil] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq [nil, nil, nil, nil] }
     end
@@ -540,8 +540,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Name', nil] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq %i[first_name last_name] }
     end
@@ -583,8 +583,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq ['Name', nil] }
     end
 
-    describe '#key' do
-      subject { column.key }
+    describe '#keys' do
+      subject { column.keys }
 
       it { is_expected.to eq %i[first_name last_name] }
     end

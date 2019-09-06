@@ -12,6 +12,7 @@ module TableStructure
   require 'table_structure/schema/dsl/option'
   require 'table_structure/schema/dsl/result_builder'
   require 'table_structure/schema/definition'
+  require 'table_structure/schema/definition/compiler'
   require 'table_structure/schema/definition/error'
   require 'table_structure/schema/definition/validator'
   require 'table_structure/schema/table'

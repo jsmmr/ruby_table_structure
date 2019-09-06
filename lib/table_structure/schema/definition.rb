@@ -3,66 +3,59 @@
 module TableStructure
   module Schema
     class Definition
-      DEFAULT_ATTRS = {
-        name: nil,
-        key: nil,
-        value: nil,
-        size: nil,
-        omitted: false
+      RESULT_BUILDERS = {
+        hash: lambda { |values, keys, *|
+          keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+        }
       }.freeze
 
-      DEFAULT_SIZE = 1
+      attr_reader :columns, :options
 
-      def initialize(name, definitions, options)
+      def initialize(
+        name,
+        column_definitions,
+        context_builders,
+        column_converters,
+        result_builders,
+        context,
+        options
+      )
+        table_context_builder = context_builders.delete(:table)
+        context = table_context_builder.call(context) if table_context_builder
+
         @name = name
-        @definitions = definitions
+        @columns = create_columns(name, column_definitions, context, options)
+        @context_builders = context_builders
+        @column_converters = column_converters
+        @result_builders = result_builders
+        @context = context
         @options = options
       end
 
-      def compile(context = nil)
-        @definitions
-          .map { |definition| Utils.evaluate_callable(definition, context) }
-          .map.with_index do |definition, i|
-            validator = Validator.new(@name, i, @options)
+      def create_table(result_type: :array, **options)
+        options = @options.merge(options)
+        result_builders =
+          RESULT_BUILDERS
+          .select { |k, _v| k == result_type }
+          .merge(@result_builders)
 
-            [definition]
-              .flatten
-              .map do |definition|
-                if definition.is_a?(Hash)
-                  definition = DEFAULT_ATTRS.merge(definition)
-                  omitted = definition.delete(:omitted)
-                  next if Utils.evaluate_callable(omitted, context)
-
-                  validator.validate(definition)
-                  definition[:size] = determine_size(definition)
-                  definition
-                elsif Utils.schema_instance?(definition)
-                  definition
-                elsif Utils.schema_class?(definition)
-                  definition.new(context: context)
-                else
-                  raise Error.new('Invalid definition.', @name, i)
-                end
-              end
-          end
-          .flatten
-          .compact
+        Table.new(
+          @columns,
+          @context_builders,
+          @column_converters,
+          result_builders,
+          @context,
+          options
+        )
       end
 
       private
 
-      def determine_size(name:, key:, size:, **)
-        return size if size
-
-        [calculate_size(name), calculate_size(key)].max
-      end
-
-      def calculate_size(val)
-        if val.is_a?(Array)
-          return val.empty? ? DEFAULT_SIZE : val.size
-        end
-
-        DEFAULT_SIZE
+      def create_columns(name, definitions, context, options)
+        Compiler
+          .new(name, definitions, options)
+          .compile(context)
+          .map { |definition| Column.create(definition, options) }
       end
     end
   end

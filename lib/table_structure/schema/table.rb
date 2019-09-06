@@ -3,49 +3,67 @@
 module TableStructure
   module Schema
     class Table
-      RESULT_BUILDERS = {
-        hash: lambda { |values, keys, *|
-          keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
-        }
-      }.freeze
+      attr_reader :column_converters, :result_builders
 
-      attr_reader :columns, :column_converters, :result_builders, :options
-
-      def initialize(name, column_definitions, column_converters, result_builders, context, options)
-        @name = name
-        @columns = build_columns(name, column_definitions, context, options)
+      def initialize(
+        columns,
+        context_builders,
+        column_converters,
+        result_builders,
+        context,
+        options
+      )
+        @columns = columns
+        @header_context_builder = context_builders[:header]
+        @row_context_builder = context_builders[:row]
         @column_converters = column_converters
         @result_builders = result_builders
         @context = context
         @options = options
       end
 
-      def header_values(context, result_type = nil) # TODO
-        values(:name, result_type, context)
+      def header(context: nil)
+        if @header_context_builder
+          context = @header_context_builder.call(context)
+        end
+        values(:name, context)
       end
 
-      def row_values(context, result_type = nil) # TODO
-        values(:value, result_type, context)
+      def row(context: nil)
+        context = @row_context_builder.call(context) if @row_context_builder
+        values(:value, context)
       end
+
+      private
 
       def keys
-        @keys ||= @columns.map(&:key).flatten
+        @keys ||= obtain_keys
+      end
+
+      def obtain_keys
+        keys = @columns.map(&:keys).flatten
+        has_key_options? ? decorate_keys(keys) : keys
+      end
+
+      def has_key_options?
+        @options[:key_prefix] || @options[:key_suffix]
+      end
+
+      def decorate_keys(keys)
+        keys.map do |key|
+          next key unless key
+
+          decorated_key = "#{@options[:key_prefix]}#{key}#{@options[:key_suffix]}"
+          decorated_key = decorated_key.to_sym if key.is_a?(Symbol)
+          decorated_key
+        end
       end
 
       def size
         @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
       end
 
-      private
-
-      def build_columns(name, definitions, context, options)
-        Definition
-          .new(name, definitions, options)
-          .compile(context)
-          .map { |definition| Column.create(definition, options) }
-      end
-
-      def values(method, result_type, context)
+      def values(method, context)
         columns =
           @columns
           .map { |column| column.send(method, context, @context) }
@@ -56,9 +74,7 @@ module TableStructure
             end
           end
 
-        RESULT_BUILDERS
-          .select { |k, _v| k == result_type }
-          .merge(@result_builders)
+        @result_builders
           .reduce(columns) do |columns, (_, result_builder)|
             result_builder.call(columns, keys, context, @context)
           end
