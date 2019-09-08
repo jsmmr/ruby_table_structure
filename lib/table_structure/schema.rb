@@ -11,7 +11,6 @@ module TableStructure
     end
 
     DEFAULT_OPTIONS = {
-      result_type: :array, # deprecated: Change to pass as argument of method.
       key_prefix: nil,
       key_suffix: nil
     }.freeze
@@ -34,9 +33,8 @@ module TableStructure
         )
     end
 
-    def create_table(result_type: nil, **options)
+    def create_table(result_type: :array, **options)
       options = @table_structure_schema_definition_.options.merge(options)
-      result_type ||= options[:result_type] # TODO: remove
       @table_structure_schema_definition_.create_table(result_type: result_type, **options)
     end
   end
