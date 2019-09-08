@@ -1,3 +1,10 @@
+# 0.3.4
+Changes:
+- `TableStructure::Writer`
+  - Fix broken `:result_type` option.
+- `TableStructure::Iterator`
+  - Fix broken `:result_type` option. (Passed to the writer internally.)
+
 # 0.3.3
 Changes:
 - `TableStructure::Schema`
