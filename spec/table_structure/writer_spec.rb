@@ -226,10 +226,12 @@ RSpec.describe TableStructure::Writer do
 
         shared_examples 'to convert and write data' do
           it 'succeeds' do
-            schema = TestTableSchema21.new(context: context)
+            schema = TestTableSchema21.new(context: context, **options)
             writer = TableStructure::Writer.new(schema)
             table = []
             writer.write(items, to: table)
+
+            expect(table[0]).to be_a Array
 
             expect(table[0].shift).to eq 'ID'
             expect(table[0].shift).to eq 'Name'
@@ -241,6 +243,8 @@ RSpec.describe TableStructure::Writer do
             expect(table[0].shift).to eq 'Q3'
             expect(table[0].shift).to be_nil
 
+            expect(table[1]).to be_a Array
+
             expect(table[1].shift).to eq '1'
             expect(table[1].shift).to eq '太郎'
             expect(table[1].shift).to eq 'cat'
@@ -251,6 +255,8 @@ RSpec.describe TableStructure::Writer do
             expect(table[1].shift).to eq 'yes'
             expect(table[1].shift).to be_nil
 
+            expect(table[2]).to be_a Array
+
             expect(table[2].shift).to eq '2'
             expect(table[2].shift).to eq '花子'
             expect(table[2].shift).to eq 'rabbit'
@@ -260,6 +266,8 @@ RSpec.describe TableStructure::Writer do
             expect(table[2].shift).to eq 'yes'
             expect(table[2].shift).to eq 'no'
             expect(table[2].shift).to be_nil
+
+            expect(table[3]).to be_a Array
 
             expect(table[3].shift).to eq '3'
             expect(table[3].shift).to eq '次郎'
@@ -289,10 +297,12 @@ RSpec.describe TableStructure::Writer do
 
         shared_examples 'to convert and write data' do
           it 'succeeds' do
-            schema = TestTableSchema21.new(context: context)
+            schema = TestTableSchema21.new(context: context, **options)
             writer = TableStructure::Writer.new(schema)
             table = []
             writer.write(items, to: table)
+
+            expect(table[0]).to be_a Hash
 
             expect(table[0].fetch(0)).to eq 'ID'
             expect(table[0].fetch(1)).to eq 'Name'
@@ -303,6 +313,8 @@ RSpec.describe TableStructure::Writer do
             expect(table[0].fetch(6)).to eq 'Q2'
             expect(table[0].fetch(7)).to eq 'Q3'
 
+            expect(table[1]).to be_a Hash
+
             expect(table[1].fetch(0)).to eq '1'
             expect(table[1].fetch(1)).to eq '太郎'
             expect(table[1].fetch(2)).to eq 'cat'
@@ -312,6 +324,8 @@ RSpec.describe TableStructure::Writer do
             expect(table[1].fetch(6)).to eq 'no'
             expect(table[1].fetch(7)).to eq 'yes'
 
+            expect(table[2]).to be_a Hash
+
             expect(table[2].fetch(0)).to eq '2'
             expect(table[2].fetch(1)).to eq '花子'
             expect(table[2].fetch(2)).to eq 'rabbit'
@@ -320,6 +334,8 @@ RSpec.describe TableStructure::Writer do
             expect(table[2].fetch(5)).to eq 'yes'
             expect(table[2].fetch(6)).to eq 'yes'
             expect(table[2].fetch(7)).to eq 'no'
+
+            expect(table[3]).to be_a Hash
 
             expect(table[3].fetch(0)).to eq '3'
             expect(table[3].fetch(1)).to eq '次郎'
