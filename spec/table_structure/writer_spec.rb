@@ -226,8 +226,6 @@ RSpec.describe TableStructure::Writer do
 
         shared_examples 'to convert and write data' do
           it 'succeeds' do
-            schema = TestTableSchema21.new(context: context, **options)
-            writer = TableStructure::Writer.new(schema)
             table = []
             writer.write(items, to: table)
 
@@ -281,14 +279,34 @@ RSpec.describe TableStructure::Writer do
           end
         end
 
-        context 'when passed array_items' do
-          let(:items) { array_items }
-          it_behaves_like 'to convert and write data'
+        context 'deprecated' do
+          let(:schema) { TestTableSchema21.new(context: context, **options) }
+          let(:writer) { TableStructure::Writer.new(schema) }
+
+          context 'when passed array_items' do
+            let(:items) { array_items }
+            it_behaves_like 'to convert and write data'
+          end
+
+          context 'when passed lambda_items' do
+            let(:items) { lambda_items }
+            it_behaves_like 'to convert and write data'
+          end
         end
 
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
-          it_behaves_like 'to convert and write data'
+        context 'recommend' do
+          let(:schema) { TestTableSchema21.new(context: context) }
+          let(:writer) { TableStructure::Writer.new(schema, options) }
+
+          context 'when passed array_items' do
+            let(:items) { array_items }
+            it_behaves_like 'to convert and write data'
+          end
+
+          context 'when passed lambda_items' do
+            let(:items) { lambda_items }
+            it_behaves_like 'to convert and write data'
+          end
         end
       end
 
@@ -297,8 +315,6 @@ RSpec.describe TableStructure::Writer do
 
         shared_examples 'to convert and write data' do
           it 'succeeds' do
-            schema = TestTableSchema21.new(context: context, **options)
-            writer = TableStructure::Writer.new(schema)
             table = []
             writer.write(items, to: table)
 
@@ -348,14 +364,34 @@ RSpec.describe TableStructure::Writer do
           end
         end
 
-        context 'when passed array_items' do
-          let(:items) { array_items }
-          it_behaves_like 'to convert and write data'
+        context 'deprecated' do
+          let(:schema) { TestTableSchema21.new(context: context, **options) }
+          let(:writer) { TableStructure::Writer.new(schema) }
+
+          context 'when passed array_items' do
+            let(:items) { array_items }
+            it_behaves_like 'to convert and write data'
+          end
+
+          context 'when passed lambda_items' do
+            let(:items) { lambda_items }
+            it_behaves_like 'to convert and write data'
+          end
         end
 
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
-          it_behaves_like 'to convert and write data'
+        context 'recommend' do
+          let(:schema) { TestTableSchema21.new(context: context) }
+          let(:writer) { TableStructure::Writer.new(schema, options) }
+
+          context 'when passed array_items' do
+            let(:items) { array_items }
+            it_behaves_like 'to convert and write data'
+          end
+
+          context 'when passed lambda_items' do
+            let(:items) { lambda_items }
+            it_behaves_like 'to convert and write data'
+          end
         end
       end
     end

@@ -34,11 +34,9 @@ RSpec.describe TableStructure::Iterator do
     ]
   end
 
-  let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
-
   describe '#iterate' do
     context 'when :result_type is :array' do
-      let(:schema_options) { { result_type: :array } }
+      let(:result_type_option) { { result_type: :array } }
 
       class TestTableSchema31
         include TableStructure::Schema
@@ -115,7 +113,7 @@ RSpec.describe TableStructure::Iterator do
 
       shared_examples 'to convert and iterate data' do
         context 'when :header_omitted is false' do
-          let(:writer_options) { { header_omitted: false } }
+          let(:header_omitted_option) { { header_omitted: false } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -140,7 +138,7 @@ RSpec.describe TableStructure::Iterator do
         end
 
         context 'when :header_omitted is true' do
-          let(:writer_options) { { header_omitted: true } }
+          let(:header_omitted_option) { { header_omitted: true } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -164,22 +162,48 @@ RSpec.describe TableStructure::Iterator do
         end
       end
 
-      context 'when Schema is specified' do
-        let(:schema_or_writer) { TestTableSchema31.new(context: context, **schema_options) }
-        it_behaves_like 'to convert and iterate data'
+      context 'deprecated' do
+        let(:schema_options) { result_type_option }
+        let(:writer_options) { header_omitted_option }
+
+        context 'when Schema is specified' do
+          let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
+          let(:schema_or_writer) { TestTableSchema31.new(context: context, **schema_options) }
+          it_behaves_like 'to convert and iterate data'
+        end
+
+        context 'when Writer is specified' do
+          let(:iterator) { described_class.new(schema_or_writer) }
+          let(:schema_or_writer) do
+            schema = TestTableSchema31.new(context: context, **schema_options)
+            TableStructure::Writer.new(schema, **writer_options)
+          end
+          it_behaves_like 'to convert and iterate data'
+        end
       end
 
-      context 'when Writer is specified' do
-        let(:schema_or_writer) do
-          schema = TestTableSchema31.new(context: context, **schema_options)
-          TableStructure::Writer.new(schema, **writer_options)
+      context 'recommend' do
+        let(:writer_options) { result_type_option.merge(header_omitted_option) }
+
+        context 'when Schema is specified' do
+          let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
+          let(:schema_or_writer) { TestTableSchema31.new(context: context) }
+          it_behaves_like 'to convert and iterate data'
         end
-        it_behaves_like 'to convert and iterate data'
+
+        context 'when Writer is specified' do
+          let(:iterator) { described_class.new(schema_or_writer) }
+          let(:schema_or_writer) do
+            schema = TestTableSchema31.new(context: context)
+            TableStructure::Writer.new(schema, **writer_options)
+          end
+          it_behaves_like 'to convert and iterate data'
+        end
       end
     end
 
     context 'when :result_type is :hash' do
-      let(:schema_options) { { result_type: :hash } }
+      let(:result_type_option) { { result_type: :hash } }
 
       class TestTableSchema32
         include TableStructure::Schema
@@ -255,7 +279,7 @@ RSpec.describe TableStructure::Iterator do
 
       shared_examples 'to convert and iterate data' do
         context 'when :header_omitted is false' do
-          let(:writer_options) { { header_omitted: false } }
+          let(:header_omitted_option) { { header_omitted: false } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -280,7 +304,7 @@ RSpec.describe TableStructure::Iterator do
         end
 
         context 'when :header_omitted is true' do
-          let(:writer_options) { { header_omitted: true } }
+          let(:header_omitted_option) { { header_omitted: true } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -304,17 +328,43 @@ RSpec.describe TableStructure::Iterator do
         end
       end
 
-      context 'when Schema is specified' do
-        let(:schema_or_writer) { TestTableSchema32.new(context: context, **schema_options) }
-        it_behaves_like 'to convert and iterate data'
+      context 'deprecated' do
+        let(:schema_options) { result_type_option }
+        let(:writer_options) { header_omitted_option }
+
+        context 'when Schema is specified' do
+          let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
+          let(:schema_or_writer) { TestTableSchema32.new(context: context, **schema_options) }
+          it_behaves_like 'to convert and iterate data'
+        end
+
+        context 'when Writer is specified' do
+          let(:iterator) { described_class.new(schema_or_writer) }
+          let(:schema_or_writer) do
+            schema = TestTableSchema32.new(context: context, **schema_options)
+            TableStructure::Writer.new(schema, **writer_options)
+          end
+          it_behaves_like 'to convert and iterate data'
+        end
       end
 
-      context 'when Writer is specified' do
-        let(:schema_or_writer) do
-          schema = TestTableSchema32.new(context: context, **schema_options)
-          TableStructure::Writer.new(schema, **writer_options)
+      context 'recommend' do
+        let(:writer_options) { result_type_option.merge(header_omitted_option) }
+
+        context 'when Schema is specified' do
+          let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
+          let(:schema_or_writer) { TestTableSchema32.new(context: context) }
+          it_behaves_like 'to convert and iterate data'
         end
-        it_behaves_like 'to convert and iterate data'
+
+        context 'when Writer is specified' do
+          let(:iterator) { described_class.new(schema_or_writer) }
+          let(:schema_or_writer) do
+            schema = TestTableSchema32.new(context: context)
+            TableStructure::Writer.new(schema, **writer_options)
+          end
+          it_behaves_like 'to convert and iterate data'
+        end
       end
     end
   end

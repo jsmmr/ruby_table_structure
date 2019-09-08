@@ -5,7 +5,7 @@ module TableStructure
     DEFAULT_OPTIONS = {
       header_omitted: false,
       header_context: nil,
-      result_type: nil, # TODO: :array
+      result_type: :array,
       method: :<<
     }.freeze
 
