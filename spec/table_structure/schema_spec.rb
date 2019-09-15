@@ -42,8 +42,13 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
       it { is_expected.to eq [] }
     end
 
@@ -126,8 +131,13 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
       it { is_expected.to eq [] }
     end
 
@@ -143,13 +153,14 @@ RSpec.describe TableStructure::Schema do
         include TableStructure::Schema
 
         column  name: 'ID',
-                value: ->(row, _table) { row[:id] }
+                value: ->(row, *) { row[:id] }
 
         column  name: 'Name',
                 value: ->(row, *) { row[:name] }
 
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                value: ->(row, *) { row[:pets] }
+        columns name: 'Pet',
+                value: ->(row, *) { row[:pets] },
+                size: 3
 
         columns lambda { |table|
           table[:questions].map do |question|
@@ -160,8 +171,8 @@ RSpec.describe TableStructure::Schema do
           end
         }
 
-        column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
         column_converter :to_s, ->(val, *) { val.to_s }
+        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }
       end
     end
 
@@ -177,15 +188,17 @@ RSpec.describe TableStructure::Schema do
       )
     end
 
+    context 'when header: true'
+
     describe 'Table#header' do
       subject { table.header }
 
       it 'returns header columns' do
         expect(subject.shift).to eq 'ID'
         expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to eq 'Pet 1'
-        expect(subject.shift).to eq 'Pet 2'
-        expect(subject.shift).to eq 'Pet 3'
+        expect(subject.shift).to eq 'Pet'
+        expect(subject.shift).to eq '-'
+        expect(subject.shift).to eq '-'
         expect(subject.shift).to eq 'Q1'
         expect(subject.shift).to eq 'Q2'
         expect(subject.shift).to eq 'Q3'
@@ -213,9 +226,14 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
-      it { is_expected.to eq %i[nil_to_hyphen to_s] }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq %i[to_s empty_to_hyphen] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
+      it { is_expected.to eq %i[to_s empty_to_hyphen] }
     end
 
     describe '#result_builders' do
@@ -327,8 +345,13 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq %i[nil_to_hyphen to_s] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
       it { is_expected.to eq %i[nil_to_hyphen to_s] }
     end
 
@@ -413,8 +436,13 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
       it { is_expected.to eq [] }
     end
 
@@ -500,8 +528,13 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
       it { is_expected.to eq [] }
     end
 
@@ -552,8 +585,13 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#column_converters' do
-      subject { table.column_converters.keys }
+    describe '#header_converters' do
+      subject { table.header_converters.keys }
+      it { is_expected.to eq [] }
+    end
+
+    describe '#row_converters' do
+      subject { table.row_converters.keys }
       it { is_expected.to eq [] }
     end
 
@@ -589,8 +627,13 @@ RSpec.describe TableStructure::Schema do
         end
       end
 
-      describe '#column_converters' do
-        subject { table.column_converters.keys }
+      describe '#header_converters' do
+        subject { table.header_converters.keys }
+        it { is_expected.to eq [] }
+      end
+
+      describe '#row_converters' do
+        subject { table.row_converters.keys }
         it { is_expected.to eq [] }
       end
 
@@ -647,8 +690,13 @@ RSpec.describe TableStructure::Schema do
         end
       end
 
-      describe '#column_converters' do
-        subject { table.column_converters.keys }
+      describe '#header_converters' do
+        subject { table.header_converters.keys }
+        it { is_expected.to eq [] }
+      end
+
+      describe '#row_converters' do
+        subject { table.row_converters.keys }
         it { is_expected.to eq [] }
       end
 
@@ -687,8 +735,13 @@ RSpec.describe TableStructure::Schema do
         end
       end
 
-      describe '#column_converters' do
-        subject { table.column_converters.keys }
+      describe '#header_converters' do
+        subject { table.header_converters.keys }
+        it { is_expected.to eq [] }
+      end
+
+      describe '#row_converters' do
+        subject { table.row_converters.keys }
         it { is_expected.to eq [] }
       end
 
@@ -831,8 +884,13 @@ RSpec.describe TableStructure::Schema do
           end
         end
 
-        describe '#column_converters' do
-          subject { table.column_converters.keys }
+        describe '#header_converters' do
+          subject { table.header_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#row_converters' do
+          subject { table.row_converters.keys }
           it { is_expected.to eq %i[to_s] }
         end
 
@@ -891,8 +949,13 @@ RSpec.describe TableStructure::Schema do
           end
         end
 
-        describe '#column_converters' do
-          subject { table.column_converters.keys }
+        describe '#header_converters' do
+          subject { table.header_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#row_converters' do
+          subject { table.row_converters.keys }
           it { is_expected.to eq %i[to_s] }
         end
 
@@ -1032,8 +1095,13 @@ RSpec.describe TableStructure::Schema do
           end
         end
 
-        describe '#column_converters' do
-          subject { table.column_converters.keys }
+        describe '#header_converters' do
+          subject { table.header_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#row_converters' do
+          subject { table.row_converters.keys }
           it { is_expected.to eq %i[to_s] }
         end
 
@@ -1092,8 +1160,13 @@ RSpec.describe TableStructure::Schema do
           end
         end
 
-        describe '#column_converters' do
-          subject { table.column_converters.keys }
+        describe '#header_converters' do
+          subject { table.header_converters.keys }
+          it { is_expected.to eq %i[to_s] }
+        end
+
+        describe '#row_converters' do
+          subject { table.row_converters.keys }
           it { is_expected.to eq %i[to_s] }
         end
 

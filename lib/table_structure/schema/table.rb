@@ -3,12 +3,13 @@
 module TableStructure
   module Schema
     class Table
-      attr_reader :column_converters, :result_builders
+      attr_reader :header_converters, :row_converters, :result_builders
 
       def initialize(
         columns,
         context_builders,
-        column_converters,
+        header_converters,
+        row_converters,
         result_builders,
         context,
         options
@@ -16,7 +17,8 @@ module TableStructure
         @columns = columns
         @header_context_builder = context_builders[:header]
         @row_context_builder = context_builders[:row]
-        @column_converters = column_converters
+        @header_converters = header_converters
+        @row_converters = row_converters
         @result_builders = result_builders
         @context = context
         @options = options
@@ -26,12 +28,12 @@ module TableStructure
         if @header_context_builder
           context = @header_context_builder.call(context)
         end
-        values(:name, context)
+        values(:name, context, @header_converters)
       end
 
       def row(context: nil)
         context = @row_context_builder.call(context) if @row_context_builder
-        values(:value, context)
+        values(:value, context, @row_converters)
       end
 
       private
@@ -63,14 +65,14 @@ module TableStructure
         @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
       end
 
-      def values(method, context)
+      def values(method, context, converters)
         columns =
           @columns
           .map { |column| column.send(method, context, @context) }
           .flatten
           .map do |val|
-            @column_converters.reduce(val) do |val, (_, column_converter)|
-              column_converter.call(val, context, @context)
+            converters.reduce(val) do |val, (_, converter)|
+              converter.call(val, context, @context)
             end
           end
 

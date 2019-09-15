@@ -4,8 +4,17 @@ module TableStructure
   module Schema
     module DSL
       module ColumnConverter
-        def column_converter(name, callable)
-          column_converters[name] = callable
+        DEFAULT_OPTIONS = {
+          header: true,
+          row: true
+        }.freeze
+
+        def column_converter(name, callable, **options)
+          options = DEFAULT_OPTIONS.merge(options)
+          column_converters[name] = {
+            callable: callable,
+            options: options
+          }
           nil
         end
 
