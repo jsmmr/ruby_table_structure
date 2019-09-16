@@ -9,7 +9,7 @@ module TableStructure
         }
       }.freeze
 
-      attr_reader :columns, :options
+      attr_reader :options
 
       def initialize(
         name,
@@ -25,8 +25,10 @@ module TableStructure
 
         @name = name
         @columns = create_columns(name, column_definitions, context, options)
-        @context_builders = context_builders
-        @column_converters = column_converters
+        @header_context_builder = context_builders[:header]
+        @row_context_builder = context_builders[:row]
+        @header_converters = select_column_converters(:header, column_converters)
+        @row_converters = select_column_converters(:row, column_converters)
         @result_builders = result_builders
         @context = context
         @options = options
@@ -34,6 +36,10 @@ module TableStructure
 
       def create_table(result_type: :array, **options)
         options = @options.merge(options)
+
+        header_converters =
+          optional_header_converters(options).merge(@header_converters)
+
         result_builders =
           RESULT_BUILDERS
           .select { |k, _v| k == result_type }
@@ -41,8 +47,10 @@ module TableStructure
 
         Table.new(
           @columns,
-          @context_builders,
-          @column_converters,
+          @header_context_builder,
+          @row_context_builder,
+          header_converters,
+          @row_converters,
           result_builders,
           @context,
           options
@@ -56,6 +64,29 @@ module TableStructure
           .new(name, definitions, options)
           .compile(context)
           .map { |definition| Column.create(definition, options) }
+      end
+
+      def select_column_converters(type, column_converters)
+        column_converters
+          .select { |_k, v| v[:options][type] }
+          .map { |k, v| [k, v[:callable]] }
+          .to_h
+      end
+
+      def optional_header_converters(options)
+        converters = {}
+        if options[:name_prefix]
+          converters[:_prepend_prefix] = lambda { |val, *|
+            val.nil? ? val : "#{options[:name_prefix]}#{val}"
+          }
+        end
+        if options[:name_suffix]
+          converters[:_append_suffix] = lambda { |val, *|
+            val.nil? ? val : "#{val}#{options[:name_suffix]}"
+          }
+        end
+
+        converters
       end
     end
   end
