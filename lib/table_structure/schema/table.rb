@@ -7,7 +7,8 @@ module TableStructure
 
       def initialize(
         columns,
-        context_builders,
+        header_context_builder,
+        row_context_builder,
         header_converters,
         row_converters,
         result_builders,
@@ -15,8 +16,8 @@ module TableStructure
         options
       )
         @columns = columns
-        @header_context_builder = context_builders[:header]
-        @row_context_builder = context_builders[:row]
+        @header_context_builder = header_context_builder
+        @row_context_builder = row_context_builder
         @header_converters = header_converters
         @row_converters = row_converters
         @result_builders = result_builders

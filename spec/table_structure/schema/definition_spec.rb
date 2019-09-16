@@ -88,28 +88,76 @@ RSpec.describe TableStructure::Schema::Definition do
     it { expect(subject.size).to eq 7 }
   end
 
+  describe '@header_context_builder' do
+    let(:callable) { ->(context) { context } }
+
+    subject { definition.instance_variable_get(:@header_context_builder) }
+
+    context 'when header key exists' do
+      let(:context_builders) do
+        {
+          header: callable
+        }
+      end
+
+      it { is_expected.to eq callable }
+    end
+
+    context 'when header key does not exist' do
+      let(:context_builders) do
+        {}
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '@row_context_builder' do
+    let(:callable) { ->(context) { context } }
+
+    subject { definition.instance_variable_get(:@row_context_builder) }
+
+    context 'when row key exists' do
+      let(:context_builders) do
+        {
+          row: callable
+        }
+      end
+
+      it { is_expected.to eq callable }
+    end
+
+    context 'when row key does not exist' do
+      let(:context_builders) do
+        {}
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe '@header_converters' do
     let(:column_converters) do
       {
         add_prefix: {
-          callable: callable,
-          options: options
+          callable: converter,
+          options: converter_options
         }
       }
     end
 
-    let(:callable) { ->(val, *) { "test_#{val}" } }
+    let(:converter) { ->(val, *) { "test_#{val}" } }
 
     subject { definition.instance_variable_get(:@header_converters) }
 
-    context 'when header: true' do
-      let(:options) { { header: true } }
+    context 'when converter options contains `header: true`' do
+      let(:converter_options) { { header: true } }
 
-      it { is_expected.to eq({ add_prefix: callable }) }
+      it { is_expected.to eq(add_prefix: converter) }
     end
 
-    context 'when header: false' do
-      let(:options) { { header: false } }
+    context 'when converter options contains `header: false`' do
+      let(:converter_options) { { header: false } }
 
       it { is_expected.to be_empty }
     end
@@ -132,7 +180,7 @@ RSpec.describe TableStructure::Schema::Definition do
     context 'when row: true' do
       let(:options) { { row: true } }
 
-      it { is_expected.to eq({ add_prefix: callable }) }
+      it { is_expected.to eq(add_prefix: callable) }
     end
 
     context 'when row: false' do
