@@ -1,3 +1,16 @@
+# 0.3.5
+Changes:
+- `TableStructure::Schema`
+  - Add following options:
+    - `:name_prefix`
+    - `:name_suffix`
+  - DSL
+    - `column_converter`
+      - Add `:header` and `:row` options.
+        - If `header: false`, the converter is not applied to header values.
+        - If `row: false`, the converter is not applied to row values.
+        - Both options default to true.
+
 # 0.3.4
 Changes:
 - `TableStructure::Writer`
@@ -30,11 +43,13 @@ Changes:
 # 0.3.0
 Changes:
 - `TableStructure::Schema`
-  - Add `:omitted` key for `column(s)` DSL.
-  - Support nested schema.
-  - Add following options for schema initialization:
+  - Add following options:
     - `:key_prefix`
     - `:key_suffix`
+  - DSL
+    - `column(s)`
+      - Add `:omitted` option.
+      - Support nested schema.
 
 # 0.2.0
 Changes:
