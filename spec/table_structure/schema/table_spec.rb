@@ -63,7 +63,7 @@ RSpec.describe TableStructure::Schema::Table do
           }
         end
       end,
-      ->(table) { described_class::Spec::NestedTestTableSchema.new(context: table) }
+      ->(table) { described_class::Spec::NestedTestTableSchema.new(context: table, **nested_schema_options) }
     ]
   end
 
@@ -83,13 +83,35 @@ RSpec.describe TableStructure::Schema::Table do
     let(:column_converters) { {} }
     let(:result_builders) { {} }
 
-    let(:options) { {} }
-
     let(:header_context) { nil }
+
+    let(:options) { {} }
 
     subject { table.header(context: header_context) }
 
-    it { is_expected.to eq ['ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3', 'ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3'] }
+    context 'when option is not specified' do
+      let(:nested_schema_options) { {} }
+
+      it { is_expected.to eq ['ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3', 'ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3'] }
+    end
+
+    context 'when :name_prefix option is specified' do
+      let(:nested_schema_options) { { name_prefix: 'p ' } }
+
+      it { is_expected.to eq ['ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3', 'p ID', 'p Name', 'p Pet 1', 'p Pet 2', 'p Pet 3', 'p Q1', 'p Q2', 'p Q3'] }
+    end
+
+    context 'when :name_suffix option is specified' do
+      let(:nested_schema_options) { { name_suffix: ' s' } }
+
+      it { is_expected.to eq ['ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3', 'ID s', 'Name s', 'Pet 1 s', 'Pet 2 s', 'Pet 3 s', 'Q1 s', 'Q2 s', 'Q3 s'] }
+    end
+
+    context 'when both :name_prefix and :key_suffix options are specified' do
+      let(:nested_schema_options) { { name_prefix: 'p ', name_suffix: ' s' } }
+
+      it { is_expected.to eq ['ID', 'Name', 'Pet 1', 'Pet 2', 'Pet 3', 'Q1', 'Q2', 'Q3', 'p ID s', 'p Name s', 'p Pet 1 s', 'p Pet 2 s', 'p Pet 3 s', 'p Q1 s', 'p Q2 s', 'p Q3 s'] }
+    end
   end
 
   describe '#row' do
@@ -97,6 +119,7 @@ RSpec.describe TableStructure::Schema::Table do
     let(:result_builders) { {} }
 
     let(:options) { {} }
+    let(:nested_schema_options) { {} }
 
     let(:row_context) { { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } } }
 
@@ -108,6 +131,8 @@ RSpec.describe TableStructure::Schema::Table do
   describe '#keys' do
     let(:column_converters) { {} }
     let(:result_builders) { {} }
+
+    let(:nested_schema_options) { {} }
 
     subject { table.send(:keys) }
 

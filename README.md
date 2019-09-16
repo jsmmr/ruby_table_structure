@@ -237,8 +237,12 @@ class SampleTableSchema
           value: ->(row, *) { row[:name] }
 
   columns ->(table) { PetsSchema.new(context: table) }
+  ## Same as above code
+  # columns PetsSchema
 
   columns ->(table) { QuestionsSchema.new(context: table) }
+  ## Same as above code.
+  # columns QuestionsSchema
 
   column_converter :to_s, ->(val, *) { val.to_s }
 end
