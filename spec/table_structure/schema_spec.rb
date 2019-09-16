@@ -766,7 +766,7 @@ RSpec.describe TableStructure::Schema do
                   key: :name,
                   value: ->(row, *) { row[:name] }
 
-          columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          columns name: 'Pets',
                   key: %i[pet1 pet2 pet3],
                   value: ->(row, *) { row[:pets] }
 
@@ -809,7 +809,7 @@ RSpec.describe TableStructure::Schema do
           }
 
           columns lambda { |table|
-            NestedTestTableSchema19.new(context: table, key_prefix: 'nested_')
+            NestedTestTableSchema19.new(context: table, name_prefix: 'Nested ', key_prefix: 'nested_')
           }
 
           column_converter :to_s, ->(val, *) { val.to_s }
@@ -848,14 +848,14 @@ RSpec.describe TableStructure::Schema do
             expect(subject.shift).to eq 'Q1'
             expect(subject.shift).to eq 'Q2'
             expect(subject.shift).to eq 'Q3'
-            expect(subject.shift).to eq 'ID'
-            expect(subject.shift).to eq 'Name'
-            expect(subject.shift).to eq 'Pet 1'
-            expect(subject.shift).to eq 'Pet 2'
-            expect(subject.shift).to eq 'Pet 3'
-            expect(subject.shift).to eq 'Q1'
-            expect(subject.shift).to eq 'Q2'
-            expect(subject.shift).to eq 'Q3'
+            expect(subject.shift).to eq 'Nested ID'
+            expect(subject.shift).to eq 'Nested Name'
+            expect(subject.shift).to eq 'Nested Pets'
+            expect(subject.shift).to eq '-'
+            expect(subject.shift).to eq '-'
+            expect(subject.shift).to eq 'Nested Q1'
+            expect(subject.shift).to eq 'Nested Q2'
+            expect(subject.shift).to eq 'Nested Q3'
             expect(subject.shift).to be_nil
           end
         end
@@ -915,14 +915,14 @@ RSpec.describe TableStructure::Schema do
             expect(subject[:q1]).to eq 'Q1'
             expect(subject[:q2]).to eq 'Q2'
             expect(subject[:q3]).to eq 'Q3'
-            expect(subject[:nested_id]).to eq 'ID'
-            expect(subject[:nested_name]).to eq 'Name'
-            expect(subject[:nested_pet1]).to eq 'Pet 1'
-            expect(subject[:nested_pet2]).to eq 'Pet 2'
-            expect(subject[:nested_pet3]).to eq 'Pet 3'
-            expect(subject[:nested_q1]).to eq 'Q1'
-            expect(subject[:nested_q2]).to eq 'Q2'
-            expect(subject[:nested_q3]).to eq 'Q3'
+            expect(subject[:nested_id]).to eq 'Nested ID'
+            expect(subject[:nested_name]).to eq 'Nested Name'
+            expect(subject[:nested_pet1]).to eq 'Nested Pets'
+            expect(subject[:nested_pet2]).to eq '-'
+            expect(subject[:nested_pet3]).to eq '-'
+            expect(subject[:nested_q1]).to eq 'Nested Q1'
+            expect(subject[:nested_q2]).to eq 'Nested Q2'
+            expect(subject[:nested_q3]).to eq 'Nested Q3'
           end
         end
 

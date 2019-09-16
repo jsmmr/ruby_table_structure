@@ -189,4 +189,44 @@ RSpec.describe TableStructure::Schema::Definition do
       it { is_expected.to be_empty }
     end
   end
+
+  describe '#create_table' do
+    let(:table) { definition.create_table }
+
+    describe '@header_converters' do
+      subject { table.instance_variable_get(:@header_converters) }
+
+      context 'when `name_prefix` is specified within definition options' do
+        let(:options) { { name_prefix: 'test_' } }
+
+        it { is_expected.to be_key :_prepend_prefix }
+
+        context 'when header value is not nil' do
+          let(:header_value) { 'original' }
+          it { expect(subject[:_prepend_prefix].call(header_value)).to eq 'test_original' }
+        end
+
+        context 'when header value is nil' do
+          let(:header_value) { nil }
+          it { expect(subject[:_prepend_prefix].call(header_value)).to be_nil }
+        end
+      end
+
+      context 'when `name_prefix` is specified within definition options' do
+        let(:options) { { name_suffix: '_test' } }
+
+        it { is_expected.to be_key :_append_suffix }
+
+        context 'when header value is not nil' do
+          let(:header_value) { 'original' }
+          it { expect(subject[:_append_suffix].call(header_value)).to eq 'original_test' }
+        end
+
+        context 'when header value is nil' do
+          let(:header_value) { nil }
+          it { expect(subject[:_append_suffix].call(header_value)).to be_nil }
+        end
+      end
+    end
+  end
 end

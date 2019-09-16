@@ -37,6 +37,9 @@ module TableStructure
       def create_table(result_type: :array, **options)
         options = @options.merge(options)
 
+        header_converters =
+          optional_header_converters(options).merge(@header_converters)
+
         result_builders =
           RESULT_BUILDERS
           .select { |k, _v| k == result_type }
@@ -46,7 +49,7 @@ module TableStructure
           @columns,
           @header_context_builder,
           @row_context_builder,
-          @header_converters,
+          header_converters,
           @row_converters,
           result_builders,
           @context,
@@ -68,6 +71,22 @@ module TableStructure
           .select { |_k, v| v[:options][type] }
           .map { |k, v| [k, v[:callable]] }
           .to_h
+      end
+
+      def optional_header_converters(options)
+        converters = {}
+        if options[:name_prefix]
+          converters[:_prepend_prefix] = lambda { |val, *|
+            val.nil? ? val : "#{options[:name_prefix]}#{val}"
+          }
+        end
+        if options[:name_suffix]
+          converters[:_append_suffix] = lambda { |val, *|
+            val.nil? ? val : "#{val}#{options[:name_suffix]}"
+          }
+        end
+
+        converters
       end
     end
   end

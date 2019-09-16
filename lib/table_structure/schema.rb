@@ -11,6 +11,8 @@ module TableStructure
     end
 
     DEFAULT_OPTIONS = {
+      name_prefix: nil,
+      name_suffix: nil,
       key_prefix: nil,
       key_suffix: nil
     }.freeze
