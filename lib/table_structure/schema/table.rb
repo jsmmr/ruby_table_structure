@@ -40,25 +40,12 @@ module TableStructure
       private
 
       def keys
-        @keys ||= obtain_keys
-      end
-
-      def obtain_keys
-        keys = @columns.map(&:keys).flatten
-        has_key_options? ? decorate_keys(keys) : keys
-      end
-
-      def has_key_options?
-        @options[:key_prefix] || @options[:key_suffix]
-      end
-
-      def decorate_keys(keys)
-        keys.map do |key|
-          next key unless key
-
-          decorated_key = "#{@options[:key_prefix]}#{key}#{@options[:key_suffix]}"
-          decorated_key = decorated_key.to_sym if key.is_a?(Symbol)
-          decorated_key
+        @keys ||= begin
+          keys = @columns.map(&:keys).flatten
+          KeyDecorator.new(
+            prefix: @options[:key_prefix],
+            suffix: @options[:key_suffix]
+          ).decorate(keys)
         end
       end
 
