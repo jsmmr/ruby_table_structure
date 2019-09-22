@@ -100,7 +100,8 @@ RSpec.describe TableStructure::Schema::Definition do
         }
       end
 
-      it { is_expected.to eq callable }
+      it { is_expected.to be_a TableStructure::Schema::Table::ContextBuilder }
+      it { is_expected.to be_available }
     end
 
     context 'when header key does not exist' do
@@ -108,7 +109,8 @@ RSpec.describe TableStructure::Schema::Definition do
         {}
       end
 
-      it { is_expected.to be_nil }
+      it { is_expected.to be_a TableStructure::Schema::Table::ContextBuilder }
+      it { is_expected.not_to be_available }
     end
   end
 
@@ -124,7 +126,8 @@ RSpec.describe TableStructure::Schema::Definition do
         }
       end
 
-      it { is_expected.to eq callable }
+      it { is_expected.to be_a TableStructure::Schema::Table::ContextBuilder }
+      it { is_expected.to be_available }
     end
 
     context 'when row key does not exist' do
@@ -132,7 +135,8 @@ RSpec.describe TableStructure::Schema::Definition do
         {}
       end
 
-      it { is_expected.to be_nil }
+      it { is_expected.to be_a TableStructure::Schema::Table::ContextBuilder }
+      it { is_expected.not_to be_available }
     end
   end
 

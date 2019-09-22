@@ -16,24 +16,25 @@ module TableStructure
         options
       )
         @columns = columns
-        @header_context_builder = header_context_builder
-        @row_context_builder = row_context_builder
         @header_converters = header_converters
         @row_converters = row_converters
         @result_builders = result_builders
         @context = context
         @options = options
+
+        if header_context_builder.available?
+          singleton_class.include header_context_builder
+        end
+        if row_context_builder.available?
+          singleton_class.include row_context_builder
+        end
       end
 
       def header(context: nil)
-        if @header_context_builder
-          context = @header_context_builder.call(context)
-        end
         values(:name, context, @header_converters)
       end
 
       def row(context: nil)
-        context = @row_context_builder.call(context) if @row_context_builder
         values(:value, context, @row_converters)
       end
 
