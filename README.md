@@ -2,8 +2,12 @@
 
 [![Build Status](https://travis-ci.org/jsmmr/ruby_table_structure.svg?branch=master)](https://travis-ci.org/jsmmr/ruby_table_structure)
 
-`TableStructure` has two major functions.
-The functions are `TableStructure::Schema` that defines the schema of a table using DSL and ` TableStructure::Writer` that converts and outputs data with the schema.
+- `TableStructure::Schema`
+  - Defines columns of a table using DSL.
+- `TableStructure::Writer`
+  - Converts data with the schema, and outputs it.
+- `TableStructure::Iterator`
+  - Converts data with the schema, and enumerates it.
 
 ## Installation
 
@@ -132,7 +136,7 @@ class SampleTableSchema
     end
   }
 
-  ## When nesting schemas, same key must not exist in parent and child schemas.
+  ## When nesting schemas, :key must be unique in parent and child schemas.
   ## This can also be avoided by specifying :key_prefix or :key_suffix option.
   # columns ->(table) { NestedSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
 
@@ -237,11 +241,11 @@ class SampleTableSchema
           value: ->(row, *) { row[:name] }
 
   columns ->(table) { PetsSchema.new(context: table) }
-  ## Same as above code
+  ## or
   # columns PetsSchema
 
   columns ->(table) { QuestionsSchema.new(context: table) }
-  ## Same as above code.
+  ## or
   # columns QuestionsSchema
 
   column_converter :to_s, ->(val, *) { val.to_s }
@@ -259,7 +263,7 @@ schema = SampleTableSchema.new(context: context)
 ```
 
 You can also use `context_builder`.
-This may be useful when `column` definition lambda is complicated.
+This may be useful when `column(s)` lambda is complicated.
 ```ruby
 class SampleTableSchema
   include TableStructure::Schema

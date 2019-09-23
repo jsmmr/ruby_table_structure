@@ -1,3 +1,8 @@
+# 0.3.6
+Changes:
+- `TableStructure::Schema`
+  - Improve performance when `context_builder` is not defined.
+
 # 0.3.5
 Changes:
 - `TableStructure::Schema`
@@ -29,7 +34,7 @@ Changes:
 # 0.3.2
 Changes:
 - `TableStructure::Writer`
-  - When `result_type: :hash` option is specified and `column(s)` key of the schema is undefined, index number is used as the key.
+  - When `result_type: :hash` option is specified and `column(s)` `:key` of the schema is undefined, index number is used as the key.
 
 # 0.3.1
 Changes:
@@ -49,7 +54,7 @@ Changes:
   - DSL
     - `column(s)`
       - Add `:omitted` option.
-      - Support nested schema.
+      - Support nested schemas.
 
 # 0.2.0
 Changes:

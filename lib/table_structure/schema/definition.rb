@@ -25,8 +25,8 @@ module TableStructure
 
         @name = name
         @columns = create_columns(name, column_definitions, context, options)
-        @header_context_builder = context_builders[:header]
-        @row_context_builder = context_builders[:row]
+        @header_context_builder = Table::ContextBuilder.new(:header, context_builders[:header])
+        @row_context_builder = Table::ContextBuilder.new(:row, context_builders[:row])
         @header_converters = select_column_converters(:header, column_converters)
         @row_converters = select_column_converters(:row, column_converters)
         @result_builders = result_builders
