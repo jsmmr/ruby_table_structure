@@ -29,6 +29,17 @@ module TableStructure
         if row_context_builder
           singleton_class.include ContextBuilder.new(:row, row_context_builder)
         end
+
+        unless result_builders.empty?
+          singleton_class.include ResultBuilder.new(
+            [
+              { method: :header, callables: result_builders },
+              { method: :row, callables: result_builders }
+            ],
+            keys: keys,
+            context: context
+          )
+        end
       end
 
       def header(context: nil)
@@ -69,10 +80,7 @@ module TableStructure
           end
         end
 
-        @result_builders
-          .reduce(values) do |vals, (_, result_builder)|
-            result_builder.call(vals, keys, context, @context)
-          end
+        values
       end
     end
   end
