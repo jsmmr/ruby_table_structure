@@ -362,31 +362,37 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'define result_builder' do
+    require 'ostruct'
+
     module described_class::Spec
       class TestTableSchema15
         include TableStructure::Schema
 
         column  name: 'ID',
+                key: :id,
                 value: ->(row, *) { row[:id] }
 
         column  name: 'Name',
+                key: :name,
                 value: ->(row, *) { row[:name] }
 
         columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:pets] }
 
         columns lambda { |table|
           table[:questions].map do |question|
             {
               name: question[:id],
+              key: question[:id].downcase.to_sym,
               value: ->(row, *) { row[:answers][question[:id]] }
             }
           end
         }
 
-        Result = Struct.new(:id, :name, :pet1, :pet2, :pet3, :q1, :q2, :q3)
-
-        result_builder :to_struct, ->(values, *) { Result.new(*values) }
+        result_builder  :to_ostruct,
+                        ->(values, *) { OpenStruct.new(values) },
+                        enabled_result_types: [:hash]
       end
     end
 
@@ -398,7 +404,8 @@ RSpec.describe TableStructure::Schema do
             { id: 'Q2', text: 'Do you like yakiniku?' },
             { id: 'Q3', text: 'Do you like ramen?' }
           ]
-        }
+        },
+        result_type: :hash
       )
     end
 
@@ -448,7 +455,7 @@ RSpec.describe TableStructure::Schema do
 
     describe '#result_builders' do
       subject { table.result_builders.keys }
-      it { is_expected.to eq [:to_struct] }
+      it { is_expected.to eq %i[to_hash to_ostruct] }
     end
   end
 
@@ -540,7 +547,7 @@ RSpec.describe TableStructure::Schema do
 
     describe '#result_builders' do
       subject { table.result_builders.keys }
-      it { is_expected.to eq [:hash] }
+      it { is_expected.to eq [:to_hash] }
     end
   end
 
@@ -597,7 +604,7 @@ RSpec.describe TableStructure::Schema do
 
     describe '#result_builders' do
       subject { table.result_builders.keys }
-      it { is_expected.to eq [:hash] }
+      it { is_expected.to eq [:to_hash] }
     end
 
     context 'overwrite by argument' do
@@ -961,7 +968,7 @@ RSpec.describe TableStructure::Schema do
 
         describe '#result_builders' do
           subject { table.result_builders.keys }
-          it { is_expected.to eq [:hash] }
+          it { is_expected.to eq [:to_hash] }
         end
       end
     end
@@ -1172,7 +1179,7 @@ RSpec.describe TableStructure::Schema do
 
         describe '#result_builders' do
           subject { table.result_builders.keys }
-          it { is_expected.to eq [:hash] }
+          it { is_expected.to eq [:to_hash] }
         end
       end
     end

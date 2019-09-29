@@ -4,8 +4,13 @@ module TableStructure
   module Schema
     class Definition
       RESULT_BUILDERS = {
-        hash: lambda { |values, keys, *|
-          keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+        to_hash: {
+          callable: lambda { |values, keys, *|
+            keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+          },
+          options: {
+            enabled_result_types: [:hash]
+          }
         }
       }.freeze
 
@@ -40,10 +45,7 @@ module TableStructure
         header_column_converters =
           optional_header_column_converters(options).merge(@header_column_converters)
 
-        result_builders =
-          RESULT_BUILDERS
-          .select { |k, _v| k == result_type }
-          .merge(@result_builders)
+        result_builders = select_result_builders(result_type)
 
         Table.new(
           @columns,
@@ -87,6 +89,14 @@ module TableStructure
         end
 
         column_converters
+      end
+
+      def select_result_builders(result_type)
+        RESULT_BUILDERS
+          .merge(@result_builders)
+          .select { |_k, v| v[:options][:enabled_result_types].include?(result_type) }
+          .map { |k, v| [k, v[:callable]] }
+          .to_h
       end
     end
   end
