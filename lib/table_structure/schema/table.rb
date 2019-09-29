@@ -3,21 +3,21 @@
 module TableStructure
   module Schema
     class Table
-      attr_reader :header_converters, :row_converters, :result_builders
+      attr_reader :header_column_converters, :row_column_converters, :result_builders
 
       def initialize(
         columns,
         header_context_builder,
         row_context_builder,
-        header_converters,
-        row_converters,
+        header_column_converters,
+        row_column_converters,
         result_builders,
         context,
         options
       )
         @columns = columns
-        @header_converters = header_converters
-        @row_converters = row_converters
+        @header_column_converters = header_column_converters
+        @row_column_converters = row_column_converters
         @result_builders = result_builders
         @context = context
         @options = options
@@ -31,11 +31,11 @@ module TableStructure
       end
 
       def header(context: nil)
-        values(:name, context, @header_converters)
+        values(:name, context, @header_column_converters)
       end
 
       def row(context: nil)
-        values(:value, context, @row_converters)
+        values(:value, context, @row_column_converters)
       end
 
       private

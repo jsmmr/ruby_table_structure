@@ -140,7 +140,7 @@ RSpec.describe TableStructure::Schema::Definition do
     end
   end
 
-  describe '@header_converters' do
+  describe '@header_column_converters' do
     let(:column_converters) do
       {
         add_prefix: {
@@ -152,7 +152,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:converter) { ->(val, *) { "test_#{val}" } }
 
-    subject { definition.instance_variable_get(:@header_converters) }
+    subject { definition.instance_variable_get(:@header_column_converters) }
 
     context 'when converter options contains `header: true`' do
       let(:converter_options) { { header: true } }
@@ -167,7 +167,7 @@ RSpec.describe TableStructure::Schema::Definition do
     end
   end
 
-  describe '@row_converters' do
+  describe '@row_column_converters' do
     let(:column_converters) do
       {
         add_prefix: {
@@ -179,7 +179,7 @@ RSpec.describe TableStructure::Schema::Definition do
 
     let(:callable) { ->(val, *) { "test_#{val}" } }
 
-    subject { definition.instance_variable_get(:@row_converters) }
+    subject { definition.instance_variable_get(:@row_column_converters) }
 
     context 'when row: true' do
       let(:options) { { row: true } }
@@ -197,8 +197,8 @@ RSpec.describe TableStructure::Schema::Definition do
   describe '#create_table' do
     let(:table) { definition.create_table }
 
-    describe '@header_converters' do
-      subject { table.instance_variable_get(:@header_converters) }
+    describe '@header_column_converters' do
+      subject { table.instance_variable_get(:@header_column_converters) }
 
       context 'when `name_prefix` is specified within definition options' do
         let(:options) { { name_prefix: 'test_' } }
