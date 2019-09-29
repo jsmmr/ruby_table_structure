@@ -25,8 +25,8 @@ module TableStructure
 
         @name = name
         @columns = create_columns(name, column_definitions, context, options)
-        @header_context_builder = Table::ContextBuilder.new(:header, context_builders[:header])
-        @row_context_builder = Table::ContextBuilder.new(:row, context_builders[:row])
+        @header_context_builder = context_builders[:header]
+        @row_context_builder = context_builders[:row]
         @header_column_converters = select_column_converters(:header, column_converters)
         @row_column_converters = select_column_converters(:row, column_converters)
         @result_builders = result_builders
@@ -66,9 +66,9 @@ module TableStructure
           .map { |definition| Column.create(definition, options) }
       end
 
-      def select_column_converters(type, column_converters)
+      def select_column_converters(method, column_converters)
         column_converters
-          .select { |_k, v| v[:options][type] }
+          .select { |_k, v| v[:options][method] }
           .map { |k, v| [k, v[:callable]] }
           .to_h
       end

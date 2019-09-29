@@ -4,18 +4,10 @@ module TableStructure
   module Schema
     class Table
       class ContextBuilder < Module
-        def initialize(name, callable)
-          @available = !callable.nil?
-
-          return unless @available
-
-          define_method(name) do |context: nil|
+        def initialize(method, callable)
+          define_method(method) do |context: nil|
             super(context: callable.call(context))
           end
-        end
-
-        def available?
-          @available
         end
       end
     end
