@@ -55,19 +55,22 @@ module TableStructure
       end
 
       def values(method, context, converters)
-        columns =
+        values =
           @columns
           .map { |column| column.send(method, context, @context) }
           .flatten
-          .map do |val|
+
+        unless converters.empty?
+          values = values.map do |val|
             converters.reduce(val) do |val, (_, converter)|
               converter.call(val, context, @context)
             end
           end
+        end
 
         @result_builders
-          .reduce(columns) do |columns, (_, result_builder)|
-            result_builder.call(columns, keys, context, @context)
+          .reduce(values) do |vals, (_, result_builder)|
+            result_builder.call(vals, keys, context, @context)
           end
       end
     end
