@@ -30,6 +30,16 @@ module TableStructure
           singleton_class.include ContextBuilder.new(:row, row_context_builder)
         end
 
+        if !header_column_converters.empty? || !row_column_converters.empty?
+          singleton_class.include ColumnConverter.new(
+            [
+              { method: :header, callables: header_column_converters },
+              { method: :row, callables: row_column_converters }
+            ],
+            context: context
+          )
+        end
+
         unless result_builders.empty?
           singleton_class.include ResultBuilder.new(
             [
@@ -66,21 +76,10 @@ module TableStructure
         @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
       end
 
-      def values(method, context, converters)
-        values =
-          @columns
+      def values(method, context, _converters)
+        @columns
           .map { |column| column.send(method, context, @context) }
           .flatten
-
-        unless converters.empty?
-          values = values.map do |val|
-            converters.reduce(val) do |val, (_, converter)|
-              converter.call(val, context, @context)
-            end
-          end
-        end
-
-        values
       end
     end
   end
