@@ -22,12 +22,13 @@ module TableStructure
         @context = context
         @options = options
 
-        if header_context_builder
-          singleton_class.include ContextBuilder.new(:header, header_context_builder)
-        end
-
-        if row_context_builder
-          singleton_class.include ContextBuilder.new(:row, row_context_builder)
+        if header_context_builder || row_context_builder
+          singleton_class.include ContextBuilder.new(
+            [
+              { method: :header, callable: header_context_builder },
+              { method: :row, callable: row_context_builder }
+            ]
+          )
         end
 
         if !header_column_converters.empty? || !row_column_converters.empty?
