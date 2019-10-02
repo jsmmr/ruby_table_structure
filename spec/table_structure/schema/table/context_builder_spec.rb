@@ -1,57 +1,51 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Table::ContextBuilder do
-  let(:context_builder) { described_class.new(name, callable) }
+  let(:context_builder) { described_class.new(overrides) }
 
-  describe '#available?' do
-    subject { context_builder }
+  let(:overrides) do
+    [
+      { method: :header, callable: header_callable },
+      { method: :row, callable: row_callable }
+    ]
+  end
 
-    let(:name) { :any }
+  let(:header_callable) { ->(context) { "#{context}_result" } }
+  let(:header_context) { :header_context }
 
-    context 'when callable is nil' do
-      let(:callable) { nil }
+  let(:row_callable) { ->(context) { "#{context}_result" } }
+  let(:row_context) { :row_context }
 
-      it { is_expected.not_to be_available }
+  let(:table) do
+    Class.new do
+      def header(context:)
+        "#{context}_1"
+      end
+
+      def row(context:)
+        "#{context}_2"
+      end
     end
-
-    context 'when callable is not nil' do
-      let(:callable) { ->(context) { context } }
-
-      it { is_expected.to be_available }
-    end
+         .new.extend(context_builder)
   end
 
   describe '#header' do
-    let(:name) { :header }
-    let(:callable) { ->(context) { context } }
-
-    subject do
-      c = Class.new do
-        def header(context:)
-          "#{context}_result1"
-        end
-      end
-      c.new.extend(context_builder)
+    before do
+      expect(header_callable).to receive(:call)
+        .with(header_context)
+        .and_call_original
     end
 
-    it { expect(subject.respond_to?(name)).to be_truthy }
-    it { expect(subject.header(context: 'header')).to eq 'header_result1' }
+    it { expect(table.header(context: header_context)).to eq 'header_context_result_1' }
   end
 
   describe '#row' do
-    let(:name) { :row }
-    let(:callable) { ->(context) { context } }
-
-    subject do
-      c = Class.new do
-        def row(context:)
-          "#{context}_result2"
-        end
-      end
-      c.new.extend(context_builder)
+    before do
+      expect(row_callable).to receive(:call)
+        .with(row_context)
+        .and_call_original
     end
 
-    it { expect(subject.respond_to?(name)).to be_truthy }
-    it { expect(subject.row(context: 'row')).to eq 'row_result2' }
+    it { expect(table.row(context: row_context)).to eq 'row_context_result_2' }
   end
 end

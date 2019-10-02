@@ -4,8 +4,13 @@ module TableStructure
   module Schema
     class Definition
       RESULT_BUILDERS = {
-        hash: lambda { |values, keys, *|
-          keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+        to_hash: {
+          callable: lambda { |values, keys, *|
+            keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+          },
+          options: {
+            enabled_result_types: [:hash]
+          }
         }
       }.freeze
 
@@ -25,10 +30,10 @@ module TableStructure
 
         @name = name
         @columns = create_columns(name, column_definitions, context, options)
-        @header_context_builder = Table::ContextBuilder.new(:header, context_builders[:header])
-        @row_context_builder = Table::ContextBuilder.new(:row, context_builders[:row])
-        @header_converters = select_column_converters(:header, column_converters)
-        @row_converters = select_column_converters(:row, column_converters)
+        @header_context_builder = context_builders[:header]
+        @row_context_builder = context_builders[:row]
+        @header_column_converters = select_column_converters(:header, column_converters)
+        @row_column_converters = select_column_converters(:row, column_converters)
         @result_builders = result_builders
         @context = context
         @options = options
@@ -37,20 +42,17 @@ module TableStructure
       def create_table(result_type: :array, **options)
         options = @options.merge(options)
 
-        header_converters =
-          optional_header_converters(options).merge(@header_converters)
+        header_column_converters =
+          optional_header_column_converters(options).merge(@header_column_converters)
 
-        result_builders =
-          RESULT_BUILDERS
-          .select { |k, _v| k == result_type }
-          .merge(@result_builders)
+        result_builders = select_result_builders(result_type)
 
         Table.new(
           @columns,
           @header_context_builder,
           @row_context_builder,
-          header_converters,
-          @row_converters,
+          header_column_converters,
+          @row_column_converters,
           result_builders,
           @context,
           options
@@ -66,27 +68,35 @@ module TableStructure
           .map { |definition| Column.create(definition, options) }
       end
 
-      def select_column_converters(type, column_converters)
+      def select_column_converters(method, column_converters)
         column_converters
-          .select { |_k, v| v[:options][type] }
+          .select { |_k, v| v[:options][method] }
           .map { |k, v| [k, v[:callable]] }
           .to_h
       end
 
-      def optional_header_converters(options)
-        converters = {}
+      def optional_header_column_converters(options)
+        column_converters = {}
         if options[:name_prefix]
-          converters[:_prepend_prefix] = lambda { |val, *|
+          column_converters[:_prepend_prefix] = lambda { |val, *|
             val.nil? ? val : "#{options[:name_prefix]}#{val}"
           }
         end
         if options[:name_suffix]
-          converters[:_append_suffix] = lambda { |val, *|
+          column_converters[:_append_suffix] = lambda { |val, *|
             val.nil? ? val : "#{val}#{options[:name_suffix]}"
           }
         end
 
-        converters
+        column_converters
+      end
+
+      def select_result_builders(result_type)
+        RESULT_BUILDERS
+          .merge(@result_builders)
+          .select { |_k, v| v[:options][:enabled_result_types].include?(result_type) }
+          .map { |k, v| [k, v[:callable]] }
+          .to_h
       end
     end
   end

@@ -194,7 +194,7 @@ class SampleTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
-          value: ->(row, _table) { row[:id] }
+          value: ->(row, *) { row[:id] }
 
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
@@ -235,7 +235,7 @@ class SampleTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
-          value: ->(row, _table) { row[:id] }
+          value: ->(row, *) { row[:id] }
 
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
@@ -247,8 +247,6 @@ class SampleTableSchema
   columns ->(table) { QuestionsSchema.new(context: table) }
   ## or
   # columns QuestionsSchema
-
-  column_converter :to_s, ->(val, *) { val.to_s }
 end
 
 context = {
@@ -296,8 +294,6 @@ class SampleTableSchema
       }
     end
   }
-
-  column_converter :to_s, ->(val, *) { val.to_s }
 end
 ```
 
