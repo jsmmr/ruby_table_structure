@@ -1,3 +1,9 @@
+# 0.3.7
+Changes:
+- `TableStructure::Schema`
+  - Improve performance when `result_type: :array` (default) option is specified.
+  - Improve performance when `column_converter` is not defined.
+
 # 0.3.6
 Changes:
 - `TableStructure::Schema`
