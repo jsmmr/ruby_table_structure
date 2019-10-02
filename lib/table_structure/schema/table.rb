@@ -3,39 +3,62 @@
 module TableStructure
   module Schema
     class Table
-      attr_reader :header_converters, :row_converters, :result_builders
+      attr_reader :header_column_converters, :row_column_converters, :result_builders
 
       def initialize(
         columns,
         header_context_builder,
         row_context_builder,
-        header_converters,
-        row_converters,
+        header_column_converters,
+        row_column_converters,
         result_builders,
         context,
         options
       )
         @columns = columns
-        @header_converters = header_converters
-        @row_converters = row_converters
+        @header_column_converters = header_column_converters
+        @row_column_converters = row_column_converters
         @result_builders = result_builders
         @context = context
         @options = options
 
-        if header_context_builder.available?
-          singleton_class.include header_context_builder
+        if header_context_builder || row_context_builder
+          singleton_class.include ContextBuilder.new(
+            [
+              { method: :header, callable: header_context_builder },
+              { method: :row, callable: row_context_builder }
+            ]
+          )
         end
-        if row_context_builder.available?
-          singleton_class.include row_context_builder
+
+        if !header_column_converters.empty? || !row_column_converters.empty?
+          singleton_class.include ColumnConverter.new(
+            [
+              { method: :header, callables: header_column_converters },
+              { method: :row, callables: row_column_converters }
+            ],
+            context: context
+          )
+        end
+
+        unless result_builders.empty?
+          singleton_class.include ResultBuilder.new(
+            [
+              { method: :header, callables: result_builders },
+              { method: :row, callables: result_builders }
+            ],
+            keys: keys,
+            context: context
+          )
         end
       end
 
       def header(context: nil)
-        values(:name, context, @header_converters)
+        values(:name, context, @header_column_converters)
       end
 
       def row(context: nil)
-        values(:value, context, @row_converters)
+        values(:value, context, @row_column_converters)
       end
 
       private
@@ -54,21 +77,10 @@ module TableStructure
         @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
       end
 
-      def values(method, context, converters)
-        columns =
-          @columns
+      def values(method, context, _converters)
+        @columns
           .map { |column| column.send(method, context, @context) }
           .flatten
-          .map do |val|
-            converters.reduce(val) do |val, (_, converter)|
-              converter.call(val, context, @context)
-            end
-          end
-
-        @result_builders
-          .reduce(columns) do |columns, (_, result_builder)|
-            result_builder.call(columns, keys, context, @context)
-          end
       end
     end
   end
