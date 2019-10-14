@@ -27,6 +27,15 @@ RSpec.describe TableStructure::Schema::Column::Schema do
         end
       }
 
+      column  nil
+      column  ->(*) { nil }
+
+      columns [nil, nil]
+      columns ->(*) { [nil, nil] }
+
+      columns []
+      columns ->(*) { [] }
+
       column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
       column_converter :to_s, ->(val, *) { val.to_s }
     end

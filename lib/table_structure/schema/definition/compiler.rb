@@ -41,6 +41,8 @@ module TableStructure
                     definition
                   elsif Utils.schema_class?(definition)
                     definition.new(context: context)
+                  elsif definition.nil?
+                    next
                   else
                     raise Error.new('Invalid definition.', @name, i)
                   end
