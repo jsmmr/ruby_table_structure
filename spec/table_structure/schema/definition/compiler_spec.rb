@@ -300,10 +300,20 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
 
       subject { described_class.new(name, definitions, options).compile }
 
-      it 'compiles definitions' do
-        expect(subject.size).to eq 2
-        expect(subject[0][:name]).to eq 'a'
-        expect(subject[1][:name]).to eq 'b'
+      context 'and `:nil_definitions_ignored` option is set `true`' do
+        let(:options) { { nil_definitions_ignored: true } }
+
+        it 'compiles definitions' do
+          expect(subject.size).to eq 2
+          expect(subject[0][:name]).to eq 'a'
+          expect(subject[1][:name]).to eq 'b'
+        end
+      end
+
+      context 'and `:nil_definitions_ignored` option is set `false`' do
+        let(:options) { { nil_definitions_ignored: false } }
+
+        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Error }
       end
     end
 
