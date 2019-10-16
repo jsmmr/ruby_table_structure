@@ -30,6 +30,8 @@ Or install it yourself as:
 ### Basic
 
 #### TableStructure::Schema
+
+Define a schema:
 ```ruby
 class SampleTableSchema
   include TableStructure::Schema
@@ -54,7 +56,10 @@ class SampleTableSchema
 
   column_converter :to_s, ->(val, _row, _table) { val.to_s }
 end
+```
 
+Initialize the schema:
+```ruby
 context = {
   questions: [
     { id: 'Q1', text: 'Do you like sushi?' },
@@ -67,11 +72,16 @@ schema = SampleTableSchema.new(context: context)
 ```
 
 #### TableStructure::Writer
+
+Initialize a writer with the schema:
 ```ruby
 writer = TableStructure::Writer.new(schema)
 ## When omitting header line
 # writer = TableStructure::Writer.new(schema, header_omitted: true)
+```
 
+Writes the items converted by the schema to array：
+```ruby
 items = [
   {
     id: 1,
@@ -90,29 +100,38 @@ items = [
 ## When using `find_each` method of Rails
 # items = ->(y) { Records.find_each {|r| y << r } }
 
-# Output to array
 table = []
 writer.write(items, to: table)
 
 # table
 # => [["ID", "Name", "Pet 1", "Pet 2", "Pet 3", "Q1", "Q2", "Q3"], ["1", "Taro", "🐱", "🐶", "", "⭕️", "❌", "⭕️"], ["2", "Hanako", "🐇", "🐢", "🐿", "⭕️", "⭕️", "❌"]]
+```
 
-# Output to file as CSV
+Writes the items converted by the schema to file as CSV:
+```ruby
 File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f))
 end
+```
 
-# Output to stream as CSV with Rails
-response.headers['X-Accel-Buffering'] = 'no' # When using Nginx for reverse proxy
+Writes the items converted by the schema to stream as CSV with Rails:
+```ruby
+# response.headers['X-Accel-Buffering'] = 'no' # When using Nginx for reverse proxy
 response.headers['Cache-Control'] = 'no-cache'
 response.headers['Content-Type'] = 'text/csv'
 response.headers['Content-Disposition'] = 'attachment; filename="sample.csv"'
-response_body = Enumerator.new { |y| writer.write(items, to: CSV.new(y)) }
+response_body = Enumerator.new do |y|
+  # y << "\uFEFF" # BOM (Prevent garbled characters for Excel)
+  writer.write(items, to: CSV.new(y))
+end
 ```
+[Sample with docker](https://github.com/jsmmr/ruby_table_structure_sample)
 
 #### TableStructure::Iterator
 Specifying `result_type: :hash` option works well.
 To use this option, define `column(s)` with `:key`.
+
+Define a schema:
 ```ruby
 class SampleTableSchema
   include TableStructure::Schema
@@ -142,7 +161,10 @@ class SampleTableSchema
 
   column_converter :to_s, ->(val, *) { val.to_s }
 end
+```
 
+Initialize a iterator with the schema:
+```ruby
 context = {
   questions: [
     { id: 'Q1', text: 'Do you like sushi?' },
@@ -156,7 +178,10 @@ iterator = TableStructure::Iterator.new(schema, result_type: :hash, header_omitt
 ## or
 # writer = TableStructure::Writer.new(schema, result_type: :hash, header_omitted: true)
 # iterator = TableStructure::Iterator.new(writer)
+```
 
+Enumerate the items converted by the schema:
+```ruby
 items = [
   {
     id: 1,
@@ -211,14 +236,14 @@ schema = SampleTableSchema.new(context: context)
 
 You can also nest schemas.
 ```ruby
-class PetsSchema
+class PetTableSchema
   include TableStructure::Schema
 
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 end
 
-class QuestionsSchema
+class QuestionTableSchema
   include TableStructure::Schema
 
   columns ->(table) {
@@ -240,13 +265,13 @@ class SampleTableSchema
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
 
-  columns ->(table) { PetsSchema.new(context: table) }
+  columns ->(table) { PetTableSchema.new(context: table) }
   ## or
-  # columns PetsSchema
+  # columns PetTableSchema
 
-  columns ->(table) { QuestionsSchema.new(context: table) }
+  columns ->(table) { QuestionTableSchema.new(context: table) }
   ## or
-  # columns QuestionsSchema
+  # columns QuestionTableSchema
 end
 
 context = {
