@@ -1,7 +1,14 @@
+# 0.3.8
+Changes:
+- `TableStructure::Schema`
+  - Add `:nil_definitions_ignored` option.
+    - This defaults to `false`, which is same behavior as before.
+    - If `true` is set, ignore the column definitions evaluated to `nil`. this behaves like as if to define `omitted: true` in the column definition.
+
 # 0.3.7
 Changes:
 - `TableStructure::Schema`
-  - Improve performance when `result_type: :array` (default) option is specified.
+  - Improve performance when `result_type: :array` (default) option is set.
   - Improve performance when `column_converter` is not defined.
 
 # 0.3.6
@@ -20,7 +27,7 @@ Changes:
       - Add `:header` and `:row` options.
         - If `header: false`, the converter is not applied to header values.
         - If `row: false`, the converter is not applied to row values.
-        - Both options default to true.
+        - Both options default to `true`, which is same behavior as before.
 
 # 0.3.4
 Changes:

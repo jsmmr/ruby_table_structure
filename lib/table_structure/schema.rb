@@ -14,7 +14,8 @@ module TableStructure
       name_prefix: nil,
       name_suffix: nil,
       key_prefix: nil,
-      key_suffix: nil
+      key_suffix: nil,
+      nil_definitions_ignored: false
     }.freeze
 
     def initialize(context: nil, name: self.class.name, **options)
