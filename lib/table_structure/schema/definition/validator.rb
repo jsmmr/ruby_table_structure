@@ -23,7 +23,7 @@ module TableStructure
             raise Error.new('"size" must be positive.', @name, @index)
           end
           if key && size && [key].flatten.size < size
-            raise Error.new('"key" size must be greater than or equal to specified "size".', @name, @index)
+            raise Error.new('"key" size must not be less than specified "size".', @name, @index)
           end
 
           true
