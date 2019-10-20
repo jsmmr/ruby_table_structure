@@ -80,7 +80,7 @@ writer = TableStructure::Writer.new(schema)
 # writer = TableStructure::Writer.new(schema, header_omitted: true)
 ```
 
-Writes the items converted by the schema to array：
+Writes the items converted by the schema to array:
 ```ruby
 items = [
   {
@@ -98,7 +98,9 @@ items = [
 ]
 
 ## When using `find_each` method of Rails
-# items = ->(y) { Records.find_each {|r| y << r } }
+# items = Enumerator.new { |y| Item.find_each { |item| y << item } }
+## or
+# items = ->(y) { Item.find_each { |item| y << item } }
 
 table = []
 writer.write(items, to: table)
@@ -126,6 +128,14 @@ response_body = Enumerator.new do |y|
 end
 ```
 [Sample with docker](https://github.com/jsmmr/ruby_table_structure_sample)
+
+You can also use `TableStructure::CSV::Writer` instead:
+```ruby
+writer = TableStructure::CSV::Writer.new(schema)
+File.open('sample.csv', 'w') do |f|
+  writer.write(items, to: f, bom: true)
+end
+```
 
 #### TableStructure::Iterator
 Specifying `result_type: :hash` option works well.

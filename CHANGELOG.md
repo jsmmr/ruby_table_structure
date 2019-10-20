@@ -1,3 +1,7 @@
+# 0.3.9
+Changes:
+- Add `TableStructure::CSV::Writer`. This is a wrapper for `TableStructure::Writer`.
+
 # 0.3.8
 Changes:
 - `TableStructure::Schema`
