@@ -46,6 +46,31 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       end
     end
 
+    context 'when size is callable' do
+      let(:definitions) do
+        [
+          {
+            name: 'Name',
+            key: [:first_name, :last_name],
+            value: ['Taro', 'Momo'],
+            size: ->(table) { table[:size] }
+          }
+        ]
+      end
+
+      let(:context) { { size: 2 } }
+
+      subject { described_class.new(name, definitions, options).compile(context) }
+
+      it 'compiles definitions' do
+        expect(subject.size).to eq 1
+        expect(subject[0][:name]).to eq 'Name'
+        expect(subject[0][:key]).to eq [:first_name, :last_name]
+        expect(subject[0][:value]).to eq ['Taro', 'Momo']
+        expect(subject[0][:size]).to eq 2
+      end
+    end
+
     context 'when size is determined automatically' do
       context 'when only name is specified' do
         let(:definitions) do
