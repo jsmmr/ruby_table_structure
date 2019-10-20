@@ -5,7 +5,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'define column' do
     module described_class::Spec
-      class TestTableSchema11
+      class TestTableSchema1
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -16,7 +16,7 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    let(:schema) { described_class::Spec::TestTableSchema11.new }
+    let(:schema) { described_class::Spec::TestTableSchema1.new }
 
     describe 'Table#header' do
       subject { table.header }
@@ -60,7 +60,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'define columns' do
     module described_class::Spec
-      class TestTableSchema12
+      class TestTableSchema2
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -84,7 +84,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     let(:schema) do
-      described_class::Spec::TestTableSchema12.new(
+      described_class::Spec::TestTableSchema2.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
@@ -149,7 +149,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'define column_converter' do
     module described_class::Spec
-      class TestTableSchema13
+      class TestTableSchema3
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -177,7 +177,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     let(:schema) do
-      described_class::Spec::TestTableSchema13.new(
+      described_class::Spec::TestTableSchema3.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
@@ -244,7 +244,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'define context_builder' do
     module described_class::Spec
-      class TestTableSchema14
+      class TestTableSchema4
         include TableStructure::Schema
 
         TableContext = Struct.new(:questions)
@@ -289,7 +289,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     let(:schema) do
-      described_class::Spec::TestTableSchema14.new(
+      described_class::Spec::TestTableSchema4.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
@@ -365,7 +365,7 @@ RSpec.describe TableStructure::Schema do
     require 'ostruct'
 
     module described_class::Spec
-      class TestTableSchema15
+      class TestTableSchema5
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -397,7 +397,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     let(:schema) do
-      described_class::Spec::TestTableSchema15.new(
+      described_class::Spec::TestTableSchema5.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
@@ -461,7 +461,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'specify result_type: :hash' do
     module described_class::Spec
-      class TestTableSchema16
+      class TestTableSchema6
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -489,7 +489,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     let(:schema) do
-      described_class::Spec::TestTableSchema16.new(
+      described_class::Spec::TestTableSchema6.new(
         context: {
           questions: [
             { id: 'Q1', text: 'Do you like sushi?' },
@@ -553,7 +553,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'define option' do
     module described_class::Spec
-      class TestTableSchema17
+      class TestTableSchema7
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -568,7 +568,7 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    let(:schema) { described_class::Spec::TestTableSchema17.new }
+    let(:schema) { described_class::Spec::TestTableSchema7.new }
 
     describe 'Table#header' do
       subject { table.header }
@@ -608,7 +608,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     context 'overwrite by argument' do
-      let(:schema) { described_class::Spec::TestTableSchema17.new(result_type: :array) }
+      let(:schema) { described_class::Spec::TestTableSchema7.new(result_type: :array) }
 
       describe 'Table#header' do
         subject { table.header }
@@ -653,7 +653,7 @@ RSpec.describe TableStructure::Schema do
 
   context 'define column with :omitted' do
     module described_class::Spec
-      class TestTableSchema18
+      class TestTableSchema8
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -668,7 +668,7 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    let(:schema) { described_class::Spec::TestTableSchema18.new(context: context) }
+    let(:schema) { described_class::Spec::TestTableSchema8.new(context: context) }
 
     context 'as true' do
       let(:context) { { admin: false } }
@@ -762,7 +762,7 @@ RSpec.describe TableStructure::Schema do
   context 'nest schema' do
     context 'as instance' do
       module described_class::Spec
-        class NestedTestTableSchema19
+        class NestedTestTableSchema9
           include TableStructure::Schema
 
           column  name: 'ID',
@@ -790,7 +790,7 @@ RSpec.describe TableStructure::Schema do
           column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
         end
 
-        class TestTableSchema19
+        class TestTableSchema9
           include TableStructure::Schema
 
           column  name: 'ID',
@@ -816,7 +816,7 @@ RSpec.describe TableStructure::Schema do
           }
 
           columns lambda { |table|
-            NestedTestTableSchema19.new(context: table, name_prefix: 'Nested ', key_prefix: 'nested_')
+            NestedTestTableSchema9.new(context: table, name_prefix: 'Nested ', key_prefix: 'nested_')
           }
 
           column_converter :to_s, ->(val, *) { val.to_s }
@@ -824,7 +824,7 @@ RSpec.describe TableStructure::Schema do
       end
 
       let(:schema) do
-        described_class::Spec::TestTableSchema19.new(
+        described_class::Spec::TestTableSchema9.new(
           context: {
             questions: [
               { id: 'Q1', text: 'Do you like sushi?' },
@@ -975,7 +975,7 @@ RSpec.describe TableStructure::Schema do
 
     context 'as class' do
       module described_class::Spec
-        class NestedTestTableSchema1A
+        class NestedTestTableSchemaA
           include TableStructure::Schema
 
           column  name: 'ID',
@@ -1003,7 +1003,7 @@ RSpec.describe TableStructure::Schema do
           column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
         end
 
-        class TestTableSchema1A
+        class TestTableSchemaA
           include TableStructure::Schema
 
           column  name: 'ID',
@@ -1028,14 +1028,14 @@ RSpec.describe TableStructure::Schema do
             end
           }
 
-          columns NestedTestTableSchema1A
+          columns NestedTestTableSchemaA
 
           column_converter :to_s, ->(val, *) { val.to_s }
         end
       end
 
       let(:schema) do
-        described_class::Spec::TestTableSchema1A.new(
+        described_class::Spec::TestTableSchemaA.new(
           context: {
             questions: [
               { id: 'Q1', text: 'Do you like sushi?' },
