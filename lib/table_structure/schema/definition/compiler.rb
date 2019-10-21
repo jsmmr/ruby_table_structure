@@ -34,6 +34,7 @@ module TableStructure
                     omitted = definition.delete(:omitted)
                     next if Utils.evaluate_callable(omitted, context)
 
+                    definition = evaluate_attrs(definition, context)
                     validator.validate(definition)
                     definition[:size] = determine_size(definition)
                     definition
@@ -53,6 +54,11 @@ module TableStructure
         end
 
         private
+
+        def evaluate_attrs(definition, context)
+          size = Utils.evaluate_callable(definition[:size], context)
+          definition.merge(size: size)
+        end
 
         def determine_size(name:, key:, size:, **)
           return size if size

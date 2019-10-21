@@ -5,7 +5,7 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
   let(:options) { {} }
 
   describe '#compile' do
-    context 'pattern 1' do
+    context 'when definition is empty' do
       let(:definitions) do
         [
           {}
@@ -23,7 +23,7 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       end
     end
 
-    context 'pattern 2' do
+    context 'when definition is complete' do
       let(:definitions) do
         [
           {
@@ -46,89 +46,139 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       end
     end
 
-    context 'pattern 3' do
+    context 'when size is callable' do
       let(:definitions) do
         [
           {
-            name: ['Pet 1', 'Pet 2', 'Pet 3']
+            name: 'Name',
+            key: [:first_name, :last_name],
+            value: ['Taro', 'Momo'],
+            size: ->(table) { table[:size] }
           }
         ]
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      let(:context) { { size: 2 } }
+
+      subject { described_class.new(name, definitions, options).compile(context) }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 1
-        expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
-        expect(subject[0][:key]).to be_nil
-        expect(subject[0][:value]).to be_nil
-        expect(subject[0][:size]).to eq 3
+        expect(subject[0][:name]).to eq 'Name'
+        expect(subject[0][:key]).to eq [:first_name, :last_name]
+        expect(subject[0][:value]).to eq ['Taro', 'Momo']
+        expect(subject[0][:size]).to eq 2
       end
     end
 
-    context 'pattern 4' do
-      let(:definitions) do
-        [
-          {
-            key: %i[pet1 pet2 pet3]
-          }
-        ]
+    context 'when size is determined automatically' do
+      context 'when only name is specified' do
+        let(:definitions) do
+          [
+            {
+              name: ['Pet 1', 'Pet 2', 'Pet 3']
+            }
+          ]
+        end
+
+        subject { described_class.new(name, definitions, options).compile }
+
+        it 'compiles definitions' do
+          expect(subject.size).to eq 1
+          expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
+          expect(subject[0][:key]).to be_nil
+          expect(subject[0][:value]).to be_nil
+          expect(subject[0][:size]).to eq 3
+        end
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      context 'when only key is specified' do
+        let(:definitions) do
+          [
+            {
+              key: %i[pet1 pet2 pet3]
+            }
+          ]
+        end
 
-      it 'compiles definitions' do
-        expect(subject.size).to eq 1
-        expect(subject[0][:name]).to be_nil
-        expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
-        expect(subject[0][:value]).to be_nil
-        expect(subject[0][:size]).to eq 3
+        subject { described_class.new(name, definitions, options).compile }
+
+        it 'compiles definitions' do
+          expect(subject.size).to eq 1
+          expect(subject[0][:name]).to be_nil
+          expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
+          expect(subject[0][:value]).to be_nil
+          expect(subject[0][:size]).to eq 3
+        end
+      end
+
+      context 'when both name and key are specified' do
+        context 'when name size is larger' do
+          let(:definitions) do
+            [
+              {
+                name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2]
+              }
+            ]
+          end
+
+          subject { described_class.new(name, definitions, options).compile }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 1
+            expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
+            expect(subject[0][:key]).to eq %i[pet1 pet2]
+            expect(subject[0][:value]).to be_nil
+            expect(subject[0][:size]).to eq 3
+          end
+        end
+
+        context 'when key size is larger' do
+          let(:definitions) do
+            [
+              {
+                name: ['Pet 1', 'Pet 2'],
+                key: %i[pet1 pet2 pet3]
+              }
+            ]
+          end
+
+          subject { described_class.new(name, definitions, options).compile }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 1
+            expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2']
+            expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
+            expect(subject[0][:value]).to be_nil
+            expect(subject[0][:size]).to eq 3
+          end
+        end
+
+        context 'when both sizes are same' do
+          let(:definitions) do
+            [
+              {
+                name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3]
+              }
+            ]
+          end
+
+          subject { described_class.new(name, definitions, options).compile }
+
+          it 'compiles definitions' do
+            expect(subject.size).to eq 1
+            expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
+            expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
+            expect(subject[0][:value]).to be_nil
+            expect(subject[0][:size]).to eq 3
+          end
+        end
       end
     end
 
-    context 'pattern 5' do
-      let(:definitions) do
-        [
-          {
-            name: ['Pet 1', 'Pet 2', 'Pet 3'],
-            key: %i[pet1 pet2]
-          }
-        ]
-      end
-
-      subject { described_class.new(name, definitions, options).compile }
-
-      it 'compiles definitions' do
-        expect(subject.size).to eq 1
-        expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
-        expect(subject[0][:key]).to eq %i[pet1 pet2]
-        expect(subject[0][:value]).to be_nil
-        expect(subject[0][:size]).to eq 3
-      end
-    end
-
-    context 'pattern 6' do
-      let(:definitions) do
-        [
-          {
-            name: ['Pet 1', 'Pet 2', 'Pet 3'],
-            key: %i[pet1 pet2 pet3]
-          }
-        ]
-      end
-
-      subject { described_class.new(name, definitions, options).compile }
-
-      it 'compiles definitions' do
-        expect(subject.size).to eq 1
-        expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
-        expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
-        expect(subject[0][:value]).to be_nil
-        expect(subject[0][:size]).to eq 3
-      end
-    end
-
-    context 'pattern 7' do
+    context 'when multiple definitions are contained' do
       let(:definitions) do
         [
           {
@@ -161,7 +211,7 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       end
     end
 
-    context 'when "omitted" is defined' do
+    context 'when "omitted" is specified' do
       let(:definitions) do
         [
           {
@@ -236,7 +286,7 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
     end
 
     context 'when schema is nested' do
-      class TestTableSchema41
+      class TestTableSchema1
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -271,19 +321,19 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       subject { described_class.new(name, definitions, options).compile(context) }
 
       context 'that is class' do
-        let(:definitions) { [TestTableSchema41] }
+        let(:definitions) { [TestTableSchema1] }
 
         it 'compiles definitions' do
           expect(subject.size).to eq 1
-          expect(subject[0]).to be_a TestTableSchema41
+          expect(subject[0]).to be_a TestTableSchema1
         end
       end
 
       context 'that is instance' do
-        let(:definitions) { [TestTableSchema41.new(context: context)] }
+        let(:definitions) { [TestTableSchema1.new(context: context)] }
 
         it 'compiles definitions' do
-          expect(subject[0]).to be_a TestTableSchema41
+          expect(subject[0]).to be_a TestTableSchema1
         end
       end
     end

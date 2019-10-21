@@ -25,5 +25,6 @@ module TableStructure
   require 'table_structure/schema/column/schema'
   require 'table_structure/schema/utils'
   require 'table_structure/writer'
+  require 'table_structure/csv/writer'
   require 'table_structure/iterator'
 end

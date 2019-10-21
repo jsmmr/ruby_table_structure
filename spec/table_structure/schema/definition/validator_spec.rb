@@ -96,7 +96,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
-          .to raise_error '"key" size must be greater than or equal to specified "size". [TestTableSchema] defined position of column(s): 1'
+          .to raise_error '"key" size must not be less than specified "size". [TestTableSchema] defined position of column(s): 1'
       end
     end
   end

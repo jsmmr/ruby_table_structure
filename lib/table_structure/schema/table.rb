@@ -3,6 +3,7 @@
 module TableStructure
   module Schema
     class Table
+      # TODO: Following `attr_reader` will be removed after version 1.4.0.
       attr_reader :header_column_converters, :row_column_converters, :result_builders
 
       def initialize(
