@@ -21,6 +21,8 @@ RSpec.describe TableStructure::CSV::Writer do
 
   let(:csv_writer) { described_class.new(schema, bom: bom) }
 
+  let(:handler) { ->(values) { values } }
+
   let(:items) do
     [
       { id: 1, name: 'a' },
@@ -34,17 +36,20 @@ RSpec.describe TableStructure::CSV::Writer do
       writer = double('TableStructure::Writer')
 
       expect(TableStructure::Writer).to receive(:new)
-        .with(schema, hash_including(bom: bom)).and_return(writer)
+        .with(schema, hash_including(bom: bom))
+        .and_return(writer)
 
       expect(writer).to receive(:write)
-        .with(items, hash_including(to: instance_of(::CSV)))
+        .with(items, hash_including(to: instance_of(::CSV))) do
+          |&block| expect(block).to eq handler
+        end
     end
 
     context 'when `bom: true` is specified' do
       let(:bom) { true }
       it 'writes items' do
         array = []
-        csv_writer.write(items, to: array)
+        csv_writer.write(items, to: array, &handler)
         expect(array).to eq ["\uFEFF"]
       end
     end
@@ -53,7 +58,7 @@ RSpec.describe TableStructure::CSV::Writer do
       let(:bom) { false }
       it 'writes items' do
         array = []
-        csv_writer.write(items, to: array)
+        csv_writer.write(items, to: array, &handler)
         expect(array).to eq []
       end
     end

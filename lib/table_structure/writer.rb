@@ -35,9 +35,14 @@ module TableStructure
     private
 
     def enumerize(items)
-      items.respond_to?(:call) ?
-        Enumerator.new { |y| items.call(y) } :
+      if items.respond_to?(:each)
         items
+      elsif items.respond_to?(:call)
+        warn "[TableStructure] Use `Enumerator` instead of `lambda` to wrap items. `lambda` has been deprecated. #{items}"
+        Enumerator.new { |y| items.call(y) }
+      else
+        raise ::TableStructure::Error, 'Items is not enumerable.'
+      end
     end
   end
 end
