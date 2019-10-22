@@ -38,7 +38,7 @@ module TableStructure
       if items.respond_to?(:each)
         items
       elsif items.respond_to?(:call)
-        warn "[TableStructure] Use `Enumerator` instead of `lambda` to wrap items. `lambda` has been deprecated. #{items}"
+        warn "[TableStructure] Use `Enumerator` to wrap items instead of `lambda`. The use of `lambda` has been deprecated. #{items}"
         Enumerator.new { |y| items.call(y) }
       else
         raise ::TableStructure::Error, 'Items is not enumerable.'
