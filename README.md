@@ -99,8 +99,6 @@ items = [
 
 ## When using `find_each` method of Rails
 # items = Enumerator.new { |y| Item.find_each { |item| y << item } }
-## or
-# items = ->(y) { Item.find_each { |item| y << item } }
 
 table = []
 writer.write(items, to: table)

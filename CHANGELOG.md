@@ -1,3 +1,10 @@
+# 0.3.10
+Changes:
+- `TableStructure::Writer`
+  - Fix an issue that objects with both `call` and` each` methods could not be enumerated.
+- `TableStructure::CSV::Writer`
+  - Fix write method's block to work.
+
 # 0.3.9
 Changes:
 - Add `TableStructure::CSV::Writer`. This is a wrapper for `TableStructure::Writer`.
