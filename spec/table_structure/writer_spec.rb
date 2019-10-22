@@ -63,6 +63,10 @@ RSpec.describe TableStructure::Writer do
       ->(y) { array_items.each { |item| y << item } }
     end
 
+    let(:enumerator_items) do
+      Enumerator.new { |y| array_items.each { |item| y << item } }
+    end
+
     context 'when output to CSV file' do
       shared_examples 'to convert and write data' do
         it 'succeeds' do
@@ -134,6 +138,11 @@ RSpec.describe TableStructure::Writer do
           let(:items) { lambda_items }
           it_behaves_like 'to convert and write data'
         end
+
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data'
+        end
       end
 
       context 'when CSV encoding is Shift_JIS' do
@@ -151,6 +160,11 @@ RSpec.describe TableStructure::Writer do
 
         context 'when passed lambda_items' do
           let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data'
+        end
+
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
           it_behaves_like 'to convert and write data'
         end
       end
@@ -216,6 +230,11 @@ RSpec.describe TableStructure::Writer do
 
       context 'when passed lambda_items' do
         let(:items) { lambda_items }
+        it_behaves_like 'to convert and write data'
+      end
+
+      context 'when passed enumerator_items' do
+        let(:items) { enumerator_items }
         it_behaves_like 'to convert and write data'
       end
     end
@@ -292,6 +311,11 @@ RSpec.describe TableStructure::Writer do
             let(:items) { lambda_items }
             it_behaves_like 'to convert and write data'
           end
+
+          context 'when passed enumerator_items' do
+            let(:items) { enumerator_items }
+            it_behaves_like 'to convert and write data'
+          end
         end
 
         context 'recommend' do
@@ -305,6 +329,11 @@ RSpec.describe TableStructure::Writer do
 
           context 'when passed lambda_items' do
             let(:items) { lambda_items }
+            it_behaves_like 'to convert and write data'
+          end
+
+          context 'when passed enumerator_items' do
+            let(:items) { enumerator_items }
             it_behaves_like 'to convert and write data'
           end
         end
@@ -377,6 +406,11 @@ RSpec.describe TableStructure::Writer do
             let(:items) { lambda_items }
             it_behaves_like 'to convert and write data'
           end
+
+          context 'when passed enumerator_items' do
+            let(:items) { enumerator_items }
+            it_behaves_like 'to convert and write data'
+          end
         end
 
         context 'recommend' do
@@ -390,6 +424,11 @@ RSpec.describe TableStructure::Writer do
 
           context 'when passed lambda_items' do
             let(:items) { lambda_items }
+            it_behaves_like 'to convert and write data'
+          end
+
+          context 'when passed enumerator_items' do
+            let(:items) { enumerator_items }
             it_behaves_like 'to convert and write data'
           end
         end
@@ -422,6 +461,11 @@ RSpec.describe TableStructure::Writer do
 
       context 'when passed lambda_items' do
         let(:items) { lambda_items }
+        it_behaves_like 'to convert and write data'
+      end
+
+      context 'when passed enumerator_items' do
+        let(:items) { enumerator_items }
         it_behaves_like 'to convert and write data'
       end
     end

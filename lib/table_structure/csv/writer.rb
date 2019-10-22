@@ -22,10 +22,10 @@ module TableStructure
         @writer = ::TableStructure::Writer.new(schema, **@options)
       end
 
-      def write(items, to:, **options)
+      def write(items, to:, **options, &block)
         options = @options.merge(options).merge(FIXED_OPTIONS)
         to.send(options[:method], BOM) if options[:bom]
-        @writer.write(items, to: ::CSV.new(to), **options)
+        @writer.write(items, to: ::CSV.new(to), **options, &block)
       end
     end
   end
