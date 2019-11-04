@@ -51,8 +51,8 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
         [
           {
             name: 'Name',
-            key: [:first_name, :last_name],
-            value: ['Taro', 'Momo'],
+            key: %i[first_name last_name],
+            value: %w[Taro Momo],
             size: ->(table) { table[:size] }
           }
         ]
@@ -65,8 +65,8 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       it 'compiles definitions' do
         expect(subject.size).to eq 1
         expect(subject[0][:name]).to eq 'Name'
-        expect(subject[0][:key]).to eq [:first_name, :last_name]
-        expect(subject[0][:value]).to eq ['Taro', 'Momo']
+        expect(subject[0][:key]).to eq %i[first_name last_name]
+        expect(subject[0][:value]).to eq %w[Taro Momo]
         expect(subject[0][:size]).to eq 2
       end
     end
