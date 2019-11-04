@@ -3,7 +3,7 @@
 module TableStructure
   module Schema
     class Table
-      # TODO: Following `attr_reader` will be removed after version 1.4.0.
+      # TODO: Remove following `attr_reader`.
       attr_reader :header_column_converters, :row_column_converters, :result_builders
 
       def initialize(
@@ -55,11 +55,11 @@ module TableStructure
       end
 
       def header(context: nil)
-        values(:name, context, @header_column_converters)
+        values(:name, context)
       end
 
       def row(context: nil)
-        values(:value, context, @row_column_converters)
+        values(:value, context)
       end
 
       private
@@ -75,10 +75,10 @@ module TableStructure
       end
 
       def size
-        @size ||= @columns.map(&:size).reduce(0) { |memo, size| memo + size }
+        @size ||= @columns.map(&:size).reduce(0, &:+)
       end
 
-      def values(method, context, _converters)
+      def values(method, context)
         @columns
           .map { |column| column.send(method, context, @context) }
           .flatten

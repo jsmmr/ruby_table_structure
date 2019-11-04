@@ -14,13 +14,13 @@ module TableStructure
           @options = options
         end
 
-        def name(header_context, table_context)
-          name = Utils.evaluate_callable(@name, header_context, table_context)
+        def name(context, table_context)
+          name = Utils.evaluate_callable(@name, context, table_context)
           optimize_size(name, @size)
         end
 
-        def value(row_context, table_context)
-          value = Utils.evaluate_callable(@value, row_context, table_context)
+        def value(context, table_context)
+          value = Utils.evaluate_callable(@value, context, table_context)
           optimize_size(value, @size)
         end
 
