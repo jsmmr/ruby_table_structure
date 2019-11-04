@@ -1,3 +1,8 @@
+# 0.3.11
+Changes:
+- `TableStructure::CSV::Writer`
+  - Add `:csv_options` option. This option's value is simply passed to `::CSV.new`'s options.
+
 # 0.3.10
 Changes:
 - `TableStructure::Writer`
