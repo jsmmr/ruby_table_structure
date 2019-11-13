@@ -24,7 +24,7 @@ module TableStructure
           @definitions
             .map { |definition| Utils.evaluate_callable(definition, context) }
             .map.with_index do |definition, i|
-              validator = Validator.new(@name, i, @options)
+              validator = Validator.new(@name, i)
 
               [definition]
                 .flatten

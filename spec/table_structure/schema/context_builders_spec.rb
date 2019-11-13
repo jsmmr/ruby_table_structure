@@ -13,8 +13,7 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
           key: :key1,
           value: ->(row, table) { "#{table[:name]}_#{row[:name]}" },
           size: 1
-        },
-        {}
+        }
       )
     ]
   end

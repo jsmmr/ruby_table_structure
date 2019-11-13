@@ -24,8 +24,8 @@ module TableStructure
         @columns = create_columns(@name, column_definitions, @context, @options)
       end
 
-      def create_table(result_type: :array, **options)
-        options = @options.merge(options).merge(result_type: result_type) # TODO
+      def create_table(**options)
+        options = @options.merge(options)
 
         table = Table.new(
           @columns,
@@ -46,7 +46,13 @@ module TableStructure
         Compiler
           .new(name, definitions, options)
           .compile(context)
-          .map { |definition| Column.create(definition, options) }
+          .map do |definition|
+            if definition.is_a?(Hash)
+              Column::Attrs.new(definition)
+            else
+              Column::Schema.new(definition)
+            end
+          end
       end
     end
   end

@@ -13,8 +13,7 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
           key: :key1,
           value: 'row_value',
           size: 1
-        },
-        {}
+        }
       )
     ]
   end

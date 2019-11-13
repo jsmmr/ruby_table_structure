@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Definition::Validator do
-  let(:validator) { described_class.new(name, index, options) }
+  let(:validator) { described_class.new(name, index) }
   let(:name) { 'TestTableSchema' }
   let(:index) { 0 }
 
@@ -12,12 +12,6 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
         key: -> { nil },
         value: nil,
         size: nil
-      }
-    end
-
-    let(:options) do
-      {
-        name: 'TestTableSchema'
       }
     end
 
@@ -39,12 +33,6 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       }
     end
 
-    let(:options) do
-      {
-        name: 'TestTableSchema'
-      }
-    end
-
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
@@ -63,12 +51,6 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
       }
     end
 
-    let(:options) do
-      {
-        name: 'TestTableSchema'
-      }
-    end
-
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(attrs) }
@@ -84,12 +66,6 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
         key: :name,
         value: nil,
         size: 2
-      }
-    end
-
-    let(:options) do
-      {
-        name: 'TestTableSchema'
       }
     end
 

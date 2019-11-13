@@ -20,7 +20,6 @@ module TableStructure
   require 'table_structure/schema/result_builders'
   require 'table_structure/schema/table'
   require 'table_structure/schema/table/key_decorator'
-  require 'table_structure/schema/column'
   require 'table_structure/schema/column/attrs'
   require 'table_structure/schema/column/schema'
   require 'table_structure/schema/utils'

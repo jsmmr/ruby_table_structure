@@ -6,10 +6,9 @@ module TableStructure
       class Validator
         DEFAULT_SIZE = 1
 
-        def initialize(name, index, options)
+        def initialize(name, index)
           @name = name
           @index = index
-          @options = options
         end
 
         def validate(name:, key:, size:, **)
