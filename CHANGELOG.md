@@ -1,14 +1,19 @@
+# 0.3.12
+Changes:
+- `TableStructure::Schema`
+  - Fix `:name_prefix` and `:name_suffix` options so that they are applied after the column converters defined in the schema.
+
 # 0.3.11
 Changes:
 - `TableStructure::CSV::Writer`
-  - Add `:csv_options` option. This option's value is simply passed to `::CSV.new`'s options.
+  - Add `:csv_options` option. This option's value is simply passed to `::CSV.new` as options'.
 
 # 0.3.10
 Changes:
 - `TableStructure::Writer`
   - Fix an issue that objects with both `call` and` each` methods could not be enumerated.
 - `TableStructure::CSV::Writer`
-  - Fix write method's block to work.
+  - Fix `write` method's block to work.
 
 # 0.3.9
 Changes:
@@ -19,7 +24,7 @@ Changes:
 - `TableStructure::Schema`
   - Add `:nil_definitions_ignored` option.
     - This defaults to `false`, which is same behavior as before.
-    - If `true` is set, ignore the column definitions evaluated to `nil`. this behaves like as if to define `omitted: true` in the column definition.
+    - If `true` is set, the column definitions evaluated to `nil` are ignored. this behaves like as if to define `omitted: true` in the column definition.
 
 # 0.3.7
 Changes:
@@ -50,7 +55,7 @@ Changes:
 - `TableStructure::Writer`
   - Fix broken `:result_type` option.
 - `TableStructure::Iterator`
-  - Fix broken `:result_type` option. (Passed to the writer internally.)
+  - Fix broken `:result_type` option.
 
 # 0.3.3
 Changes:
@@ -70,9 +75,7 @@ Changes:
 - `TableStructure::Writer`
   - Make `:result_type` option available.
 - `TableStructure::Iterator`
-  - Make `:result_type` option available. (Passed to the writer internally.)
-- `TableStructure::Schema`
-  - `:result_type` option is deprecated.
+  - Make `:result_type` option available.
 
 # 0.3.0
 Changes:

@@ -342,11 +342,10 @@ end
 You can also use only `TableStructure::Schema`.
 ```ruby
 schema = SampleTableSchema.new
-table = schema.create_table
+table = schema.create_table(result_type: :hash)
 header = table.header
 items.each do |item|
   row = table.row(context: item)
-  ...
 end
 ```
 
