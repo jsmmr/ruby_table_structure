@@ -8,12 +8,10 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
   let(:columns) do
     [
       TableStructure::Schema::Column::Attrs.new(
-        {
-          name: 'name_value',
-          key: :key1,
-          value: 'row_value',
-          size: 1
-        }
+        name: 'name_value',
+        key: :key1,
+        value: 'row_value',
+        size: 1
       )
     ]
   end
