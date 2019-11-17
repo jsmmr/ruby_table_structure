@@ -12,7 +12,7 @@ module TableStructure
         table_context = table.instance_variable_get(:@context)
         table_options = table.instance_variable_get(:@options)
 
-        header_converters = optional_header_converters(table_options).merge(@header_converters)
+        header_converters = @header_converters.merge(optional_header_converters(table_options))
         row_converters = @row_converters
 
         methods = {}

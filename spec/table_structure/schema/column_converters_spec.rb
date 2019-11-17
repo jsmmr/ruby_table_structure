@@ -71,7 +71,7 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
       context 'when :name_prefix option is specified' do
         let(:table_options) { { name_prefix: 'prefix_' } }
 
-        it { expect(table.header(context: header_context)).to eq ['table_header_prefix_name_value'] } # TODO
+        it { expect(table.header(context: header_context)).to eq ['prefix_table_header_name_value'] }
         it { expect(table.row(context: row_context)).to eq ['table_row_row_value'] }
       end
 
