@@ -6,12 +6,11 @@ module TableStructure
       class Attrs
         attr_reader :keys, :size
 
-        def initialize(definition, options)
+        def initialize(definition)
           @name = definition[:name]
           @keys = optimize_size([definition[:key]].flatten, definition[:size])
           @value = definition[:value]
           @size = definition[:size]
-          @options = options
         end
 
         def name(context, table_context)

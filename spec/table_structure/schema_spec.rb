@@ -41,21 +41,6 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to be_nil
       end
     end
-
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq [] }
-    end
   end
 
   context 'define columns' do
@@ -129,21 +114,6 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to eq 'yes'
         expect(subject.shift).to be_nil
       end
-    end
-
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq [] }
     end
   end
 
@@ -224,21 +194,6 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to eq 'yes'
         expect(subject.shift).to be_nil
       end
-    end
-
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq %i[to_s empty_to_hyphen] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq %i[to_s empty_to_hyphen] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq [] }
     end
   end
 
@@ -344,21 +299,6 @@ RSpec.describe TableStructure::Schema do
         expect(subject.shift).to be_nil
       end
     end
-
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq %i[nil_to_hyphen to_s] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq %i[nil_to_hyphen to_s] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq [] }
-    end
   end
 
   context 'define result_builder' do
@@ -442,21 +382,6 @@ RSpec.describe TableStructure::Schema do
         expect(subject.q3).to eq 'yes'
       end
     end
-
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq %i[to_hash to_ostruct] }
-    end
   end
 
   context 'specify result_type: :hash' do
@@ -534,21 +459,6 @@ RSpec.describe TableStructure::Schema do
         expect(subject[:q3]).to eq 'yes'
       end
     end
-
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq [:to_hash] }
-    end
   end
 
   context 'define option' do
@@ -592,21 +502,6 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe '#header_column_converters' do
-      subject { table.header_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#row_column_converters' do
-      subject { table.row_column_converters.keys }
-      it { is_expected.to eq [] }
-    end
-
-    describe '#result_builders' do
-      subject { table.result_builders.keys }
-      it { is_expected.to eq [:to_hash] }
-    end
-
     context 'overwrite by argument' do
       let(:schema) { described_class::Spec::TestTableSchema7.new(result_type: :array) }
 
@@ -632,21 +527,6 @@ RSpec.describe TableStructure::Schema do
           expect(subject.shift).to eq 'Taro'
           expect(subject.shift).to be_nil
         end
-      end
-
-      describe '#header_column_converters' do
-        subject { table.header_column_converters.keys }
-        it { is_expected.to eq [] }
-      end
-
-      describe '#row_column_converters' do
-        subject { table.row_column_converters.keys }
-        it { is_expected.to eq [] }
-      end
-
-      describe '#result_builders' do
-        subject { table.result_builders.keys }
-        it { is_expected.to eq [] }
       end
     end
   end
@@ -696,21 +576,6 @@ RSpec.describe TableStructure::Schema do
           expect(subject.shift).to be_nil
         end
       end
-
-      describe '#header_column_converters' do
-        subject { table.header_column_converters.keys }
-        it { is_expected.to eq [] }
-      end
-
-      describe '#row_column_converters' do
-        subject { table.row_column_converters.keys }
-        it { is_expected.to eq [] }
-      end
-
-      describe '#result_builders' do
-        subject { table.result_builders.keys }
-        it { is_expected.to eq [] }
-      end
     end
 
     context 'as false' do
@@ -740,21 +605,6 @@ RSpec.describe TableStructure::Schema do
           expect(subject.shift).to eq '**********'
           expect(subject.shift).to be_nil
         end
-      end
-
-      describe '#header_column_converters' do
-        subject { table.header_column_converters.keys }
-        it { is_expected.to eq [] }
-      end
-
-      describe '#row_column_converters' do
-        subject { table.row_column_converters.keys }
-        it { is_expected.to eq [] }
-      end
-
-      describe '#result_builders' do
-        subject { table.result_builders.keys }
-        it { is_expected.to eq [] }
       end
     end
   end
@@ -858,8 +708,8 @@ RSpec.describe TableStructure::Schema do
             expect(subject.shift).to eq 'Nested ID'
             expect(subject.shift).to eq 'Nested Name'
             expect(subject.shift).to eq 'Nested Pets'
-            expect(subject.shift).to eq '-'
-            expect(subject.shift).to eq '-'
+            expect(subject.shift).to eq 'Nested -'
+            expect(subject.shift).to eq 'Nested -'
             expect(subject.shift).to eq 'Nested Q1'
             expect(subject.shift).to eq 'Nested Q2'
             expect(subject.shift).to eq 'Nested Q3'
@@ -890,21 +740,6 @@ RSpec.describe TableStructure::Schema do
             expect(subject.shift).to be_nil
           end
         end
-
-        describe '#header_column_converters' do
-          subject { table.header_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#row_column_converters' do
-          subject { table.row_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#result_builders' do
-          subject { table.result_builders.keys }
-          it { is_expected.to eq [] }
-        end
       end
 
       context 'result_type: :hash' do
@@ -925,8 +760,8 @@ RSpec.describe TableStructure::Schema do
             expect(subject[:nested_id]).to eq 'Nested ID'
             expect(subject[:nested_name]).to eq 'Nested Name'
             expect(subject[:nested_pet1]).to eq 'Nested Pets'
-            expect(subject[:nested_pet2]).to eq '-'
-            expect(subject[:nested_pet3]).to eq '-'
+            expect(subject[:nested_pet2]).to eq 'Nested -'
+            expect(subject[:nested_pet3]).to eq 'Nested -'
             expect(subject[:nested_q1]).to eq 'Nested Q1'
             expect(subject[:nested_q2]).to eq 'Nested Q2'
             expect(subject[:nested_q3]).to eq 'Nested Q3'
@@ -954,21 +789,6 @@ RSpec.describe TableStructure::Schema do
             expect(subject[:nested_q2]).to eq 'no'
             expect(subject[:nested_q3]).to eq 'yes'
           end
-        end
-
-        describe '#header_column_converters' do
-          subject { table.header_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#row_column_converters' do
-          subject { table.row_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#result_builders' do
-          subject { table.result_builders.keys }
-          it { is_expected.to eq [:to_hash] }
         end
       end
     end
@@ -1101,21 +921,6 @@ RSpec.describe TableStructure::Schema do
             expect(subject.shift).to be_nil
           end
         end
-
-        describe '#header_column_converters' do
-          subject { table.header_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#row_column_converters' do
-          subject { table.row_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#result_builders' do
-          subject { table.result_builders.keys }
-          it { is_expected.to eq [] }
-        end
       end
 
       context 'result_type: :hash' do
@@ -1165,21 +970,6 @@ RSpec.describe TableStructure::Schema do
             expect(subject[:nested_q2]).to eq 'no'
             expect(subject[:nested_q3]).to eq 'yes'
           end
-        end
-
-        describe '#header_column_converters' do
-          subject { table.header_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#row_column_converters' do
-          subject { table.row_column_converters.keys }
-          it { is_expected.to eq %i[to_s] }
-        end
-
-        describe '#result_builders' do
-          subject { table.result_builders.keys }
-          it { is_expected.to eq [:to_hash] }
         end
       end
     end

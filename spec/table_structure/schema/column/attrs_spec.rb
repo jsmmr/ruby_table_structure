@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema::Column::Attrs do
-  let(:options) { {} }
-
   context 'pattern 1' do
     let(:attrs) do
       {
@@ -13,7 +11,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -56,7 +54,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -99,7 +97,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -142,7 +140,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -185,7 +183,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -228,7 +226,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -271,7 +269,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -314,7 +312,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -357,7 +355,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -400,7 +398,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -443,7 +441,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -486,7 +484,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -529,7 +527,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
@@ -572,7 +570,7 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs, options) }
+    let(:column) { described_class.new(attrs) }
 
     describe '#name' do
       subject { column.name(header_context, table_context) }
