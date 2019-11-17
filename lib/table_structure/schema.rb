@@ -36,9 +36,8 @@ module TableStructure
         )
     end
 
-    def create_table(result_type: :array, **options)
-      options = @table_structure_schema_definition_.options.merge(options)
-      @table_structure_schema_definition_.create_table(result_type: result_type, **options)
+    def create_table(**options)
+      @table_structure_schema_definition_.create_table(options)
     end
   end
 end

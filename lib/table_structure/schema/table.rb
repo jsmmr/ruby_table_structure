@@ -3,55 +3,18 @@
 module TableStructure
   module Schema
     class Table
-      # TODO: Remove following `attr_reader`.
-      attr_reader :header_column_converters, :row_column_converters, :result_builders
+      DEFAULT_OPTIONS = {
+        result_type: :array
+      }.freeze
 
       def initialize(
         columns,
-        header_context_builder,
-        row_context_builder,
-        header_column_converters,
-        row_column_converters,
-        result_builders,
         context,
         options
       )
         @columns = columns
-        @header_column_converters = header_column_converters
-        @row_column_converters = row_column_converters
-        @result_builders = result_builders
         @context = context
-        @options = options
-
-        if header_context_builder || row_context_builder
-          singleton_class.include ContextBuilder.new(
-            [
-              { method: :header, callable: header_context_builder },
-              { method: :row, callable: row_context_builder }
-            ]
-          )
-        end
-
-        if !header_column_converters.empty? || !row_column_converters.empty?
-          singleton_class.include ColumnConverter.new(
-            [
-              { method: :header, callables: header_column_converters },
-              { method: :row, callables: row_column_converters }
-            ],
-            context: context
-          )
-        end
-
-        unless result_builders.empty?
-          singleton_class.include ResultBuilder.new(
-            [
-              { method: :header, callables: result_builders },
-              { method: :row, callables: result_builders }
-            ],
-            keys: keys,
-            context: context
-          )
-        end
+        @options = DEFAULT_OPTIONS.merge(options)
       end
 
       def header(context: nil)
