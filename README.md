@@ -98,6 +98,7 @@ items = [
 ]
 
 ## When using `find_each` method of Rails
+items = Item.enum_for(:find_each)
 # items = Enumerator.new { |y| Item.find_each { |item| y << item } }
 
 table = []
@@ -183,9 +184,6 @@ context = {
 
 schema = SampleTableSchema.new(context: context)
 iterator = TableStructure::Iterator.new(schema, result_type: :hash, header_omitted: true)
-## or
-# writer = TableStructure::Writer.new(schema, result_type: :hash, header_omitted: true)
-# iterator = TableStructure::Iterator.new(writer)
 ```
 
 Enumerate the items converted by the schema:
@@ -240,6 +238,33 @@ end
 context = { admin: true }
 
 schema = SampleTableSchema.new(context: context)
+```
+
+You can also omit columns by specifying `nil_definitions_ignored: true`.
+If this option is set to `true` and `column(s)` difinition returns `nil`, the difinition is ignored.
+```ruby
+class SampleTableSchema
+  include TableStructure::Schema
+
+  column  name: 'ID',
+          value: ->(row, *) { row[:id] }
+
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+
+  columns ->(table) {
+    if table[:pet_num].positive?
+      {
+        name: (1..table[:pet_num]).map { |num| "Pet #{num}" },
+        value: ->(row, *) { row[:pets] }
+      }
+    end
+  }
+end
+
+context = { pet_num: 0 }
+
+schema = SampleTableSchema.new(context: context, nil_definitions_ignored: true)
 ```
 
 You can also nest schemas.
