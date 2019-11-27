@@ -98,7 +98,7 @@ items = [
 ]
 
 ## When using `find_each` method of Rails
-items = Item.enum_for(:find_each)
+# items = Item.enum_for(:find_each)
 # items = Enumerator.new { |y| Item.find_each { |item| y << item } }
 
 table = []
