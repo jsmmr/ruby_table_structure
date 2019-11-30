@@ -37,7 +37,11 @@ module TableStructure
         @column_converters.extend_methods_for(table)
         @result_builders.extend_methods_for(table)
 
-        table
+        if block_given?
+          yield table
+        else
+          table
+        end
       end
 
       private

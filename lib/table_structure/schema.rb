@@ -36,8 +36,8 @@ module TableStructure
         )
     end
 
-    def create_table(**options)
-      @table_structure_schema_definition_.create_table(options)
+    def create_table(**options, &block)
+      @table_structure_schema_definition_.create_table(options, &block)
     end
   end
 end
