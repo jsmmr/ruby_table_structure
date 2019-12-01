@@ -365,13 +365,28 @@ end
 ```
 
 You can also use only `TableStructure::Schema`.
-```ruby
-schema = SampleTableSchema.new
-table = schema.create_table(result_type: :hash)
-header = table.header
-items.each do |item|
-  row = table.row(context: item)
-end
+```erb
+<% @schema.create_table(result_type: :array) do |table| %>
+  <table>
+    <thead>
+      <tr>
+        <% table.header.each do |val| %>
+          <th><%= val %></th>
+        <% end %>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% table.rows(@items).each do |row| %>
+        <tr>
+          <% row.each do |val| %>
+            <td><%= val %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
 ```
 
 ## Contributing
