@@ -8,12 +8,10 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
   let(:columns) do
     [
       TableStructure::Schema::Column::Attrs.new(
-        {
-          name: ->(header, table) { "#{table[:name]}_#{header[:name]}" },
-          key: :key1,
-          value: ->(row, table) { "#{table[:name]}_#{row[:name]}" },
-          size: 1
-        }
+        name: ->(header, table) { "#{table[:name]}_#{header[:name]}" },
+        key: :key1,
+        value: ->(row, table) { "#{table[:name]}_#{row[:name]}" },
+        size: 1
       )
     ]
   end
