@@ -25,6 +25,12 @@ module TableStructure
         values(:value, context)
       end
 
+      def rows(items)
+        Enumerator.new do |y|
+          items.each { |item| y << row(context: item) }
+        end
+      end
+
       private
 
       def keys

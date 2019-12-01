@@ -8,12 +8,10 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
   let(:columns) do
     [
       TableStructure::Schema::Column::Attrs.new(
-        {
-          name: column_name,
-          key: :key1,
-          value: 'row_value',
-          size: 1
-        }
+        name: column_name,
+        key: :key1,
+        value: 'row_value',
+        size: 1
       )
     ]
   end

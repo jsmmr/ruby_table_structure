@@ -1,3 +1,7 @@
+# 0.3.13
+Changes:
+  - Minor improvements.
+
 # 0.3.12
 Changes:
 - `TableStructure::Schema`

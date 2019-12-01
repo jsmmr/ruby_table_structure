@@ -128,6 +128,20 @@ RSpec.describe TableStructure::Schema::Table do
     it { is_expected.to eq [1, 'Taro', 'cat', 'dog', nil, 'yes', 'no', 'yes', 1, 'Taro', 'cat', 'dog', nil, 'yes', 'no', 'yes'] }
   end
 
+  describe '#rows' do
+    let(:column_converters) { {} }
+    let(:result_builders) { {} }
+
+    let(:options) { {} }
+    let(:nested_schema_options) { {} }
+
+    let(:items) { [{ id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }] }
+
+    subject { table.rows(items).first }
+
+    it { is_expected.to eq [1, 'Taro', 'cat', 'dog', nil, 'yes', 'no', 'yes', 1, 'Taro', 'cat', 'dog', nil, 'yes', 'no', 'yes'] }
+  end
+
   describe '#keys' do
     let(:column_converters) { {} }
     let(:result_builders) { {} }
