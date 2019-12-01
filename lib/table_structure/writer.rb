@@ -15,18 +15,18 @@ module TableStructure
 
     def write(items, to:, **options)
       options = @options.merge(options)
-      table = @schema.create_table(options)
-      unless options[:header_omitted]
-        header = table.header(
-          context: options[:header_context]
-        )
-        header = yield header if block_given?
-        to.send(options[:method], header)
-      end
-      enumerize(items).each do |item|
-        row = table.row(context: item)
-        row = yield row if block_given?
-        to.send(options[:method], row)
+      @schema.create_table(options) do |table|
+        unless options[:header_omitted]
+          header = table.header(
+            context: options[:header_context]
+          )
+          header = yield header if block_given?
+          to.send(options[:method], header)
+        end
+        table.rows(enumerize(items)).each do |row|
+          row = yield row if block_given?
+          to.send(options[:method], row)
+        end
       end
       nil
     end
