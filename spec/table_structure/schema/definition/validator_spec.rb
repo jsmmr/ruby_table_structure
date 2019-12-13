@@ -17,7 +17,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
 
     describe '.new' do
       it 'raises error' do
-        expect { validator.validate(attrs) }
+        expect { validator.validate(**attrs) }
           .to raise_error '"key" must not be lambda. [TestTableSchema] defined position of column(s): 1'
       end
     end
@@ -35,7 +35,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
 
     describe '.new' do
       it 'raises error' do
-        expect { validator.validate(attrs) }
+        expect { validator.validate(**attrs) }
           .to raise_error '"size" must be defined, because column size cannot be determined. [TestTableSchema] defined position of column(s): 1'
       end
     end
@@ -53,7 +53,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
 
     describe '.new' do
       it 'raises error' do
-        expect { validator.validate(attrs) }
+        expect { validator.validate(**attrs) }
           .to raise_error '"size" must be positive. [TestTableSchema] defined position of column(s): 1'
       end
     end
@@ -71,7 +71,7 @@ RSpec.describe TableStructure::Schema::Definition::Validator do
 
     describe '.new' do
       it 'raises error' do
-        expect { validator.validate(attrs) }
+        expect { validator.validate(**attrs) }
           .to raise_error '"key" size must not be less than specified "size". [TestTableSchema] defined position of column(s): 1'
       end
     end

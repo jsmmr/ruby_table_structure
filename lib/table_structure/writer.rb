@@ -15,7 +15,7 @@ module TableStructure
 
     def write(items, to:, **options)
       options = @options.merge(options)
-      @schema.create_table(options) do |table|
+      @schema.create_table(**options) do |table|
         unless options[:header_omitted]
           header = table.header(
             context: options[:header_context]
