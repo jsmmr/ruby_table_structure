@@ -40,7 +40,7 @@ module TableStructure
         warn "[TableStructure] Use `Enumerator` to wrap items instead of `lambda`. The use of `lambda` has been deprecated. #{items}"
         Enumerator.new { |y| items.call(y) }
       else
-        raise ::TableStructure::Error, 'Items is not enumerable.'
+        raise ::TableStructure::Error, "Must be enumerable. #{items}"
       end
     end
   end
