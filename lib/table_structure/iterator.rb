@@ -9,7 +9,7 @@ module TableStructure
       elsif schema_or_writer.is_a?(Writer)
         @writer = schema_or_writer
       else
-        raise ::TableStructure::Error, 'First argument must be either Schema or Writer.'
+        raise ::TableStructure::Error, "Must be either a schema or a writer. #{schema_or_writer}"
       end
     end
 
