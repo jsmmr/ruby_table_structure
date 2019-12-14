@@ -5,6 +5,7 @@ module TableStructure
     module DSL
       module Option
         def option(name, value)
+          warn "[TableStructure] The use of `option` DSL has been deprecated. #{caller_locations(1, 1)}"
           options[name] = value
           nil
         end
