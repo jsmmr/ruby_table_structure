@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'forwardable'
-
 module TableStructure
   module Schema
     def self.included(klass)
