@@ -35,8 +35,8 @@ module TableStructure
                     next if Utils.evaluate_callable(omitted, context)
 
                     definition = evaluate_attrs(definition, context)
-                    validator.validate(definition)
-                    definition[:size] = determine_size(definition)
+                    validator.validate(**definition)
+                    definition[:size] = determine_size(**definition)
                     definition
                   elsif Utils.schema_instance?(definition)
                     definition

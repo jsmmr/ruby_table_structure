@@ -320,7 +320,7 @@ RSpec.describe TableStructure::Writer do
 
         context 'recommend' do
           let(:schema) { TestTableSchema21.new(context: context) }
-          let(:writer) { TableStructure::Writer.new(schema, options) }
+          let(:writer) { TableStructure::Writer.new(schema, **options) }
 
           context 'when passed array_items' do
             let(:items) { array_items }
@@ -415,7 +415,7 @@ RSpec.describe TableStructure::Writer do
 
         context 'recommend' do
           let(:schema) { TestTableSchema21.new(context: context) }
-          let(:writer) { TableStructure::Writer.new(schema, options) }
+          let(:writer) { TableStructure::Writer.new(schema, **options) }
 
           context 'when passed array_items' do
             let(:items) { array_items }

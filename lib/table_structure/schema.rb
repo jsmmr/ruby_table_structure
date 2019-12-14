@@ -4,8 +4,6 @@ require 'forwardable'
 
 module TableStructure
   module Schema
-    extend Forwardable
-
     def self.included(klass)
       klass.extend(DSL::ColumnConverter)
       klass.extend(DSL::ColumnDefinition)
@@ -21,8 +19,6 @@ module TableStructure
       key_suffix: nil,
       nil_definitions_ignored: false
     }.freeze
-
-    def_delegators :@table_structure_schema_definition_, :create_table
 
     def initialize(context: nil, name: self.class.name, **options)
       column_definitions = [].concat(self.class.column_definitions)
@@ -40,6 +36,10 @@ module TableStructure
           context,
           options
         )
+    end
+
+    def create_table(**options, &block)
+      @table_structure_schema_definition_.create_table(**options, &block)
     end
   end
 end
