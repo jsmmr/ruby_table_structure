@@ -1,3 +1,7 @@
+# 0.3.14
+Changes:
+  - Support Ruby 2.7.
+
 # 0.3.13
 Changes:
   - Minor improvements.
