@@ -22,7 +22,7 @@ RSpec.describe TableStructure::CSV::Writer do
   let(:inner_writer_options) { { header_omitted: [true, false].sample } }
 
   let(:csv_writer) do
-    described_class.new(schema, **csv_writer_options, **inner_writer_options)
+    described_class.new(schema, **inner_writer_options.merge(csv_writer_options))
   end
 
   let(:handler) { ->(values) { values } }
@@ -44,7 +44,7 @@ RSpec.describe TableStructure::CSV::Writer do
         .and_return(writer)
 
       expect(writer).to receive(:write)
-        .with(items, hash_including(to: instance_of(::CSV))) do |&block|
+        .with(items, inner_writer_options.merge(to: instance_of(::CSV))) do |&block|
           expect(block).to eq handler
         end
     end
@@ -54,7 +54,7 @@ RSpec.describe TableStructure::CSV::Writer do
     context 'when `bom: true` is specified' do
       let(:csv_writer_options) { { bom: true } }
       it 'writes items' do
-        csv_writer.write(items, to: output, &handler)
+        csv_writer.write(items, to: output, **inner_writer_options, &handler)
         expect(output).to eq ["\uFEFF"]
       end
     end
@@ -62,7 +62,7 @@ RSpec.describe TableStructure::CSV::Writer do
     context 'when `bom: false` is specified' do
       let(:csv_writer_options) { { bom: false } }
       it 'writes items' do
-        csv_writer.write(items, to: output, &handler)
+        csv_writer.write(items, to: output, **inner_writer_options, &handler)
         expect(output).to be_empty
       end
     end
@@ -72,21 +72,10 @@ RSpec.describe TableStructure::CSV::Writer do
       let(:csv_writer_options) { { csv_options: csv_options } }
       it 'passes specified csv_options' do
         expect(::CSV).to receive(:new)
-          .with(output, csv_options)
+          .with(output, **csv_options)
           .and_call_original
 
-        csv_writer.write(items, to: output, &handler)
-      end
-    end
-
-    context 'when `csv_options` is not specified' do
-      let(:csv_writer_options) { {} }
-      it 'passes default csv_options' do
-        expect(::CSV).to receive(:new)
-          .with(output, {})
-          .and_call_original
-
-        csv_writer.write(items, to: output, &handler)
+        csv_writer.write(items, to: output, **inner_writer_options, &handler)
       end
     end
   end
