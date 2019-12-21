@@ -14,7 +14,7 @@ module TableStructure
         end
 
         def column_definitions
-          @table_structure_schema_column_definitions__ ||= []
+          @__column_definitions__ ||= []
         end
       end
     end

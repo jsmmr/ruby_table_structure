@@ -474,7 +474,7 @@ RSpec.describe TableStructure::Schema do
                 key: :name,
                 value: ->(row, *) { row[:name] }
 
-        option :result_type, :hash
+        option :result_type, :hash # deprecated
       end
     end
 
@@ -503,7 +503,7 @@ RSpec.describe TableStructure::Schema do
     end
 
     context 'overwrite by argument' do
-      let(:schema) { described_class::Spec::TestTableSchema7.new(result_type: :array) }
+      let(:schema) { described_class::Spec::TestTableSchema7.new(result_type: :array) } # deprecated
 
       describe 'Table#header' do
         subject { table.header }

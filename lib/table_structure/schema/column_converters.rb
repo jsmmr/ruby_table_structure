@@ -8,11 +8,12 @@ module TableStructure
         @row_converters = select_converters_for(:row, converters)
       end
 
-      def extend_methods_for(table)
+      def extend_methods_for(table, name_prefix:, name_suffix:)
         table_context = table.instance_variable_get(:@context)
-        table_options = table.instance_variable_get(:@options)
 
-        header_converters = @header_converters.merge(optional_header_converters(table_options))
+        header_converters = @header_converters.merge(
+          optional_header_converters(name_prefix: name_prefix, name_suffix: name_suffix)
+        )
         row_converters = @row_converters
 
         methods = {}
@@ -37,15 +38,15 @@ module TableStructure
           .to_h
       end
 
-      def optional_header_converters(options)
+      def optional_header_converters(name_prefix:, name_suffix:)
         converters = {}
-        if options[:name_prefix]
+        if name_prefix
           converters[:_prepend_prefix_] =
-            create_prefix_converter(options[:name_prefix])
+            create_prefix_converter(name_prefix)
         end
-        if options[:name_suffix]
+        if name_suffix
           converters[:_append_suffix_] =
-            create_suffix_converter(options[:name_suffix])
+            create_suffix_converter(name_suffix)
         end
 
         converters

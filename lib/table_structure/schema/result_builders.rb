@@ -18,15 +18,14 @@ module TableStructure
         @builders = builders
       end
 
-      def extend_methods_for(table)
-        table_context = table.instance_variable_get(:@context)
-        table_options = table.instance_variable_get(:@options)
-        table_keys = table.send(:keys)
-
-        builders = select_builders(table_options[:result_type])
+      def extend_methods_for(table, result_type: :array)
+        builders = select_builders(result_type)
 
         methods = {}
         unless builders.empty?
+          table_context = table.instance_variable_get(:@context)
+          table_keys = table.send(:keys)
+
           methods[:header] = create_method(builders, table_keys, table_context)
           methods[:row] = create_method(builders, table_keys, table_context)
         end

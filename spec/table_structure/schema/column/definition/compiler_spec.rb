@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::Definition::Compiler do
+RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
   let(:name) { 'TestTableSchema' }
   let(:options) { {} }
 
@@ -363,7 +363,7 @@ RSpec.describe TableStructure::Schema::Definition::Compiler do
       context 'and `:nil_definitions_ignored` option is set `false`' do
         let(:options) { { nil_definitions_ignored: false } }
 
-        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Error }
+        it { expect { subject }.to raise_error TableStructure::Schema::Column::Definition::Error }
       end
     end
 
