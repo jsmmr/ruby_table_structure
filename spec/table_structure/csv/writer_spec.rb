@@ -19,7 +19,7 @@ RSpec.describe TableStructure::CSV::Writer do
     described_class::Spec::TestTableSchema1.new
   end
 
-  let(:inner_writer_options) { { header_omitted: [true, false].sample } }
+  let(:inner_writer_options) { { header_omitted: [true, false].sample, header_context: nil } }
 
   let(:csv_writer) do
     described_class.new(schema, **inner_writer_options.merge(csv_writer_options))
