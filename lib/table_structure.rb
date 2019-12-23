@@ -6,6 +6,7 @@ module TableStructure
   require 'table_structure/version'
 
   require 'table_structure/schema'
+  require 'table_structure/schema/class_methods'
   require 'table_structure/schema/dsl/column_converter'
   require 'table_structure/schema/dsl/column_definition'
   require 'table_structure/schema/dsl/context_builder'

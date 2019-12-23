@@ -3,7 +3,7 @@
 RSpec.describe TableStructure::Schema do
   let(:table) { schema.create_table }
 
-  context 'define column' do
+  context 'when column is defined' do
     module described_class::Spec
       class TestTableSchema1
         include TableStructure::Schema
@@ -43,7 +43,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'define columns' do
+  context 'when columns is defined' do
     module described_class::Spec
       class TestTableSchema2
         include TableStructure::Schema
@@ -117,7 +117,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'define column_converter' do
+  context 'when column_converter is defined' do
     module described_class::Spec
       class TestTableSchema3
         include TableStructure::Schema
@@ -197,7 +197,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'define context_builder' do
+  context 'when context_builder is defined' do
     module described_class::Spec
       class TestTableSchema4
         include TableStructure::Schema
@@ -301,7 +301,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'define result_builder' do
+  context 'when result_builder is defined' do
     require 'ostruct'
 
     module described_class::Spec
@@ -384,7 +384,8 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'specify result_type: :hash' do
+  # deprecated
+  context 'result_type: :hash is specified' do
     module described_class::Spec
       class TestTableSchema6
         include TableStructure::Schema
@@ -422,7 +423,7 @@ RSpec.describe TableStructure::Schema do
             { id: 'Q3', text: 'Do you like ramen?' }
           ]
         },
-        result_type: :hash
+        result_type: :hash # deprecated
       )
     end
 
@@ -461,7 +462,8 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'define option' do
+  # deprecated
+  context 'when option is defined' do
     module described_class::Spec
       class TestTableSchema7
         include TableStructure::Schema
@@ -502,7 +504,7 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    context 'overwrite by argument' do
+    context 'when overwritten by argument' do
       let(:schema) { described_class::Spec::TestTableSchema7.new(result_type: :array) } # deprecated
 
       describe 'Table#header' do
@@ -531,7 +533,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'define column with :omitted' do
+  context 'when column is defined with :omitted' do
     module described_class::Spec
       class TestTableSchema8
         include TableStructure::Schema
@@ -609,8 +611,8 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'nest schema' do
-    context 'as instance' do
+  context 'when schema is nested' do
+    context 'using instance' do
       module described_class::Spec
         class NestedTestTableSchema9
           include TableStructure::Schema
@@ -793,7 +795,7 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    context 'as class' do
+    context 'using class' do
       module described_class::Spec
         class NestedTestTableSchemaA
           include TableStructure::Schema
@@ -971,6 +973,107 @@ RSpec.describe TableStructure::Schema do
             expect(subject[:nested_q3]).to eq 'yes'
           end
         end
+      end
+    end
+  end
+
+  context 'when schemas are combined' do
+    module described_class::Spec::B
+      class UserTableSchema
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                value: ->(row, *) { row[:name] }
+
+        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
+      end
+
+      class PetTableSchema
+        include TableStructure::Schema
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                value: ->(row, *) { row[:pets] }
+
+        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
+      end
+
+      class QuestionTableSchema
+        include TableStructure::Schema
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+
+        column_converter :to_s, ->(val, *) { raise 'this column_converter will be overwritten.' }
+      end
+
+      class ColumnConverterSchema
+        include TableStructure::Schema
+
+        column_converter :to_s, ->(val, *) { val.to_s }
+      end
+    end
+
+    let(:schema) do
+      [
+        described_class::Spec::B::UserTableSchema,
+        described_class::Spec::B::PetTableSchema,
+        described_class::Spec::B::QuestionTableSchema,
+        described_class::Spec::B::ColumnConverterSchema
+      ]
+        .reduce(&:+)
+        .new(
+          context: {
+            questions: [
+              { id: 'Q1', text: 'Do you like sushi?' },
+              { id: 'Q2', text: 'Do you like yakiniku?' },
+              { id: 'Q3', text: 'Do you like ramen?' }
+            ]
+          }
+        )
+    end
+
+    describe 'Table#header' do
+      subject { table.header }
+
+      it 'returns header columns' do
+        expect(subject.shift).to eq 'ID'
+        expect(subject.shift).to eq 'Name'
+        expect(subject.shift).to eq 'Pet 1'
+        expect(subject.shift).to eq 'Pet 2'
+        expect(subject.shift).to eq 'Pet 3'
+        expect(subject.shift).to eq 'Q1'
+        expect(subject.shift).to eq 'Q2'
+        expect(subject.shift).to eq 'Q3'
+        expect(subject.shift).to be_nil
+      end
+    end
+
+    describe 'Table#row' do
+      subject { table.row(context: item) }
+
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
+
+      it 'returns row columns' do
+        expect(subject.shift).to eq '1'
+        expect(subject.shift).to eq 'Taro'
+        expect(subject.shift).to eq 'cat'
+        expect(subject.shift).to eq 'dog'
+        expect(subject.shift).to eq ''
+        expect(subject.shift).to eq 'yes'
+        expect(subject.shift).to eq 'no'
+        expect(subject.shift).to eq 'yes'
+        expect(subject.shift).to be_nil
       end
     end
   end

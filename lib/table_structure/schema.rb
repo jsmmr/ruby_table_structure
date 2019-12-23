@@ -8,6 +8,7 @@ module TableStructure
       klass.extend(DSL::ContextBuilder)
       klass.extend(DSL::Option)
       klass.extend(DSL::ResultBuilder)
+      klass.extend(ClassMethods)
     end
 
     Definition = Struct.new(
