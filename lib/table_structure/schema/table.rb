@@ -3,10 +3,6 @@
 module TableStructure
   module Schema
     class Table
-      DEFAULT_OPTIONS = {
-        result_type: :array
-      }.freeze
-
       def initialize(
         columns,
         context,
@@ -14,15 +10,15 @@ module TableStructure
       )
         @columns = columns
         @context = context
-        @options = DEFAULT_OPTIONS.merge(options)
+        @options = options
       end
 
       def header(context: nil)
-        values(:name, context)
+        values(:names, context)
       end
 
       def row(context: nil)
-        values(:value, context)
+        values(:values, context)
       end
 
       def rows(items)

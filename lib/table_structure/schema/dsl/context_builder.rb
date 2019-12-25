@@ -10,7 +10,7 @@ module TableStructure
         end
 
         def context_builders
-          @table_structure_schema_context_builders__ ||= {}
+          @__context_builders__ ||= {}
         end
       end
     end

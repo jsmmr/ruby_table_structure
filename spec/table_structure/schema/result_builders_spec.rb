@@ -42,17 +42,19 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
     let(:header_context) { { name: 'header' } }
     let(:row_context) { { name: 'row' } }
 
-    before { result_builders.extend_methods_for(table) }
+    let(:table_options) { {} }
+
+    before { result_builders.extend_methods_for(table, result_type: result_type) }
 
     context 'when table options include `result_type: array`' do
-      let(:table_options) { { result_type: :array } }
+      let(:result_type) { :array }
 
       it { expect(table.header(context: header_context)).to eq(key1: 'table_header_name_value') }
       it { expect(table.row(context: row_context)).to eq(key1: 'table_row_row_value') }
     end
 
     context 'when table options include `result_type: hash`' do
-      let(:table_options) { { result_type: :hash } }
+      let(:result_type) { :hash }
 
       it { expect(table.header(context: header_context)).to eq OpenStruct.new(key1: 'name_value') }
       it { expect(table.row(context: row_context)).to eq OpenStruct.new(key1: 'row_value') }

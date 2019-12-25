@@ -11,10 +11,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -28,8 +28,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -54,10 +54,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -71,8 +71,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -97,10 +97,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -114,8 +114,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { 'Ta' }
       let(:table_context) { 'ro' }
@@ -140,10 +140,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { 'Na' }
       let(:table_context) { 'me' }
@@ -157,8 +157,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -183,10 +183,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -200,8 +200,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -226,10 +226,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -243,8 +243,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -269,10 +269,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -286,8 +286,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -312,10 +312,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -329,8 +329,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -355,10 +355,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -372,8 +372,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -398,10 +398,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -415,8 +415,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq %i[pet1] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -441,10 +441,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -458,8 +458,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -484,10 +484,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -501,8 +501,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq [nil, nil, nil, nil] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -527,10 +527,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -544,8 +544,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq %i[first_name last_name] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }
@@ -570,10 +570,10 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       }
     end
 
-    let(:column) { described_class.new(attrs) }
+    let(:column) { described_class.new(**attrs) }
 
-    describe '#name' do
-      subject { column.name(header_context, table_context) }
+    describe '#names' do
+      subject { column.names(header_context, table_context) }
 
       let(:header_context) { nil }
       let(:table_context) { nil }
@@ -587,8 +587,8 @@ RSpec.describe TableStructure::Schema::Column::Attrs do
       it { is_expected.to eq %i[first_name last_name] }
     end
 
-    describe '#value' do
-      subject { column.value(row_context, table_context) }
+    describe '#values' do
+      subject { column.values(row_context, table_context) }
 
       let(:row_context) { nil }
       let(:table_context) { nil }

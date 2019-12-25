@@ -55,8 +55,8 @@ RSpec.describe TableStructure::Schema::Column::Schema do
   end
   let(:column) { described_class.new(schema) }
 
-  describe '#name' do
-    subject { column.name(header_context, table_context) }
+  describe '#names' do
+    subject { column.names(header_context, table_context) }
 
     let(:header_context) { nil }
     let(:table_context) { nil }
@@ -70,8 +70,8 @@ RSpec.describe TableStructure::Schema::Column::Schema do
     it { is_expected.to eq %i[id name pet1 pet2 pet3 q1 q2 q3] }
   end
 
-  describe '#value' do
-    subject { column.value(row_context, table_context) }
+  describe '#values' do
+    subject { column.values(row_context, table_context) }
 
     let(:row_context) do
       { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }

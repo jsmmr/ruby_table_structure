@@ -10,7 +10,7 @@ module TableStructure
           @table = schema.create_table
         end
 
-        def name(header_context, _table_context)
+        def names(header_context, _table_context)
           @table.header(context: header_context)
         end
 
@@ -18,7 +18,7 @@ module TableStructure
           @table.send(:keys)
         end
 
-        def value(row_context, _table_context)
+        def values(row_context, _table_context)
           @table.row(context: row_context)
         end
 

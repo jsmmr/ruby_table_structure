@@ -11,7 +11,7 @@ module TableStructure
         end
 
         def options
-          @table_structure_schema_options__ ||= {}
+          @__options__ ||= {}
         end
       end
     end
