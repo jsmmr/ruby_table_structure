@@ -76,7 +76,7 @@ schema = SampleTableSchema.new(context: context)
 Initialize a writer with the schema:
 ```ruby
 writer = TableStructure::Writer.new(schema)
-## When omitting header line
+## To omit header, write:
 # writer = TableStructure::Writer.new(schema, header_omitted: true)
 ```
 
@@ -97,8 +97,9 @@ items = [
   }
 ]
 
-## When using `find_each` method of Rails
+## To use Rails `find_each` method, write:
 # items = Item.enum_for(:find_each)
+## or
 # items = Enumerator.new { |y| Item.find_each { |item| y << item } }
 
 table = []
@@ -117,7 +118,7 @@ end
 
 Writes the items converted by the schema to stream as CSV with Rails:
 ```ruby
-# response.headers['X-Accel-Buffering'] = 'no' # When using Nginx for reverse proxy
+# response.headers['X-Accel-Buffering'] = 'no' # Required if Nginx is used for reverse proxy
 response.headers['Cache-Control'] = 'no-cache'
 response.headers['Content-Type'] = 'text/csv'
 response.headers['Content-Disposition'] = 'attachment; filename="sample.csv"'
@@ -164,7 +165,7 @@ class SampleTableSchema
     end
   }
 
-  ## When nesting schemas, :key must be unique in parent and child schemas.
+  ## If the schemas are nested, :key must be unique in parent and child schemas.
   ## This can also be avoided by specifying :key_prefix or :key_suffix option.
   # columns ->(table) { NestedSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
 
@@ -318,8 +319,56 @@ context = {
 schema = SampleTableSchema.new(context: context)
 ```
 
+You can also concatenate schemas.
+If there are some definitions of `column_converter` with the same name in the schemas to be concatenated, the one in the schema that is concatenated last will be used.
+```ruby
+class UserTableSchema
+  include TableStructure::Schema
+
+  column  name: 'ID',
+          value: ->(row, _table) { row[:id] }
+
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+end
+
+class PetTableSchema
+  include TableStructure::Schema
+
+  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          value: ->(row, *) { row[:pets] }
+
+  column_converter :same_name, ->(val, *) { 'This definition will not be used.' }
+end
+
+class QuestionTableSchema
+  include TableStructure::Schema
+
+  columns ->(table) {
+    table[:questions].map do |question|
+      {
+        name: question[:id],
+        value: ->(row, *) { row[:answers][question[:id]] }
+      }
+    end
+  }
+
+  column_converter :same_name, ->(val, *) { 'This definition will be used.' }
+end
+
+context = {
+  questions: [
+    { id: 'Q1', text: 'Do you like sushi?' },
+    { id: 'Q2', text: 'Do you like yakiniku?' },
+    { id: 'Q3', text: 'Do you like ramen?' }
+  ]
+}
+
+schema = (UserTableSchema + PetTableSchema + QuestionTableSchema).new(context: context)
+```
+
 You can also use `context_builder`.
-This may be useful when `column(s)` lambda is complicated.
+This may be useful if `column(s)` lambda is complicated.
 ```ruby
 class SampleTableSchema
   include TableStructure::Schema
@@ -359,7 +408,7 @@ If you want to convert CSV character code, you can do so within block of `write`
 ```ruby
 File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f)) do |row_values|
-    row_values.map { |val| val&.to_s&.encode('Shift_JIS', invalid: :replace, undef: :replace) }
+    row_values.map { |val| val.to_s.encode('Shift_JIS', invalid: :replace, undef: :replace) }
   end
 end
 ```
