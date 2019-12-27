@@ -19,7 +19,7 @@ module TableStructure
         end
 
         def result_builders
-          @table_structure_schema_result_builders__ ||= {}
+          @__result_builders__ ||= {}
         end
       end
     end

@@ -1,3 +1,8 @@
+# 0.3.15
+Changes:
+- `TableStructure::Schema`
+  - Add `+` as class method. this method concatenates the schemas.
+
 # 0.3.14
 Changes:
   - Support Ruby 2.7.

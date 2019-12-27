@@ -35,7 +35,9 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
     let(:header_context) { { name: 'header' } }
     let(:row_context) { { name: 'row' } }
 
-    before { column_converters.extend_methods_for(table) }
+    let(:options) { { name_prefix: nil, name_suffix: nil } }
+
+    before { column_converters.extend_methods_for(table, **options) }
 
     context 'when converter options include `header: true`' do
       let(:converter_options) { { header: true, row: true } }
@@ -67,14 +69,14 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
 
     context 'when header does not include nil' do
       context 'when :name_prefix option is specified' do
-        let(:table_options) { { name_prefix: 'prefix_' } }
+        let(:options) { { name_prefix: 'prefix_', name_suffix: nil } }
 
         it { expect(table.header(context: header_context)).to eq ['prefix_table_header_name_value'] }
         it { expect(table.row(context: row_context)).to eq ['table_row_row_value'] }
       end
 
       context 'when :name_suffix option is specified' do
-        let(:table_options) { { name_suffix: '_suffix' } }
+        let(:options) { { name_prefix: nil, name_suffix: '_suffix' } }
 
         it { expect(table.header(context: header_context)).to eq ['table_header_name_value_suffix'] }
         it { expect(table.row(context: row_context)).to eq ['table_row_row_value'] }
@@ -86,14 +88,14 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
       let(:column_name) { nil }
 
       context 'when :name_prefix option is specified' do
-        let(:table_options) { { name_prefix: 'prefix_' } }
+        let(:options) { { name_prefix: 'prefix_', name_suffix: nil } }
 
         it { expect(table.header(context: header_context)).to eq [nil] }
         it { expect(table.row(context: row_context)).to eq ['row_value'] }
       end
 
       context 'when :name_suffix option is specified' do
-        let(:table_options) { { name_suffix: '_suffix' } }
+        let(:options) { { name_prefix: nil, name_suffix: '_suffix' } }
 
         it { expect(table.header(context: header_context)).to eq [nil] }
         it { expect(table.row(context: row_context)).to eq ['row_value'] }

@@ -19,7 +19,7 @@ module TableStructure
         end
 
         def column_converters
-          @table_structure_schema_column_converters__ ||= {}
+          @__column_converters__ ||= {}
         end
       end
     end

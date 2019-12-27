@@ -6,19 +6,19 @@ module TableStructure
       class Attrs
         attr_reader :keys, :size
 
-        def initialize(definition)
-          @name = definition[:name]
-          @keys = optimize_size([definition[:key]].flatten, definition[:size])
-          @value = definition[:value]
-          @size = definition[:size]
+        def initialize(name:, key:, value:, size:)
+          @name = name
+          @keys = optimize_size([key].flatten, size)
+          @value = value
+          @size = size
         end
 
-        def name(context, table_context)
+        def names(context, table_context)
           name = Utils.evaluate_callable(@name, context, table_context)
           optimize_size(name, @size)
         end
 
-        def value(context, table_context)
+        def values(context, table_context)
           value = Utils.evaluate_callable(@value, context, table_context)
           optimize_size(value, @size)
         end
