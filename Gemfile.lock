@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    table_structure (0.3.14)
+    table_structure (0.3.15)
 
 GEM
   remote: https://rubygems.org/
@@ -32,4 +32,4 @@ DEPENDENCIES
   table_structure!
 
 BUNDLED WITH
-   2.0.2
+   2.1.1
