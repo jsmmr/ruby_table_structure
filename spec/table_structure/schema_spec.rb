@@ -1012,13 +1012,7 @@ RSpec.describe TableStructure::Schema do
           end
         }
 
-        column_converter :to_s, ->(val, *) { raise 'this column_converter will be overwritten.' }
-      end
-
-      class ColumnConverterSchema
-        include TableStructure::Schema
-
-        column_converter :to_s, ->(val, *) { val.to_s }
+        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
       end
     end
 
@@ -1027,7 +1021,9 @@ RSpec.describe TableStructure::Schema do
         described_class::Spec::B::UserTableSchema,
         described_class::Spec::B::PetTableSchema,
         described_class::Spec::B::QuestionTableSchema,
-        described_class::Spec::B::ColumnConverterSchema
+        ::TableStructure::Schema.create_class do
+          column_converter :to_s, ->(val, *) { val.to_s }
+        end
       ]
         .reduce(&:+)
         .new(

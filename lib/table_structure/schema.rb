@@ -11,6 +11,16 @@ module TableStructure
       klass.extend(ClassMethods)
     end
 
+    def self.create_class(&block)
+      raise ::TableStructure::Error, 'No block given.' unless block
+
+      schema_module = self
+      Class.new do
+        include schema_module
+        class_eval(&block)
+      end
+    end
+
     Definition = Struct.new(
       'Definition',
       :name,
