@@ -3,30 +3,28 @@
 module TableStructure
   module Schema
     module ClassMethods
-      def +(schema)
-        self_schema = self
-        Class.new do
-          include ::TableStructure::Schema
-
+      def +(schema_class)
+        self_schema_class = self
+        ::TableStructure::Schema.create_class do
           @__column_definitions__ = [
-            self_schema.column_definitions,
-            schema.column_definitions
+            self_schema_class.column_definitions,
+            schema_class.column_definitions
           ].flatten
 
           @__context_builders__ =
             {}
-            .merge!(self_schema.context_builders)
-            .merge!(schema.context_builders)
+            .merge!(self_schema_class.context_builders)
+            .merge!(schema_class.context_builders)
 
           @__column_converters__ =
             {}
-            .merge!(self_schema.column_converters)
-            .merge!(schema.column_converters)
+            .merge!(self_schema_class.column_converters)
+            .merge!(schema_class.column_converters)
 
           @__result_builders__ =
             {}
-            .merge!(self_schema.result_builders)
-            .merge!(schema.result_builders)
+            .merge!(self_schema_class.result_builders)
+            .merge!(schema_class.result_builders)
         end
       end
     end
