@@ -1,3 +1,10 @@
+# 0.3.16
+Changes:
+- `TableStructure::Schema`
+  - Enable to add definitions in a block when initializing the schema.
+  - Add `merge` class method.
+  - Change `+` class method not to overwrite the definitions (`column_converter`, `context_builder`) by the last one with the same name. If you expect the same behavior as before, use `merge` instead.
+
 # 0.3.15
 Changes:
 - `TableStructure::Schema`
