@@ -977,7 +977,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'when schemas are combined' do
+  context 'when schemas are merged' do
     module described_class::Spec::B
       class UserTableSchema
         include TableStructure::Schema
@@ -1017,15 +1017,13 @@ RSpec.describe TableStructure::Schema do
     end
 
     let(:schema) do
-      [
-        described_class::Spec::B::UserTableSchema,
+      described_class::Spec::B::UserTableSchema.merge(
         described_class::Spec::B::PetTableSchema,
         described_class::Spec::B::QuestionTableSchema,
         ::TableStructure::Schema.create_class do
           column_converter :to_s, ->(val, *) { val.to_s }
         end
-      ]
-        .reduce(&:+)
+      )
         .new(
           context: {
             questions: [
