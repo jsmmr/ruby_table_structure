@@ -3,6 +3,19 @@
 module TableStructure
   module Schema
     module ClassMethods
+      def +(other)
+        unless ::TableStructure::Schema::Utils.schema_class?(other)
+          raise ::TableStructure::Error, "Must be a schema class. #{other}"
+        end
+
+        self_class = self
+
+        ::TableStructure::Schema.create_class do
+          columns self_class
+          columns other
+        end
+      end
+
       def merge(*others)
         others.each do |other|
           unless ::TableStructure::Schema::Utils.schema_class?(other)
