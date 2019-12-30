@@ -11,6 +11,16 @@ module TableStructure
       klass.extend(ClassMethods)
     end
 
+    def self.create_class(&block)
+      raise ::TableStructure::Error, 'No block given.' unless block
+
+      schema_module = self
+      Class.new do
+        include schema_module
+        class_eval(&block)
+      end
+    end
+
     Definition = Struct.new(
       'Definition',
       :name,
@@ -30,7 +40,8 @@ module TableStructure
       key_prefix: nil,
       key_suffix: nil,
       nil_definitions_ignored: false,
-      **deprecated_options
+      **deprecated_options,
+      &block
     )
       unless deprecated_options.empty?
         caller_location = caller_locations(1, 1)
@@ -47,12 +58,30 @@ module TableStructure
         nil_definitions_ignored: nil_definitions_ignored
       }.merge!(self.class.options).merge!(deprecated_options)
 
-      context_builders = ContextBuilders.new({}.merge!(self.class.context_builders))
-      column_converters = ColumnConverters.new({}.merge!(self.class.column_converters))
-      result_builders = ResultBuilders.new({}.merge!(self.class.result_builders))
+      schema_classes = [self.class]
 
-      context = context_builders.build_for_table(context)
-      columns = Column::Factory.create(name, self.class.column_definitions, context, options)
+      if block_given?
+        schema_classes << ::TableStructure::Schema.create_class(&block)
+      end
+
+      context_builders = ContextBuilders.new(
+        schema_classes.map(&:context_builders).reduce({}, &:merge!)
+      )
+
+      column_converters = ColumnConverters.new(
+        schema_classes.map(&:column_converters).reduce({}, &:merge!)
+      )
+
+      result_builders = ResultBuilders.new(
+        schema_classes.map(&:result_builders).reduce({}, &:merge!)
+      )
+
+      columns = Column::Factory.create(
+        name,
+        schema_classes.map(&:column_definitions).reduce([], &:concat),
+        context_builders.build_for_table(context),
+        options
+      )
 
       @_definition_ =
         Definition.new(

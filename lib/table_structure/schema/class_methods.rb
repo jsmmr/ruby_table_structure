@@ -3,30 +3,48 @@
 module TableStructure
   module Schema
     module ClassMethods
-      def +(schema)
-        self_schema = self
-        Class.new do
-          include ::TableStructure::Schema
+      def +(other)
+        unless ::TableStructure::Schema::Utils.schema_class?(other)
+          raise ::TableStructure::Error, "Must be a schema class. #{other}"
+        end
 
-          @__column_definitions__ = [
-            self_schema.column_definitions,
-            schema.column_definitions
-          ].flatten
+        self_class = self
+
+        ::TableStructure::Schema.create_class do
+          columns self_class
+          columns other
+        end
+      end
+
+      def merge(*others)
+        others.each do |other|
+          unless ::TableStructure::Schema::Utils.schema_class?(other)
+            raise ::TableStructure::Error, "Must be a schema class. #{other}"
+          end
+        end
+
+        schema_classes = [self, *others]
+
+        ::TableStructure::Schema.create_class do
+          @__column_definitions__ =
+            schema_classes
+            .map(&:column_definitions)
+            .flatten
 
           @__context_builders__ =
-            {}
-            .merge!(self_schema.context_builders)
-            .merge!(schema.context_builders)
+            schema_classes
+            .map(&:context_builders)
+            .reduce({}, &:merge!)
 
           @__column_converters__ =
-            {}
-            .merge!(self_schema.column_converters)
-            .merge!(schema.column_converters)
+            schema_classes
+            .map(&:column_converters)
+            .reduce({}, &:merge!)
 
           @__result_builders__ =
-            {}
-            .merge!(self_schema.result_builders)
-            .merge!(schema.result_builders)
+            schema_classes
+            .map(&:result_builders)
+            .reduce({}, &:merge!)
         end
       end
     end
