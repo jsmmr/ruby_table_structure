@@ -977,8 +977,103 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'when schemas are combined' do
+  context 'when schemas are concatenated' do
     module described_class::Spec::B
+      class UserTableSchema
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                value: ->(row, *) { row[:name] }
+
+        column_converter :to_s, ->(val, *) { "user: #{val}" }
+      end
+
+      class PetTableSchema
+        include TableStructure::Schema
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                value: ->(row, *) { row[:pets] }
+
+        column_converter :to_s, ->(val, *) { "pet: #{val}" }
+      end
+
+      class QuestionTableSchema
+        include TableStructure::Schema
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+
+        column_converter :to_s, ->(val, *) { "question: #{val}" }
+      end
+    end
+
+    let(:schema) do
+      namespace = described_class::Spec::B
+      [
+        namespace::UserTableSchema,
+        namespace::PetTableSchema,
+        namespace::QuestionTableSchema
+      ]
+        .reduce(&:+)
+        .new(
+          context: {
+            questions: [
+              { id: 'Q1', text: 'Do you like sushi?' },
+              { id: 'Q2', text: 'Do you like yakiniku?' },
+              { id: 'Q3', text: 'Do you like ramen?' }
+            ]
+          }
+        )
+    end
+
+    describe 'Table#header' do
+      subject { table.header }
+
+      it 'returns header columns' do
+        expect(subject.shift).to eq 'user: ID'
+        expect(subject.shift).to eq 'user: Name'
+        expect(subject.shift).to eq 'pet: Pet 1'
+        expect(subject.shift).to eq 'pet: Pet 2'
+        expect(subject.shift).to eq 'pet: Pet 3'
+        expect(subject.shift).to eq 'question: Q1'
+        expect(subject.shift).to eq 'question: Q2'
+        expect(subject.shift).to eq 'question: Q3'
+        expect(subject.shift).to be_nil
+      end
+    end
+
+    describe 'Table#row' do
+      subject { table.row(context: item) }
+
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
+
+      it 'returns row columns' do
+        expect(subject.shift).to eq 'user: 1'
+        expect(subject.shift).to eq 'user: Taro'
+        expect(subject.shift).to eq 'pet: cat'
+        expect(subject.shift).to eq 'pet: dog'
+        expect(subject.shift).to eq 'pet: '
+        expect(subject.shift).to eq 'question: yes'
+        expect(subject.shift).to eq 'question: no'
+        expect(subject.shift).to eq 'question: yes'
+        expect(subject.shift).to be_nil
+      end
+    end
+  end
+
+  context 'when schemas are merged' do
+    module described_class::Spec::C
       class UserTableSchema
         include TableStructure::Schema
 
@@ -1012,24 +1107,19 @@ RSpec.describe TableStructure::Schema do
           end
         }
 
-        column_converter :to_s, ->(val, *) { raise 'this column_converter will be overwritten.' }
-      end
-
-      class ColumnConverterSchema
-        include TableStructure::Schema
-
-        column_converter :to_s, ->(val, *) { val.to_s }
+        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
       end
     end
 
     let(:schema) do
-      [
-        described_class::Spec::B::UserTableSchema,
-        described_class::Spec::B::PetTableSchema,
-        described_class::Spec::B::QuestionTableSchema,
-        described_class::Spec::B::ColumnConverterSchema
-      ]
-        .reduce(&:+)
+      namespace = described_class::Spec::C
+      namespace::UserTableSchema.merge(
+        namespace::PetTableSchema,
+        namespace::QuestionTableSchema,
+        ::TableStructure::Schema.create_class do
+          column_converter :to_s, ->(val, *) { val.to_s }
+        end
+      )
         .new(
           context: {
             questions: [
@@ -1039,6 +1129,93 @@ RSpec.describe TableStructure::Schema do
             ]
           }
         )
+    end
+
+    describe 'Table#header' do
+      subject { table.header }
+
+      it 'returns header columns' do
+        expect(subject.shift).to eq 'ID'
+        expect(subject.shift).to eq 'Name'
+        expect(subject.shift).to eq 'Pet 1'
+        expect(subject.shift).to eq 'Pet 2'
+        expect(subject.shift).to eq 'Pet 3'
+        expect(subject.shift).to eq 'Q1'
+        expect(subject.shift).to eq 'Q2'
+        expect(subject.shift).to eq 'Q3'
+        expect(subject.shift).to be_nil
+      end
+    end
+
+    describe 'Table#row' do
+      subject { table.row(context: item) }
+
+      let(:item) do
+        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
+      end
+
+      it 'returns row columns' do
+        expect(subject.shift).to eq '1'
+        expect(subject.shift).to eq 'Taro'
+        expect(subject.shift).to eq 'cat'
+        expect(subject.shift).to eq 'dog'
+        expect(subject.shift).to eq ''
+        expect(subject.shift).to eq 'yes'
+        expect(subject.shift).to eq 'no'
+        expect(subject.shift).to eq 'yes'
+        expect(subject.shift).to be_nil
+      end
+    end
+  end
+
+  context 'when definitions are appended' do
+    module described_class::Spec::D
+      class UserTableSchema
+        include TableStructure::Schema
+
+        column  name: 'ID',
+                value: ->(row, _table) { row[:id] }
+
+        column  name: 'Name',
+                value: ->(row, *) { row[:name] }
+      end
+
+      class PetTableSchema
+        include TableStructure::Schema
+
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                value: ->(row, *) { row[:pets] }
+      end
+
+      class QuestionTableSchema
+        include TableStructure::Schema
+
+        columns lambda { |table|
+          table[:questions].map do |question|
+            {
+              name: question[:id],
+              value: ->(row, *) { row[:answers][question[:id]] }
+            }
+          end
+        }
+      end
+    end
+
+    let(:schema) do
+      namespace = described_class::Spec::D
+      namespace::UserTableSchema.new(
+        context: {
+          questions: [
+            { id: 'Q1', text: 'Do you like sushi?' },
+            { id: 'Q2', text: 'Do you like yakiniku?' },
+            { id: 'Q3', text: 'Do you like ramen?' }
+          ]
+        }
+      ) do
+        columns namespace::PetTableSchema
+        columns namespace::QuestionTableSchema
+        column_converter :to_s, ->(val, *) { val.to_s }
+      end
     end
 
     describe 'Table#header' do

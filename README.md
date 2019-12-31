@@ -268,7 +268,24 @@ context = { pet_num: 0 }
 schema = SampleTableSchema.new(context: context, nil_definitions_ignored: true)
 ```
 
-You can also nest schemas.
+You can add definitions when initializing the schema.
+```ruby
+class UserTableSchema
+  include TableStructure::Schema
+
+  column  name: 'ID',
+          value: ->(row, _table) { row[:id] }
+
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+end
+
+schema = UserTableSchema.new do
+  column_converter :to_s, ->(val, *) { val.to_s }
+end
+```
+
+You can also nest the schemas.
 ```ruby
 class PetTableSchema
   include TableStructure::Schema
@@ -290,7 +307,7 @@ class QuestionTableSchema
   }
 end
 
-class SampleTableSchema
+class UserTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
@@ -316,11 +333,17 @@ context = {
   ]
 }
 
-schema = SampleTableSchema.new(context: context)
+schema = UserTableSchema.new(context: context)
 ```
 
-You can also concatenate schemas.
-If there are some definitions of `column_converter` with the same name in the schemas to be concatenated, the one in the schema that is concatenated last will be used.
+You can also concatenate or merge the schema classes.
+Both create a schema class, with a few differences.
+- `+`
+  - Similar to nesting the schemas.
+    `column_converter` or `context_builder` works only to columns in the schema that they was defined.
+- `merge`
+  - If there are some definitions of `column_converter` or `context_builder` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
+
 ```ruby
 class UserTableSchema
   include TableStructure::Schema
@@ -338,7 +361,7 @@ class PetTableSchema
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 
-  column_converter :same_name, ->(val, *) { 'This definition will not be used.' }
+  column_converter :same_name, ->(val, *) { "pet: #{val}" }
 end
 
 class QuestionTableSchema
@@ -353,7 +376,7 @@ class QuestionTableSchema
     end
   }
 
-  column_converter :same_name, ->(val, *) { 'This definition will be used.' }
+  column_converter :same_name, ->(val, *) { "question: #{val}" }
 end
 
 context = {
@@ -364,7 +387,9 @@ context = {
   ]
 }
 
-schema = (UserTableSchema + PetTableSchema + QuestionTableSchema).new(context: context)
+concatenated_schema = (UserTableSchema + PetTableSchema + QuestionTableSchema).new(context: context)
+
+merged_schema = UserTableSchema.merge(PetTableSchema, QuestionTableSchema).new(context: context)
 ```
 
 You can also use `context_builder`.
@@ -404,7 +429,7 @@ class SampleTableSchema
 end
 ```
 
-If you want to convert CSV character code, you can do so within block of `write` method.
+If you want to convert CSV character code, you can do so in a block of `write` method.
 ```ruby
 File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f)) do |row_values|
