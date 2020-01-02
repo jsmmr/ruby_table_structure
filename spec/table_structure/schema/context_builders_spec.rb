@@ -19,7 +19,9 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
   describe '#build_for_table' do
     let(:builders) do
       {
-        table: ->(context) { context.merge(name: 'table!') }
+        table: ::TableStructure::Schema::ContextBuilder.new(
+          ->(context) { context.merge(name: 'table!') }
+        )
       }
     end
 

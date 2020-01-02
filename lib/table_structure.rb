@@ -14,6 +14,7 @@ module TableStructure
   require 'table_structure/schema/dsl/result_builder'
   require 'table_structure/schema/column_converter'
   require 'table_structure/schema/column_converters'
+  require 'table_structure/schema/context_builder'
   require 'table_structure/schema/context_builders'
   require 'table_structure/schema/result_builders'
   require 'table_structure/schema/table'
