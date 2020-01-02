@@ -17,7 +17,7 @@ module TableStructure
             _prepend_prefix_: create_prepender(name_prefix),
             _append_suffix_: create_appender(name_suffix)
           )
-          .compact
+          .reject { |_k, v| v.nil? }
 
         row_converters = @row_converters
 
@@ -26,7 +26,7 @@ module TableStructure
             header: create_method(header_converters, table_context),
             row: create_method(row_converters, table_context)
           }
-          .compact
+          .reject { |_k, v| v.nil? }
 
         return if methods.empty?
 

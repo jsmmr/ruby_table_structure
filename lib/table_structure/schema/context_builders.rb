@@ -23,7 +23,7 @@ module TableStructure
             header: create_method(@header_builder),
             row: create_method(@row_builder)
           }
-          .compact
+          .reject { |_k, v| v.nil? }
 
         return if methods.empty?
 
