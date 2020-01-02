@@ -21,10 +21,10 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
   describe '#extend_methods_for' do
     let(:converters) do
       {
-        test: {
-          callable: ->(val, row, table) { "#{table[:name]}_#{row[:name]}_#{val}" },
-          options: converter_options
-        }
+        test: ::TableStructure::Schema::ColumnConverter.new(
+          ->(val, row, table) { "#{table[:name]}_#{row[:name]}_#{val}" },
+          **converter_options
+        )
       }
     end
 

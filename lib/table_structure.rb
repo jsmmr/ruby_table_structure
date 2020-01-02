@@ -4,7 +4,7 @@ module TableStructure
   class Error < StandardError; end
 
   require 'table_structure/version'
-
+  require 'forwardable'
   require 'table_structure/schema'
   require 'table_structure/schema/class_methods'
   require 'table_structure/schema/dsl/column_converter'
@@ -12,6 +12,7 @@ module TableStructure
   require 'table_structure/schema/dsl/context_builder'
   require 'table_structure/schema/dsl/option'
   require 'table_structure/schema/dsl/result_builder'
+  require 'table_structure/schema/column_converter'
   require 'table_structure/schema/column_converters'
   require 'table_structure/schema/context_builders'
   require 'table_structure/schema/result_builders'

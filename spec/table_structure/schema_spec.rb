@@ -142,7 +142,7 @@ RSpec.describe TableStructure::Schema do
         }
 
         column_converter :to_s, ->(val, *) { val.to_s }
-        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }
+        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
       end
     end
 
