@@ -19,20 +19,20 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
   describe '#extend_methods_for' do
     let(:builders) do
       {
-        test1: {
-          callable: lambda do |vals, _keys, row, table|
+        test1: ::TableStructure::Schema::ResultBuilder.new(
+          lambda do |vals, _keys, row, table|
             vals.map { |val| "#{table[:name]}_#{row[:name]}_#{val}" }
           end,
-          options: { enabled_result_types: %i[array] }
-        },
-        test2: {
-          callable: ->(vals, keys, *) { keys.zip(vals).to_h },
-          options: { enabled_result_types: %i[array] }
-        },
-        test3: {
-          callable: ->(vals, *) { OpenStruct.new(vals) },
-          options: { enabled_result_types: %i[hash] }
-        }
+          enabled_result_types: %i[array]
+        ),
+        test2: ::TableStructure::Schema::ResultBuilder.new(
+          ->(vals, keys, *) { keys.zip(vals).to_h },
+          enabled_result_types: %i[array]
+        ),
+        test3: ::TableStructure::Schema::ResultBuilder.new(
+          ->(vals, *) { OpenStruct.new(vals) },
+          enabled_result_types: %i[hash]
+        )
       }
     end
 

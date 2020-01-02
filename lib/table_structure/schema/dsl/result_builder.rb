@@ -4,17 +4,16 @@ module TableStructure
   module Schema
     module DSL
       module ResultBuilder
-        DEFAULT_OPTIONS = {
+        def result_builder(
+          name,
+          callable,
           enabled_result_types: %i[array hash]
-        }.freeze
-
-        def result_builder(name, callable, **options)
-          options = DEFAULT_OPTIONS.merge(options)
-          options[:enabled_result_types] = [options[:enabled_result_types]].flatten
-          result_builders[name] = {
-            callable: callable,
-            options: options
-          }
+        )
+          result_builders[name] =
+            ::TableStructure::Schema::ResultBuilder.new(
+              callable,
+              enabled_result_types: enabled_result_types
+            )
           nil
         end
 
