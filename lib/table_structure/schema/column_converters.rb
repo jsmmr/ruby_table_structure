@@ -38,7 +38,7 @@ module TableStructure
       def create_prepender(prefix)
         return unless prefix
 
-        ColumnConverter.new(
+        Definition::ColumnConverter.new(
           lambda { |val, *|
             val.nil? ? val : "#{prefix}#{val}"
           },
@@ -50,7 +50,7 @@ module TableStructure
       def create_appender(suffix)
         return unless suffix
 
-        ColumnConverter.new(
+        Definition::ColumnConverter.new(
           lambda { |val, *|
             val.nil? ? val : "#{val}#{suffix}"
           },

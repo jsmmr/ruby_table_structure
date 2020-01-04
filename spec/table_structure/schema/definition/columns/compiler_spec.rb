@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
-  let(:name) { 'TestTableSchema' }
+RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
+  let(:schema_name) { 'TestTableSchema' }
   let(:options) { {} }
 
   describe '#compile' do
@@ -12,14 +12,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
         ]
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      subject { described_class.new(schema_name, definitions, options).compile }
 
       it 'compiles definitions' do
+        expect(::TableStructure::Schema::Columns::Attributes)
+          .to receive(:new).with(**{
+            name: nil,
+            key: nil,
+            value: nil,
+            size: 1
+          }).and_call_original
+
         expect(subject.size).to eq 1
-        expect(subject[0][:name]).to be_nil
-        expect(subject[0][:key]).to be_nil
-        expect(subject[0][:value]).to be_nil
-        expect(subject[0][:size]).to eq 1
       end
     end
 
@@ -35,14 +39,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
         ]
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      subject { described_class.new(schema_name, definitions, options).compile }
 
       it 'compiles definitions' do
+        expect(::TableStructure::Schema::Columns::Attributes)
+          .to receive(:new).with(**{
+            name: 'Name',
+            key: :name,
+            value: 'Taro',
+            size: 1
+          }).and_call_original
+
         expect(subject.size).to eq 1
-        expect(subject[0][:name]).to eq 'Name'
-        expect(subject[0][:key]).to eq :name
-        expect(subject[0][:value]).to eq 'Taro'
-        expect(subject[0][:size]).to eq 1
       end
     end
 
@@ -60,14 +68,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
 
       let(:context) { { size: 2 } }
 
-      subject { described_class.new(name, definitions, options).compile(context) }
+      subject { described_class.new(schema_name, definitions, options).compile(context) }
 
       it 'compiles definitions' do
+        expect(::TableStructure::Schema::Columns::Attributes)
+          .to receive(:new).with(**{
+            name: 'Name',
+            key: %i[first_name last_name],
+            value: %w[Taro Momo],
+            size: 2
+          }).and_call_original
+
         expect(subject.size).to eq 1
-        expect(subject[0][:name]).to eq 'Name'
-        expect(subject[0][:key]).to eq %i[first_name last_name]
-        expect(subject[0][:value]).to eq %w[Taro Momo]
-        expect(subject[0][:size]).to eq 2
       end
     end
 
@@ -81,14 +93,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
           ]
         end
 
-        subject { described_class.new(name, definitions, options).compile }
+        subject { described_class.new(schema_name, definitions, options).compile }
 
         it 'compiles definitions' do
+          expect(::TableStructure::Schema::Columns::Attributes)
+            .to receive(:new).with(**{
+              name: ['Pet 1', 'Pet 2', 'Pet 3'],
+              key: nil,
+              value: nil,
+              size: 3
+            }).and_call_original
+
           expect(subject.size).to eq 1
-          expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
-          expect(subject[0][:key]).to be_nil
-          expect(subject[0][:value]).to be_nil
-          expect(subject[0][:size]).to eq 3
         end
       end
 
@@ -101,14 +117,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
           ]
         end
 
-        subject { described_class.new(name, definitions, options).compile }
+        subject { described_class.new(schema_name, definitions, options).compile }
 
         it 'compiles definitions' do
+          expect(::TableStructure::Schema::Columns::Attributes)
+            .to receive(:new).with(**{
+              name: nil,
+              key: %i[pet1 pet2 pet3],
+              value: nil,
+              size: 3
+            }).and_call_original
+
           expect(subject.size).to eq 1
-          expect(subject[0][:name]).to be_nil
-          expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
-          expect(subject[0][:value]).to be_nil
-          expect(subject[0][:size]).to eq 3
         end
       end
 
@@ -123,14 +143,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
             ]
           end
 
-          subject { described_class.new(name, definitions, options).compile }
+          subject { described_class.new(schema_name, definitions, options).compile }
 
           it 'compiles definitions' do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2],
+                value: nil,
+                size: 3
+              }).and_call_original
+
             expect(subject.size).to eq 1
-            expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
-            expect(subject[0][:key]).to eq %i[pet1 pet2]
-            expect(subject[0][:value]).to be_nil
-            expect(subject[0][:size]).to eq 3
           end
         end
 
@@ -144,14 +168,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
             ]
           end
 
-          subject { described_class.new(name, definitions, options).compile }
+          subject { described_class.new(schema_name, definitions, options).compile }
 
           it 'compiles definitions' do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: ['Pet 1', 'Pet 2'],
+                key: %i[pet1 pet2 pet3],
+                value: nil,
+                size: 3
+              }).and_call_original
+
             expect(subject.size).to eq 1
-            expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2']
-            expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
-            expect(subject[0][:value]).to be_nil
-            expect(subject[0][:size]).to eq 3
           end
         end
 
@@ -165,14 +193,18 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
             ]
           end
 
-          subject { described_class.new(name, definitions, options).compile }
+          subject { described_class.new(schema_name, definitions, options).compile }
 
           it 'compiles definitions' do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
+                value: nil,
+                size: 3
+              }).and_call_original
+
             expect(subject.size).to eq 1
-            expect(subject[0][:name]).to eq ['Pet 1', 'Pet 2', 'Pet 3']
-            expect(subject[0][:key]).to eq %i[pet1 pet2 pet3]
-            expect(subject[0][:value]).to be_nil
-            expect(subject[0][:size]).to eq 3
           end
         end
       end
@@ -204,7 +236,7 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
         ]
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      subject { described_class.new(schema_name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 6
@@ -227,46 +259,75 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
       end
 
       context 'by other than lambda' do
-        subject { described_class.new(name, definitions, options).compile }
+        subject { described_class.new(schema_name, definitions, options).compile }
 
         context 'as true' do
           let(:omitted) { true }
 
           it 'compiles definitions' do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: 'Name',
+                key: nil,
+                value: 'Taro',
+                size: 1
+              }).and_call_original
+
             expect(subject.size).to eq 1
-            expect(subject[0][:name]).to eq 'Name'
-            expect(subject[0][:key]).to be_nil
-            expect(subject[0][:value]).to eq 'Taro'
-            expect(subject[0][:size]).to eq 1
           end
         end
 
         context 'as false' do
           let(:omitted) { false }
 
+          before do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**attributes1).and_call_original
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**attributes2).and_call_original
+          end
+
+          let(:attributes1) do
+            {
+              name: 'ID',
+              key: nil,
+              value: 1,
+              size: 1
+            }
+          end
+
+          let(:attributes2) do
+            {
+              name: 'Name',
+              key: nil,
+              value: 'Taro',
+              size: 1
+            }
+          end
+
           it 'compiles definitions' do
             expect(subject.size).to eq 2
-            expect(subject[0][:name]).to eq 'ID'
-            expect(subject[0][:key]).to be_nil
-            expect(subject[0][:value]).to eq 1
-            expect(subject[0][:size]).to eq 1
           end
         end
       end
 
       context 'by lambda' do
-        subject { described_class.new(name, definitions, options).compile(context) }
+        subject { described_class.new(schema_name, definitions, options).compile(context) }
 
         context 'as true' do
           let(:omitted) { ->(table) { !table[:admin] } }
           let(:context) { { admin: false } }
 
           it 'compiles definitions' do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: 'Name',
+                key: nil,
+                value: 'Taro',
+                size: 1
+              }).and_call_original
+
             expect(subject.size).to eq 1
-            expect(subject[0][:name]).to eq 'Name'
-            expect(subject[0][:key]).to be_nil
-            expect(subject[0][:value]).to eq 'Taro'
-            expect(subject[0][:size]).to eq 1
           end
         end
 
@@ -275,11 +336,23 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
           let(:context) { { admin: true } }
 
           it 'compiles definitions' do
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: 'ID',
+                key: nil,
+                value: 1,
+                size: 1
+              }).and_call_original
+
+            expect(::TableStructure::Schema::Columns::Attributes)
+              .to receive(:new).with(**{
+                name: 'Name',
+                key: nil,
+                value: 'Taro',
+                size: 1
+              }).and_call_original
+
             expect(subject.size).to eq 2
-            expect(subject[0][:name]).to eq 'ID'
-            expect(subject[0][:key]).to be_nil
-            expect(subject[0][:value]).to eq 1
-            expect(subject[0][:size]).to eq 1
           end
         end
       end
@@ -318,22 +391,31 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
         }
       end
 
-      subject { described_class.new(name, definitions, options).compile(context) }
+      subject { described_class.new(schema_name, definitions, options).compile(context) }
 
       context 'that is class' do
         let(:definitions) { [TestTableSchema1] }
 
+        before do
+          expect(::TableStructure::Schema::Columns::Schema)
+            .to receive(:new).with(definitions[0]).and_call_original
+        end
+
         it 'compiles definitions' do
           expect(subject.size).to eq 1
-          expect(subject[0]).to be_a TestTableSchema1
         end
       end
 
       context 'that is instance' do
         let(:definitions) { [TestTableSchema1.new(context: context)] }
 
+        before do
+          expect(::TableStructure::Schema::Columns::Schema)
+            .to receive(:new).with(definitions[0]).and_call_original
+        end
+
         it 'compiles definitions' do
-          expect(subject[0]).to be_a TestTableSchema1
+          expect(subject.size).to eq 1
         end
       end
     end
@@ -348,22 +430,36 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
         ]
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      subject { described_class.new(schema_name, definitions, options).compile }
 
       context 'and `:nil_definitions_ignored` option is set `true`' do
         let(:options) { { nil_definitions_ignored: true } }
 
         it 'compiles definitions' do
+          expect(::TableStructure::Schema::Columns::Attributes)
+            .to receive(:new).with(**{
+              name: 'a',
+              key: nil,
+              value: nil,
+              size: 1
+            }).and_call_original
+
+          expect(::TableStructure::Schema::Columns::Attributes)
+            .to receive(:new).with(**{
+              name: 'b',
+              key: nil,
+              value: nil,
+              size: 1
+            }).and_call_original
+
           expect(subject.size).to eq 2
-          expect(subject[0][:name]).to eq 'a'
-          expect(subject[1][:name]).to eq 'b'
         end
       end
 
       context 'and `:nil_definitions_ignored` option is set `false`' do
         let(:options) { { nil_definitions_ignored: false } }
 
-        it { expect { subject }.to raise_error TableStructure::Schema::Column::Definition::Error }
+        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Columns::Error }
       end
     end
 
@@ -374,7 +470,7 @@ RSpec.describe TableStructure::Schema::Column::Definition::Compiler do
         ]
       end
 
-      subject { described_class.new(name, definitions, options).compile }
+      subject { described_class.new(schema_name, definitions, options).compile }
 
       it 'compiles definitions' do
         expect(subject.size).to eq 0

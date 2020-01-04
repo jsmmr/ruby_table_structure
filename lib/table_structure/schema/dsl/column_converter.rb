@@ -11,7 +11,7 @@ module TableStructure
           row: true
         )
           column_converters[name] =
-            ::TableStructure::Schema::ColumnConverter.new(
+            ::TableStructure::Schema::Definition::ColumnConverter.new(
               callable,
               header: header,
               row: row

@@ -2,8 +2,8 @@
 
 module TableStructure
   module Schema
-    module Column
-      module Definition
+    module Definition
+      module Columns
         class Error < ::TableStructure::Error
           attr_reader :schema_name, :definition_index
 

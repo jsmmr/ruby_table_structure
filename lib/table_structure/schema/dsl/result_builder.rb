@@ -10,7 +10,7 @@ module TableStructure
           enabled_result_types: %i[array hash]
         )
           result_builders[name] =
-            ::TableStructure::Schema::ResultBuilder.new(
+            ::TableStructure::Schema::Definition::ResultBuilder.new(
               callable,
               enabled_result_types: enabled_result_types
             )

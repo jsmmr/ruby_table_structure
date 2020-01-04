@@ -7,7 +7,7 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
 
   let(:columns) do
     [
-      TableStructure::Schema::Column::Attrs.new(
+      TableStructure::Schema::Columns::Attributes.new(
         name: ->(header, table) { "#{table[:name]}_#{header[:name]}" },
         key: :key1,
         value: ->(row, table) { "#{table[:name]}_#{row[:name]}" },
@@ -19,7 +19,7 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
   describe '#build_for_table' do
     let(:builders) do
       {
-        table: ::TableStructure::Schema::ContextBuilder.new(
+        table: ::TableStructure::Schema::Definition::ContextBuilder.new(
           ->(context) { context.merge(name: 'table!') }
         )
       }

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::Table::KeyDecorator do
-  describe '#decorate' do
-    subject { described_class.new(**options).decorate(keys) }
+RSpec.describe TableStructure::Schema::KeysGenerator do
+  describe '#generate' do
+    subject { described_class.new(**options).generate(keys) }
 
     let(:keys) { [:a, 'b', nil, '', 1] }
 

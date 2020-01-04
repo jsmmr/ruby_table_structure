@@ -21,8 +21,7 @@ module TableStructure
       end
     end
 
-    Definition = Struct.new(
-      'Definition',
+    MyDefinition = Struct.new(
       :name,
       :columns,
       :context_builders,
@@ -76,15 +75,17 @@ module TableStructure
         schema_classes.map(&:result_builders).reduce({}, &:merge!)
       )
 
-      columns = Column::Factory.create(
-        name,
-        schema_classes.map(&:column_definitions).reduce([], &:concat),
-        context_builders.build_for_table(context),
-        options
-      )
+      columns =
+        Definition::Columns::Compiler
+          .new(
+            name,
+            schema_classes.map(&:column_definitions).reduce([], &:concat),
+            options
+          )
+          .compile(context_builders.build_for_table(context))
 
       @_definition_ =
-        Definition.new(
+        MyDefinition.new(
           name,
           columns,
           context_builders,
@@ -99,26 +100,41 @@ module TableStructure
     def create_table(**options)
       options = @_definition_.options.merge(options)
 
+      keys_generator_options = {
+        prefix: options[:key_prefix],
+        suffix: options[:key_suffix]
+      }
+
+      keys_generator = KeysGenerator.new(
+        **keys_generator_options
+      )
+
       table = Table.new(
         @_definition_.columns,
         @_definition_.context,
-        options
+        keys_generator
       )
 
-      @_definition_.context_builders.extend_methods_for(table)
+      @_definition_
+        .context_builders
+        .extend_methods_for(table)
 
       column_converters_options = {
         name_prefix: options[:name_prefix],
         name_suffix: options[:name_suffix]
       }
 
-      @_definition_.column_converters.extend_methods_for(table, **column_converters_options)
+      @_definition_
+        .column_converters
+        .extend_methods_for(table, **column_converters_options)
 
       result_builders_options = {
         result_type: options[:result_type]
       }
 
-      @_definition_.result_builders.extend_methods_for(table, **result_builders_options)
+      @_definition_
+        .result_builders
+        .extend_methods_for(table, **result_builders_options)
 
       if block_given?
         yield table

@@ -2,7 +2,7 @@
 
 module TableStructure
   module Schema
-    module Column
+    module Columns
       class Schema
         attr_reader :table
 

@@ -7,7 +7,7 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
 
   let(:columns) do
     [
-      TableStructure::Schema::Column::Attrs.new(
+      TableStructure::Schema::Columns::Attributes.new(
         name: column_name,
         key: :key1,
         value: 'row_value',
@@ -21,7 +21,7 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
   describe '#extend_methods_for' do
     let(:converters) do
       {
-        test: ::TableStructure::Schema::ColumnConverter.new(
+        test: ::TableStructure::Schema::Definition::ColumnConverter.new(
           ->(val, row, table) { "#{table[:name]}_#{row[:name]}_#{val}" },
           **converter_options
         )

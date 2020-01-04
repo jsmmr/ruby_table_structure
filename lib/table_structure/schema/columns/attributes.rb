@@ -2,8 +2,8 @@
 
 module TableStructure
   module Schema
-    module Column
-      class Attrs
+    module Columns
+      class Attributes
         attr_reader :keys, :size
 
         def initialize(name:, key:, value:, size:)

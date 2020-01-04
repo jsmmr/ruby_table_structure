@@ -6,11 +6,11 @@ module TableStructure
       def initialize(
         columns,
         context,
-        options
+        keys_generator
       )
         @columns = columns
         @context = context
-        @options = options
+        @keys_generator = keys_generator
       end
 
       def header(context: nil)
@@ -30,13 +30,7 @@ module TableStructure
       private
 
       def keys
-        @keys ||= begin
-          keys = @columns.map(&:keys).flatten
-          KeyDecorator.new(
-            prefix: @options[:key_prefix],
-            suffix: @options[:key_suffix]
-          ).decorate(keys)
-        end
+        @keys ||= @keys_generator.generate(@columns.map(&:keys).flatten)
       end
 
       def size

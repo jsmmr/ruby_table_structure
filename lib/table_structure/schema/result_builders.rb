@@ -4,7 +4,7 @@ module TableStructure
   module Schema
     class ResultBuilders
       DEFAULT_BUILDERS = {
-        _to_hash_: ::TableStructure::Schema::ResultBuilder.new(
+        _to_hash_: ::TableStructure::Schema::Definition::ResultBuilder.new(
           lambda { |values, keys, *|
             keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
           },

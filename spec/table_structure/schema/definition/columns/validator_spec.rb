@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::Column::Definition::Validator do
+RSpec.describe TableStructure::Schema::Definition::Columns::Validator do
   let(:validator) { described_class.new(name, index) }
   let(:name) { 'TestTableSchema' }
   let(:index) { 0 }

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::Column::Schema do
+RSpec.describe TableStructure::Schema::Columns::Schema do
   module described_class::Spec
     class TestTableSchema1
       include TableStructure::Schema

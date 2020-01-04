@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::Column::Attrs do
+RSpec.describe TableStructure::Schema::Columns::Attributes do
   context 'pattern 1' do
     let(:attrs) do
       {

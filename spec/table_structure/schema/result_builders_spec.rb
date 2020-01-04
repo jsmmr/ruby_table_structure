@@ -3,11 +3,11 @@
 RSpec.describe TableStructure::Schema::ResultBuilders do
   let(:result_builders) { described_class.new(builders) }
 
-  let(:table) { TableStructure::Schema::Table.new(columns, table_context, table_options) }
+  let(:table) { TableStructure::Schema::Table.new(columns, table_context, keys_generator) }
 
   let(:columns) do
     [
-      TableStructure::Schema::Column::Attrs.new(
+      TableStructure::Schema::Columns::Attributes.new(
         name: 'name_value',
         key: :key1,
         value: 'row_value',
@@ -19,17 +19,17 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
   describe '#extend_methods_for' do
     let(:builders) do
       {
-        test1: ::TableStructure::Schema::ResultBuilder.new(
+        test1: ::TableStructure::Schema::Definition::ResultBuilder.new(
           lambda do |vals, _keys, row, table|
             vals.map { |val| "#{table[:name]}_#{row[:name]}_#{val}" }
           end,
           enabled_result_types: %i[array]
         ),
-        test2: ::TableStructure::Schema::ResultBuilder.new(
+        test2: ::TableStructure::Schema::Definition::ResultBuilder.new(
           ->(vals, keys, *) { keys.zip(vals).to_h },
           enabled_result_types: %i[array]
         ),
-        test3: ::TableStructure::Schema::ResultBuilder.new(
+        test3: ::TableStructure::Schema::Definition::ResultBuilder.new(
           ->(vals, *) { OpenStruct.new(vals) },
           enabled_result_types: %i[hash]
         )
@@ -42,7 +42,7 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
     let(:header_context) { { name: 'header' } }
     let(:row_context) { { name: 'row' } }
 
-    let(:table_options) { {} }
+    let(:keys_generator) { ::TableStructure::Schema::KeysGenerator.new }
 
     before { result_builders.extend_methods_for(table, result_type: result_type) }
 
