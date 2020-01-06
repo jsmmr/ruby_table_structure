@@ -19,7 +19,7 @@ module TableStructure
         end
 
         def values(row_context, _table_context)
-          @table.row(context: row_context)
+          @table.send(:data, context: row_context)
         end
 
         def size

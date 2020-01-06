@@ -29,7 +29,7 @@ module TableStructure
 
         table.extend ResultBuildable.new(
           header: create_method(builders, table_keys, table_context),
-          row: create_method(builders, table_keys, table_context)
+          data: create_method(builders, table_keys, table_context)
         )
       end
 

@@ -18,12 +18,13 @@ module TableStructure
       end
 
       def row(context: nil)
-        values(:values, context)
+        warn "[TableStructure] `TableStructure::Schema::Table#row(context:)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead."
+        data(context: context)
       end
 
       def body(items)
         Enumerator.new do |y|
-          items.each { |item| y << row(context: item) }
+          items.each { |item| y << data(context: item) }
         end
       end
 
@@ -33,6 +34,10 @@ module TableStructure
       end
 
       private
+
+      def data(context: nil)
+        values(:values, context)
+      end
 
       def keys
         @keys ||= @keys_generator.generate(@columns.map(&:keys).flatten)

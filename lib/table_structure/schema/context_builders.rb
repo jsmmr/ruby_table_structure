@@ -21,7 +21,7 @@ module TableStructure
         methods =
           {
             header: create_method(@header_builder),
-            row: create_method(@row_builder)
+            data: create_method(@row_builder)
           }
           .reject { |_k, v| v.nil? }
 
