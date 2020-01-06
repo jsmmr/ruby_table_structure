@@ -14,7 +14,7 @@ module TableStructure
       end
 
       def header(context: nil)
-        values(:names, context)
+        row_values(:names, context)
       end
 
       def row(context: nil)
@@ -36,7 +36,7 @@ module TableStructure
       private
 
       def data(context: nil)
-        values(:values, context)
+        row_values(:values, context)
       end
 
       def keys
@@ -47,7 +47,7 @@ module TableStructure
         @size ||= @columns.map(&:size).reduce(0, &:+)
       end
 
-      def values(method, context)
+      def row_values(method, context)
         @columns
           .map { |column| column.send(method, context, @context) }
           .flatten
