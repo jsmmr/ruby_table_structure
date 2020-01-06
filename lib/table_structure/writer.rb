@@ -23,7 +23,7 @@ module TableStructure
           header = yield header if block_given?
           to.send(options[:method], header)
         end
-        table.rows(enumerize(items)).each do |row|
+        table.body(enumerize(items)).each do |row|
           row = yield row if block_given?
           to.send(options[:method], row)
         end

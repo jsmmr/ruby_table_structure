@@ -21,10 +21,15 @@ module TableStructure
         values(:values, context)
       end
 
-      def rows(items)
+      def body(items)
         Enumerator.new do |y|
           items.each { |item| y << row(context: item) }
         end
+      end
+
+      def rows(items)
+        warn "[TableStructure] `TableStructure::Schema::Table#rows(items)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead."
+        body(items)
       end
 
       private
