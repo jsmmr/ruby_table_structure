@@ -301,7 +301,7 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  context 'when result_builder is defined' do
+  context 'when row_builder is defined' do
     require 'ostruct'
 
     module described_class::Spec
@@ -330,9 +330,9 @@ RSpec.describe TableStructure::Schema do
           end
         }
 
-        result_builder  :to_ostruct,
+        row_builder  :to_ostruct,
                         ->(values, *) { OpenStruct.new(values) },
-                        enabled_result_types: [:hash]
+                        enabled_row_types: [:hash]
       end
     end
 
@@ -684,7 +684,7 @@ RSpec.describe TableStructure::Schema do
               { id: 'Q3', text: 'Do you like ramen?' }
             ]
           },
-          result_type: result_type
+          **([{ result_type: result_type }, { row_type: result_type }].sample)
         )
       end
 
@@ -865,7 +865,7 @@ RSpec.describe TableStructure::Schema do
               { id: 'Q3', text: 'Do you like ramen?' }
             ]
           },
-          result_type: result_type
+          **([{ result_type: result_type }, { row_type: result_type }].sample)
         )
       end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::ResultBuilders do
-  let(:result_builders) { described_class.new(builders) }
+RSpec.describe TableStructure::Schema::RowBuilders do
+  let(:row_builders) { described_class.new(builders) }
 
   let(:table) { TableStructure::Schema::Table.new(columns, table_context, keys_generator) }
 
@@ -19,24 +19,24 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
   describe '#extend_methods_for' do
     let(:builders) do
       {
-        test1: ::TableStructure::Schema::Definition::ResultBuilder.new(
+        test1: ::TableStructure::Schema::Definition::RowBuilder.new(
           lambda do |vals, _keys, row, table|
             vals.map { |val| "#{table[:name]}_#{row[:name]}_#{val}" }
           end,
-          enabled_result_types: %i[array]
+          enabled_row_types: %i[array]
         ),
-        test2: ::TableStructure::Schema::Definition::ResultBuilder.new(
+        test2: ::TableStructure::Schema::Definition::RowBuilder.new(
           ->(vals, keys, *) { keys.zip(vals).to_h },
-          enabled_result_types: %i[array]
+          enabled_row_types: %i[array]
         ),
-        test3: ::TableStructure::Schema::Definition::ResultBuilder.new(
+        test3: ::TableStructure::Schema::Definition::RowBuilder.new(
           ->(vals, *) { OpenStruct.new(vals) },
-          enabled_result_types: %i[hash]
+          enabled_row_types: %i[hash]
         )
       }
     end
 
-    let(:builder_options) { { enabled_result_types: %i[array] } }
+    let(:builder_options) { { enabled_row_types: %i[array] } }
 
     let(:table_context) { { name: 'table' } }
     let(:header_context) { { name: 'header' } }
@@ -44,17 +44,17 @@ RSpec.describe TableStructure::Schema::ResultBuilders do
 
     let(:keys_generator) { ::TableStructure::Schema::KeysGenerator.new }
 
-    before { result_builders.extend_methods_for(table, result_type: result_type) }
+    before { row_builders.extend_methods_for(table, row_type: row_type) }
 
-    context 'when table options include `result_type: array`' do
-      let(:result_type) { :array }
+    context 'when table options include `row_type: array`' do
+      let(:row_type) { :array }
 
       it { expect(table.header(context: header_context)).to eq(key1: 'table_header_name_value') }
       it { expect(table.row(context: row_context)).to eq(key1: 'table_row_row_value') }
     end
 
-    context 'when table options include `result_type: hash`' do
-      let(:result_type) { :hash }
+    context 'when table options include `row_type: hash`' do
+      let(:row_type) { :hash }
 
       it { expect(table.header(context: header_context)).to eq OpenStruct.new(key1: 'name_value') }
       it { expect(table.row(context: row_context)).to eq OpenStruct.new(key1: 'row_value') }

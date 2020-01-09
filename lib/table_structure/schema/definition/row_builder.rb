@@ -3,21 +3,21 @@
 module TableStructure
   module Schema
     module Definition
-      class ResultBuilder
+      class RowBuilder
         extend Forwardable
 
         def_delegator :@callable, :call
 
         def initialize(
           callable,
-          enabled_result_types: %i[array hash]
+          enabled_row_types: %i[array hash]
         )
           @callable = callable
-          @enabled_result_types = [enabled_result_types].flatten
+          @enabled_row_types = [enabled_row_types].flatten
         end
 
-        def enabled?(result_type)
-          @enabled_result_types.include?(result_type)
+        def enabled?(row_type)
+          @enabled_row_types.include?(row_type)
         end
       end
     end

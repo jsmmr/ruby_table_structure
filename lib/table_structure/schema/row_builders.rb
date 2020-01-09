@@ -2,13 +2,13 @@
 
 module TableStructure
   module Schema
-    class ResultBuilders
+    class RowBuilders
       DEFAULT_BUILDERS = {
-        _to_hash_: ::TableStructure::Schema::Definition::ResultBuilder.new(
+        _to_hash_: ::TableStructure::Schema::Definition::RowBuilder.new(
           lambda { |values, keys, *|
             keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
           },
-          enabled_result_types: [:hash]
+          enabled_row_types: [:hash]
         )
       }.freeze
 
@@ -16,11 +16,11 @@ module TableStructure
         @builders = builders
       end
 
-      def extend_methods_for(table, result_type: :array)
+      def extend_methods_for(table, row_type: :array)
         builders =
           DEFAULT_BUILDERS
           .merge(@builders)
-          .select { |_k, v| v.enabled?(result_type) }
+          .select { |_k, v| v.enabled?(row_type) }
 
         return if builders.empty?
 
