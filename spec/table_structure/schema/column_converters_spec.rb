@@ -28,7 +28,7 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
       }
     end
 
-    let(:converter_options) { { header: true, row: true } }
+    let(:converter_options) { { header: true, body: true } }
 
     let(:table_options) { {} }
     let(:table_context) { { name: 'table' } }
@@ -40,28 +40,28 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
     before { column_converters.extend_methods_for(table, **options) }
 
     context 'when converter options include `header: true`' do
-      let(:converter_options) { { header: true, row: true } }
+      let(:converter_options) { { header: true, body: true } }
 
       it { expect(table.header(context: header_context)).to eq ['table_header_name_value'] }
       it { expect(table.row(context: row_context)).to eq ['table_row_row_value'] }
     end
 
     context 'when converter options include `header: false`' do
-      let(:converter_options) { { header: false, row: true } }
+      let(:converter_options) { { header: false, body: true } }
 
       it { expect(table.header(context: header_context)).to eq ['name_value'] }
       it { expect(table.row(context: row_context)).to eq ['table_row_row_value'] }
     end
 
     context 'when converter options include `row: true`' do
-      let(:converter_options) { { header: true, row: true } }
+      let(:converter_options) { { header: true, body: true } }
 
       it { expect(table.header(context: header_context)).to eq ['table_header_name_value'] }
       it { expect(table.row(context: row_context)).to eq ['table_row_row_value'] }
     end
 
     context 'when converter options include `row: false`' do
-      let(:converter_options) { { header: true, row: false } }
+      let(:converter_options) { { header: true, body: false } }
 
       it { expect(table.header(context: header_context)).to eq ['table_header_name_value'] }
       it { expect(table.row(context: row_context)).to eq ['row_value'] }

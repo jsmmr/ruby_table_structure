@@ -8,13 +8,19 @@ module TableStructure
           name,
           callable,
           header: true,
-          row: true
+          body: true,
+          **deprecated_options
         )
+          if deprecated_options.key?(:row)
+            warn "[TableStructure] `:row` option has been deprecated. Use `:body` option instead."
+            body = deprecated_options[:row]
+          end
+
           column_converters[name] =
             ::TableStructure::Schema::Definition::ColumnConverter.new(
               callable,
               header: header,
-              row: row
+              body: body
             )
           nil
         end

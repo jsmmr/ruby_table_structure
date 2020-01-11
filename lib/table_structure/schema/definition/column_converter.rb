@@ -11,19 +11,19 @@ module TableStructure
         def initialize(
           callable,
           header: true,
-          row: true
+          body: true
         )
           @callable = callable
           @applicable_to_header = header
-          @applicable_to_row = row
+          @applicable_to_body = body
         end
 
         def applicable_to_header?
           !!@applicable_to_header
         end
 
-        def applicable_to_row?
-          !!@applicable_to_row
+        def applicable_to_body?
+          !!@applicable_to_body
         end
       end
     end
