@@ -18,7 +18,7 @@ module TableStructure
       end
 
       def row(context: nil)
-        warn "[TableStructure] `TableStructure::Schema::Table#row(context:)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead."
+        warn '[TableStructure] `TableStructure::Schema::Table#row(context:)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead.'
         data(context: context)
       end
 
@@ -29,7 +29,7 @@ module TableStructure
       end
 
       def rows(items)
-        warn "[TableStructure] `TableStructure::Schema::Table#rows(items)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead."
+        warn '[TableStructure] `TableStructure::Schema::Table#rows(items)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead.'
         body(items)
       end
 

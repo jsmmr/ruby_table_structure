@@ -4,8 +4,6 @@ module TableStructure
   module Schema
     module Columns
       class Schema
-        attr_reader :table
-
         def initialize(schema)
           @table = schema.create_table
         end

@@ -12,7 +12,7 @@ module TableStructure
           **deprecated_options
         )
           if deprecated_options.key?(:row)
-            warn "[TableStructure] `:row` option has been deprecated. Use `:body` option instead."
+            warn '[TableStructure] `:row` option has been deprecated. Use `:body` option instead.'
             body = deprecated_options[:row]
           end
 

@@ -77,12 +77,12 @@ module TableStructure
 
       columns =
         Definition::Columns::Compiler
-          .new(
-            name,
-            schema_classes.map(&:column_definitions).reduce([], &:concat),
-            options
-          )
-          .compile(context_builders.build_for_table(context))
+        .new(
+          name,
+          schema_classes.map(&:column_definitions).reduce([], &:concat),
+          options
+        )
+        .compile(context_builders.build_for_table(context))
 
       @_definition_ =
         MyDefinition.new(
@@ -101,7 +101,7 @@ module TableStructure
       options = @_definition_.options.merge(options)
 
       if options.key?(:result_type)
-        warn "[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead."
+        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
         options[:row_type] = options[:result_type]
       end
 

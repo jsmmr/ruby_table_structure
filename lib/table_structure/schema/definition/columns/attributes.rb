@@ -30,7 +30,7 @@ module TableStructure
           def compile(context:)
             size = Utils.evaluate_callable(@size, context)
             @validator.validate(name: @name, key: @key, size: size)
-            size = [calculate_size(@name), calculate_size(@key)].max unless size
+            size ||= [calculate_size(@name), calculate_size(@key)].max
             ::TableStructure::Schema::Columns::Attributes.new(
               name: @name,
               key: @key,

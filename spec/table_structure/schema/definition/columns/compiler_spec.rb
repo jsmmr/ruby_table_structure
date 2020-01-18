@@ -17,11 +17,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
       it 'compiles definitions' do
         expect(::TableStructure::Schema::Columns::Attributes)
           .to receive(:new).with(**{
-            name: nil,
-            key: nil,
-            value: nil,
-            size: 1
-          }).and_call_original
+                                   name: nil,
+                                   key: nil,
+                                   value: nil,
+                                   size: 1
+                                 }).and_call_original
 
         expect(subject.size).to eq 1
       end
@@ -44,11 +44,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
       it 'compiles definitions' do
         expect(::TableStructure::Schema::Columns::Attributes)
           .to receive(:new).with(**{
-            name: 'Name',
-            key: :name,
-            value: 'Taro',
-            size: 1
-          }).and_call_original
+                                   name: 'Name',
+                                   key: :name,
+                                   value: 'Taro',
+                                   size: 1
+                                 }).and_call_original
 
         expect(subject.size).to eq 1
       end
@@ -73,11 +73,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
       it 'compiles definitions' do
         expect(::TableStructure::Schema::Columns::Attributes)
           .to receive(:new).with(**{
-            name: 'Name',
-            key: %i[first_name last_name],
-            value: %w[Taro Momo],
-            size: 2
-          }).and_call_original
+                                   name: 'Name',
+                                   key: %i[first_name last_name],
+                                   value: %w[Taro Momo],
+                                   size: 2
+                                 }).and_call_original
 
         expect(subject.size).to eq 1
       end
@@ -98,11 +98,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
         it 'compiles definitions' do
           expect(::TableStructure::Schema::Columns::Attributes)
             .to receive(:new).with(**{
-              name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              key: nil,
-              value: nil,
-              size: 3
-            }).and_call_original
+                                     name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                                     key: nil,
+                                     value: nil,
+                                     size: 3
+                                   }).and_call_original
 
           expect(subject.size).to eq 1
         end
@@ -122,11 +122,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
         it 'compiles definitions' do
           expect(::TableStructure::Schema::Columns::Attributes)
             .to receive(:new).with(**{
-              name: nil,
-              key: %i[pet1 pet2 pet3],
-              value: nil,
-              size: 3
-            }).and_call_original
+                                     name: nil,
+                                     key: %i[pet1 pet2 pet3],
+                                     value: nil,
+                                     size: 3
+                                   }).and_call_original
 
           expect(subject.size).to eq 1
         end
@@ -148,11 +148,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
           it 'compiles definitions' do
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                key: %i[pet1 pet2],
-                value: nil,
-                size: 3
-              }).and_call_original
+                                       name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                                       key: %i[pet1 pet2],
+                                       value: nil,
+                                       size: 3
+                                     }).and_call_original
 
             expect(subject.size).to eq 1
           end
@@ -173,11 +173,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
           it 'compiles definitions' do
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: ['Pet 1', 'Pet 2'],
-                key: %i[pet1 pet2 pet3],
-                value: nil,
-                size: 3
-              }).and_call_original
+                                       name: ['Pet 1', 'Pet 2'],
+                                       key: %i[pet1 pet2 pet3],
+                                       value: nil,
+                                       size: 3
+                                     }).and_call_original
 
             expect(subject.size).to eq 1
           end
@@ -198,11 +198,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
           it 'compiles definitions' do
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                key: %i[pet1 pet2 pet3],
-                value: nil,
-                size: 3
-              }).and_call_original
+                                       name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                                       key: %i[pet1 pet2 pet3],
+                                       value: nil,
+                                       size: 3
+                                     }).and_call_original
 
             expect(subject.size).to eq 1
           end
@@ -267,11 +267,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
           it 'compiles definitions' do
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: 'Name',
-                key: nil,
-                value: 'Taro',
-                size: 1
-              }).and_call_original
+                                       name: 'Name',
+                                       key: nil,
+                                       value: 'Taro',
+                                       size: 1
+                                     }).and_call_original
 
             expect(subject.size).to eq 1
           end
@@ -321,11 +321,11 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
           it 'compiles definitions' do
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: 'Name',
-                key: nil,
-                value: 'Taro',
-                size: 1
-              }).and_call_original
+                                       name: 'Name',
+                                       key: nil,
+                                       value: 'Taro',
+                                       size: 1
+                                     }).and_call_original
 
             expect(subject.size).to eq 1
           end
@@ -338,19 +338,19 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
           it 'compiles definitions' do
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: 'ID',
-                key: nil,
-                value: 1,
-                size: 1
-              }).and_call_original
+                                       name: 'ID',
+                                       key: nil,
+                                       value: 1,
+                                       size: 1
+                                     }).and_call_original
 
             expect(::TableStructure::Schema::Columns::Attributes)
               .to receive(:new).with(**{
-                name: 'Name',
-                key: nil,
-                value: 'Taro',
-                size: 1
-              }).and_call_original
+                                       name: 'Name',
+                                       key: nil,
+                                       value: 'Taro',
+                                       size: 1
+                                     }).and_call_original
 
             expect(subject.size).to eq 2
           end
@@ -438,19 +438,19 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
         it 'compiles definitions' do
           expect(::TableStructure::Schema::Columns::Attributes)
             .to receive(:new).with(**{
-              name: 'a',
-              key: nil,
-              value: nil,
-              size: 1
-            }).and_call_original
+                                     name: 'a',
+                                     key: nil,
+                                     value: nil,
+                                     size: 1
+                                   }).and_call_original
 
           expect(::TableStructure::Schema::Columns::Attributes)
             .to receive(:new).with(**{
-              name: 'b',
-              key: nil,
-              value: nil,
-              size: 1
-            }).and_call_original
+                                     name: 'b',
+                                     key: nil,
+                                     value: nil,
+                                     size: 1
+                                   }).and_call_original
 
           expect(subject.size).to eq 2
         end
