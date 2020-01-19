@@ -3,7 +3,13 @@
 RSpec.describe TableStructure::Schema::RowBuilders do
   let(:row_builders) { described_class.new(builders) }
 
-  let(:table) { TableStructure::Schema::Table.new(columns, table_context, keys_generator) }
+  let(:table) do
+    TableStructure::Schema::Table.new(
+      columns: columns,
+      context: table_context,
+      keys_generator: keys_generator
+    )
+  end
 
   let(:columns) do
     [

@@ -3,7 +3,13 @@
 RSpec.describe TableStructure::Schema::ContextBuilders do
   let(:context_builders) { described_class.new(builders) }
 
-  let(:table) { TableStructure::Schema::Table.new(columns, table_context, table_options) }
+  let(:table) do
+    TableStructure::Schema::Table.new(
+      columns: columns,
+      context: table_context,
+      keys_generator: keys_generator
+    )
+  end
 
   let(:columns) do
     [
@@ -27,7 +33,7 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
 
     let(:table_context) { { name: 'table' } }
 
-    let(:table_options) { {} }
+    let(:keys_generator) { nil }
 
     subject { context_builders.build_for_table(table_context) }
 
@@ -46,7 +52,7 @@ RSpec.describe TableStructure::Schema::ContextBuilders do
     let(:header_context) { { name: 'header' } }
     let(:row_context) { { name: 'row' } }
 
-    let(:table_options) { {} }
+    let(:keys_generator) { nil }
 
     before { context_builders.extend_methods_for(table) }
 

@@ -3,7 +3,7 @@
 RSpec.describe TableStructure::Schema::Table do
   let(:table) do
     described_class.new(
-      [
+      columns: [
         ::TableStructure::Schema::Columns::Attributes.new(
           name: 'ID',
           key: 'id',
@@ -20,8 +20,8 @@ RSpec.describe TableStructure::Schema::Table do
           described_class::Spec::NestedTestTableSchema.new(context: context, **nested_schema_options)
         )
       ],
-      context,
-      ::TableStructure::Schema::KeysGenerator.new(
+      context: context,
+      keys_generator: ::TableStructure::Schema::KeysGenerator.new(
         **keys_generator_options
       )
     )

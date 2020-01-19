@@ -115,9 +115,9 @@ module TableStructure
       )
 
       table = Table.new(
-        @_definition_.columns,
-        @_definition_.context,
-        keys_generator
+        columns: @_definition_.columns,
+        context: @_definition_.context,
+        keys_generator: keys_generator
       )
 
       @_definition_

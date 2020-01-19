@@ -4,9 +4,9 @@ module TableStructure
   module Schema
     class Table
       def initialize(
-        columns,
-        context,
-        keys_generator
+        columns:,
+        context:,
+        keys_generator:
       )
         @columns = columns
         @context = context

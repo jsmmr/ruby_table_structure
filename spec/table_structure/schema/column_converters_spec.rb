@@ -3,7 +3,13 @@
 RSpec.describe TableStructure::Schema::ColumnConverters do
   let(:column_converters) { described_class.new(converters) }
 
-  let(:table) { TableStructure::Schema::Table.new(columns, table_context, table_options) }
+  let(:table) do
+    TableStructure::Schema::Table.new(
+      columns: columns,
+      context: table_context,
+      keys_generator: keys_generator
+    )
+  end
 
   let(:columns) do
     [
@@ -30,7 +36,7 @@ RSpec.describe TableStructure::Schema::ColumnConverters do
 
     let(:converter_options) { { header: true, body: true } }
 
-    let(:table_options) { {} }
+    let(:keys_generator) { nil }
     let(:table_context) { { name: 'table' } }
     let(:header_context) { { name: 'header' } }
     let(:row_context) { { name: 'row' } }
