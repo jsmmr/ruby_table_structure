@@ -52,6 +52,10 @@ module TableStructure
           .map { |column| column.send(method, context, @context) }
           .flatten
       end
+
+      def contain_callable?(attribute)
+        @columns.any? { |column| column.contain_callable?(attribute) }
+      end
     end
   end
 end

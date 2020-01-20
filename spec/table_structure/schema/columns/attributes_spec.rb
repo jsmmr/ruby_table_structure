@@ -42,6 +42,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 1 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
+    end
   end
 
   context 'pattern 2' do
@@ -84,6 +98,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 1 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 
@@ -128,6 +156,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 1 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq true }
+      end
+    end
   end
 
   context 'pattern 4' do
@@ -170,6 +212,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 1 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq true }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 
@@ -214,6 +270,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 3 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
+    end
   end
 
   context 'pattern 6' do
@@ -256,6 +326,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 3 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 
@@ -300,6 +384,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 3 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
+    end
   end
 
   context 'pattern 8' do
@@ -342,6 +440,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 3 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 
@@ -386,6 +498,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 3 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
+    end
   end
 
   context 'pattern 10' do
@@ -428,6 +554,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 1 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 
@@ -472,6 +612,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 2 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
+    end
   end
 
   context 'pattern 12' do
@@ -514,6 +668,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 4 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 
@@ -558,6 +726,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
 
       it { is_expected.to eq 2 }
     end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq false }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
+    end
   end
 
   context 'pattern 15' do
@@ -600,6 +782,20 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       subject { column.size }
 
       it { is_expected.to eq 2 }
+    end
+
+    describe '#contain_callable?' do
+      subject { column.contain_callable?(attribute) }
+
+      context 'attribute: :name' do
+        let(:attribute) { :name }
+        it { is_expected.to eq true }
+      end
+
+      context 'attribute: :value' do
+        let(:attribute) { :value }
+        it { is_expected.to eq false }
+      end
     end
   end
 end

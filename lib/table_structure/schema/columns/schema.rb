@@ -23,6 +23,10 @@ module TableStructure
         def size
           @table.send(:size)
         end
+
+        def contain_callable?(attribute)
+          @table.send(:contain_callable?, attribute)
+        end
       end
     end
   end

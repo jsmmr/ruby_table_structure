@@ -23,6 +23,11 @@ module TableStructure
           optimize_size(value, @size)
         end
 
+        def contain_callable?(attribute)
+          val = instance_variable_get("@#{attribute}")
+          Utils.callable?(val)
+        end
+
         private
 
         def optimize_size(value, expected_size)

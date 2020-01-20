@@ -18,13 +18,16 @@ module TableStructure
       end
 
       def extend_methods_for(table)
-        methods =
-          {
-            header: create_method(@header_builder),
-            data: create_method(@row_builder)
-          }
-          .reject { |_k, v| v.nil? }
+        methods = {}
 
+        if table.send(:contain_callable?, :name)
+          methods[:header] = create_method(@header_builder)
+        end
+        if table.send(:contain_callable?, :value)
+          methods[:data] = create_method(@row_builder)
+        end
+
+        methods.reject! { |_k, v| v.nil? }
         return if methods.empty?
 
         table.extend ContextBuildable.new(methods)

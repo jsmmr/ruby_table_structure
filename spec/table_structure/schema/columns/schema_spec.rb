@@ -42,4 +42,13 @@ RSpec.describe TableStructure::Schema::Columns::Schema do
       column.size
     end
   end
+
+  describe '#contain_callable?' do
+    let(:attribute) { 'attribute' }
+
+    it 'delegates to table' do
+      expect(table).to receive(:contain_callable?).with(attribute)
+      column.contain_callable?(attribute)
+    end
+  end
 end
