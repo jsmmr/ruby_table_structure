@@ -17,7 +17,19 @@ RSpec.describe TableStructure::Schema::Table do
           size: 1
         ),
         ::TableStructure::Schema::Columns::Schema.new(
-          described_class::Spec::NestedTestTableSchema.new(context: context, **nested_schema_options)
+          ::TableStructure::Schema.create_class do
+            columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+              value: ->(row, *) { row[:pets] }
+
+            columns lambda { |table|
+              table[:questions].map do |question|
+                {
+                  name: question[:id],
+                  value: ->(row, *) { row[:answers][question[:id]] }
+                }
+              end
+            }
+          end.new(context: context, **nested_schema_options)
         )
       ],
       context: context,
@@ -25,24 +37,6 @@ RSpec.describe TableStructure::Schema::Table do
         **keys_generator_options
       )
     )
-  end
-
-  module described_class::Spec
-    class NestedTestTableSchema
-      include TableStructure::Schema
-
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              value: ->(row, *) { row[:pets] }
-
-      columns lambda { |table|
-        table[:questions].map do |question|
-          {
-            name: question[:id],
-            value: ->(row, *) { row[:answers][question[:id]] }
-          }
-        end
-      }
-    end
   end
 
   let(:context) do
@@ -87,6 +81,7 @@ RSpec.describe TableStructure::Schema::Table do
     end
   end
 
+  # deprecated
   describe '#row' do
     let(:keys_generator_options) { {} }
     let(:nested_schema_options) { {} }
@@ -114,7 +109,7 @@ RSpec.describe TableStructure::Schema::Table do
 
     subject { table.send(:keys) }
 
-    # Nested schema does not have defined key
+    # Nested schema does not have keys
     context 'when option is not specified' do
       let(:keys_generator_options) { {} }
       it { is_expected.to eq ['id', :name, nil, nil, nil, nil, nil, nil] }
