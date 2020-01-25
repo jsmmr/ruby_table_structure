@@ -4,49 +4,57 @@ module TableStructure
   module Schema
     class Table
       def initialize(
-        columns,
-        context,
-        options
+        columns:,
+        context:,
+        keys_generator:
       )
         @columns = columns
         @context = context
-        @options = options
+        @keys_generator = keys_generator
       end
 
       def header(context: nil)
-        values(:names, context)
+        row_values(:names, context)
       end
 
       def row(context: nil)
-        values(:values, context)
+        warn '[TableStructure] `TableStructure::Schema::Table#row(context:)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead.'
+        data(context: context)
+      end
+
+      def body(items)
+        Enumerator.new do |y|
+          items.each { |item| y << data(context: item) }
+        end
       end
 
       def rows(items)
-        Enumerator.new do |y|
-          items.each { |item| y << row(context: item) }
-        end
+        warn '[TableStructure] `TableStructure::Schema::Table#rows(items)` has been deprecated. Use `TableStructure::Schema::Table#body(items)` instead.'
+        body(items)
       end
 
       private
 
+      def data(context: nil)
+        row_values(:values, context)
+      end
+
       def keys
-        @keys ||= begin
-          keys = @columns.map(&:keys).flatten
-          KeyDecorator.new(
-            prefix: @options[:key_prefix],
-            suffix: @options[:key_suffix]
-          ).decorate(keys)
-        end
+        @keys ||= @keys_generator.generate(@columns.map(&:keys).flatten)
       end
 
       def size
         @size ||= @columns.map(&:size).reduce(0, &:+)
       end
 
-      def values(method, context)
+      def row_values(method, context)
         @columns
           .map { |column| column.send(method, context, @context) }
           .flatten
+      end
+
+      def contain_callable?(attribute)
+        @columns.any? { |column| column.contain_callable?(attribute) }
       end
     end
   end

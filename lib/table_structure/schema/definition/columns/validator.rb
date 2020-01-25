@@ -2,8 +2,8 @@
 
 module TableStructure
   module Schema
-    module Column
-      module Definition
+    module Definition
+      module Columns
         class Validator
           DEFAULT_SIZE = 1
 

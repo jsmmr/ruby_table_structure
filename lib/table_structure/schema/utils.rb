@@ -4,7 +4,11 @@ module TableStructure
   module Schema
     module Utils
       def self.evaluate_callable(val, *params)
-        val.respond_to?(:call) ? val.call(*params) : val
+        callable?(val) ? val.call(*params) : val
+      end
+
+      def self.callable?(val)
+        val.respond_to?(:call)
       end
 
       def self.schema_class?(val)

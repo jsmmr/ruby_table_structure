@@ -3,44 +3,40 @@
 RSpec.describe TableStructure::Schema::Table do
   let(:table) do
     described_class.new(
-      [
-        ::TableStructure::Schema::Column::Attrs.new(
+      columns: [
+        ::TableStructure::Schema::Columns::Attributes.new(
           name: 'ID',
           key: 'id',
           value: 1,
           size: 1
         ),
-        ::TableStructure::Schema::Column::Attrs.new(
+        ::TableStructure::Schema::Columns::Attributes.new(
           name: 'Name',
           key: :name,
           value: 'Taro',
           size: 1
         ),
-        ::TableStructure::Schema::Column::Schema.new(
-          described_class::Spec::NestedTestTableSchema.new(context: context, **nested_schema_options)
-        )
-      ],
-      context,
-      options
-    )
-  end
-
-  module described_class::Spec
-    class NestedTestTableSchema
-      include TableStructure::Schema
-
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+        ::TableStructure::Schema::Columns::Schema.new(
+          ::TableStructure::Schema.create_class do
+            columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
               value: ->(row, *) { row[:pets] }
 
-      columns lambda { |table|
-        table[:questions].map do |question|
-          {
-            name: question[:id],
-            value: ->(row, *) { row[:answers][question[:id]] }
-          }
-        end
-      }
-    end
+            columns lambda { |table|
+              table[:questions].map do |question|
+                {
+                  name: question[:id],
+                  value: ->(row, *) { row[:answers][question[:id]] }
+                }
+              end
+            }
+          end.new(context: context, **nested_schema_options)
+        )
+      ],
+      context: context,
+      keys_generator: ::TableStructure::Schema::KeysGenerator.new(
+        **keys_generator_options
+      )
+    )
   end
 
   let(:context) do
@@ -56,7 +52,7 @@ RSpec.describe TableStructure::Schema::Table do
   describe '#header' do
     let(:header_context) { nil }
 
-    let(:options) { {} }
+    let(:keys_generator_options) { {} }
 
     subject { table.header(context: header_context) }
 
@@ -85,8 +81,9 @@ RSpec.describe TableStructure::Schema::Table do
     end
   end
 
+  # deprecated
   describe '#row' do
-    let(:options) { {} }
+    let(:keys_generator_options) { {} }
     let(:nested_schema_options) { {} }
 
     let(:row_context) { { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } } }
@@ -97,7 +94,7 @@ RSpec.describe TableStructure::Schema::Table do
   end
 
   describe '#rows' do
-    let(:options) { {} }
+    let(:keys_generator_options) { {} }
     let(:nested_schema_options) { {} }
 
     let(:items) { [{ id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }] }
@@ -112,26 +109,26 @@ RSpec.describe TableStructure::Schema::Table do
 
     subject { table.send(:keys) }
 
-    # Nested schema does not have defined key
+    # Nested schema does not have keys
     context 'when option is not specified' do
-      let(:options) { {} }
+      let(:keys_generator_options) { {} }
       it { is_expected.to eq ['id', :name, nil, nil, nil, nil, nil, nil] }
     end
 
     context 'when :key_prefix option is specified' do
-      let(:options) { { key_prefix: 'p_' } }
+      let(:keys_generator_options) { { prefix: 'p_' } }
 
       it { is_expected.to eq ['p_id', :p_name, nil, nil, nil, nil, nil, nil] }
     end
 
     context 'when :key_suffix option is specified' do
-      let(:options) { { key_suffix: :_s } }
+      let(:keys_generator_options) { { suffix: :_s } }
 
       it { is_expected.to eq ['id_s', :name_s, nil, nil, nil, nil, nil, nil] }
     end
 
     context 'when both :key_prefix and :key_suffix options are specified' do
-      let(:options) { { key_prefix: :p_, key_suffix: '_s' } }
+      let(:keys_generator_options) { { prefix: :p_, suffix: '_s' } }
 
       it { is_expected.to eq ['p_id_s', :p_name_s, nil, nil, nil, nil, nil, nil] }
     end

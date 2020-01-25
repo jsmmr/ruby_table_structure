@@ -1,205 +1,304 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema do
-  let(:table) { schema.create_table }
+  module Mono
+    class TestTableSchema
+      include TableStructure::Schema
 
-  context 'when column is defined' do
-    module described_class::Spec
-      class TestTableSchema1
+      column  name: 'ID',
+              value: ->(row, _table) { row[:id] }
+
+      column  name: 'Name',
+              value: ->(row, *) { row[:name] }
+
+      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+              value: ->(row, *) { row[:pets] }
+
+      columns lambda { |table|
+        table[:questions].map do |question|
+          {
+            name: question[:id],
+            value: ->(row, *) { row[:answers][question[:id]] }
+          }
+        end
+      }
+    end
+
+    module WithKeys
+      class TestTableSchema
         include TableStructure::Schema
 
         column  name: 'ID',
+                key: :id,
                 value: ->(row, *) { row[:id] }
 
         column  name: 'Name',
-                value: ->(row, *) { row[:name] }
-      end
-    end
-
-    let(:schema) { described_class::Spec::TestTableSchema1.new }
-
-    describe 'Table#header' do
-      subject { table.header }
-
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'ID'
-        expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to be_nil
-      end
-    end
-
-    describe 'Table#row' do
-      subject { table.row(context: item) }
-
-      let(:item) do
-        { id: 1, name: 'Taro' }
-      end
-
-      it 'returns row columns' do
-        expect(subject.shift).to eq 1
-        expect(subject.shift).to eq 'Taro'
-        expect(subject.shift).to be_nil
-      end
-    end
-  end
-
-  context 'when columns is defined' do
-    module described_class::Spec
-      class TestTableSchema2
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                value: ->(row, _table) { row[:id] }
-
-        column  name: 'Name',
+                key: :name,
                 value: ->(row, *) { row[:name] }
 
         columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:pets] }
 
         columns lambda { |table|
           table[:questions].map do |question|
             {
               name: question[:id],
+              key: question[:id].downcase.to_sym,
               value: ->(row, *) { row[:answers][question[:id]] }
             }
           end
         }
       end
     end
-
-    let(:schema) do
-      described_class::Spec::TestTableSchema2.new(
-        context: {
-          questions: [
-            { id: 'Q1', text: 'Do you like sushi?' },
-            { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' }
-          ]
-        }
-      )
-    end
-
-    describe 'Table#header' do
-      subject { table.header }
-
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'ID'
-        expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to eq 'Pet 1'
-        expect(subject.shift).to eq 'Pet 2'
-        expect(subject.shift).to eq 'Pet 3'
-        expect(subject.shift).to eq 'Q1'
-        expect(subject.shift).to eq 'Q2'
-        expect(subject.shift).to eq 'Q3'
-        expect(subject.shift).to be_nil
-      end
-    end
-
-    describe 'Table#row' do
-      subject { table.row(context: item) }
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
-
-      it 'returns row columns' do
-        expect(subject.shift).to eq 1
-        expect(subject.shift).to eq 'Taro'
-        expect(subject.shift).to eq 'cat'
-        expect(subject.shift).to eq 'dog'
-        expect(subject.shift).to eq nil
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to eq 'no'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to be_nil
-      end
-    end
   end
 
-  context 'when column_converter is defined' do
-    module described_class::Spec
-      class TestTableSchema3
+  module Micro
+    class UserTableSchema
+      include TableStructure::Schema
+
+      column  name: 'ID',
+              value: ->(row, *) { row[:id] }
+
+      column  name: 'Name',
+              value: ->(row, *) { row[:name] }
+    end
+
+    class PetTableSchema
+      include TableStructure::Schema
+
+      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+              value: ->(row, *) { row[:pets] }
+    end
+
+    class QuestionTableSchema
+      include TableStructure::Schema
+
+      columns lambda { |table|
+        table[:questions].map do |question|
+          {
+            name: question[:id],
+            value: ->(row, *) { row[:answers][question[:id]] }
+          }
+        end
+      }
+    end
+
+    module Nested
+      class TestTableSchema
         include TableStructure::Schema
 
-        column  name: 'ID',
-                value: ->(row, *) { row[:id] }
+        columns UserTableSchema
 
-        column  name: 'Name',
-                value: ->(row, *) { row[:name] }
+        columns PetTableSchema
 
-        columns name: 'Pet',
-                value: ->(row, *) { row[:pets] },
-                size: 3
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-
-        column_converter :to_s, ->(val, *) { val.to_s }
-        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }
+        columns QuestionTableSchema
       end
     end
 
-    let(:schema) do
-      described_class::Spec::TestTableSchema3.new(
-        context: {
-          questions: [
-            { id: 'Q1', text: 'Do you like sushi?' },
-            { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' }
+    module Concatenated
+      TestTableSchema =
+        [
+          UserTableSchema,
+          PetTableSchema,
+          QuestionTableSchema
+        ]
+        .reduce(&:+)
+    end
+
+    module Merged
+      TestTableSchema =
+        UserTableSchema
+        .merge(
+          PetTableSchema,
+          QuestionTableSchema
+        )
+    end
+  end
+
+  shared_context 'questions' do
+    let(:questions) do
+      [
+        { id: 'Q1', text: 'Do you like sushi?' },
+        { id: 'Q2', text: 'Do you like yakiniku?' },
+        { id: 'Q3', text: 'Do you like ramen?' }
+      ]
+    end
+  end
+
+  shared_context 'item' do
+    let(:item) do
+      {
+        id: 1,
+        name: 'Taro',
+        pets: %w[cat dog],
+        answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' }
+      }
+    end
+  end
+
+  let(:table) { schema.create_table }
+
+  context 'when several `columns` are defined' do
+    include_context 'questions'
+
+    schema_classes = [
+      Mono::TestTableSchema,
+      Mono::WithKeys::TestTableSchema,
+      Micro::Nested::TestTableSchema,
+      Micro::Concatenated::TestTableSchema,
+      Micro::Merged::TestTableSchema
+    ]
+
+    schema_classes.each do |schema_class|
+      let(:schema) do
+        schema_class.new(context: { questions: questions })
+      end
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq [
+            'ID',
+            'Name',
+            'Pet 1',
+            'Pet 2',
+            'Pet 3',
+            'Q1',
+            'Q2',
+            'Q3'
           ]
         }
-      )
-    end
-
-    context 'when header: true'
-
-    describe 'Table#header' do
-      subject { table.header }
-
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'ID'
-        expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to eq 'Pet'
-        expect(subject.shift).to eq '-'
-        expect(subject.shift).to eq '-'
-        expect(subject.shift).to eq 'Q1'
-        expect(subject.shift).to eq 'Q2'
-        expect(subject.shift).to eq 'Q3'
-        expect(subject.shift).to be_nil
-      end
-    end
-
-    describe 'Table#row' do
-      subject { table.row(context: item) }
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
       end
 
-      it 'returns row columns' do
-        expect(subject.shift).to eq '1'
-        expect(subject.shift).to eq 'Taro'
-        expect(subject.shift).to eq 'cat'
-        expect(subject.shift).to eq 'dog'
-        expect(subject.shift).to eq '-'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to eq 'no'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to be_nil
+      describe 'Table#body' do
+        include_context 'item'
+
+        subject { table.body([item]).first }
+
+        it {
+          is_expected.to eq [
+            1,
+            'Taro',
+            'cat',
+            'dog',
+            nil,
+            'yes',
+            'no',
+            'yes'
+          ]
+        }
       end
     end
   end
 
-  context 'when context_builder is defined' do
-    module described_class::Spec
-      class TestTableSchema4
+  context 'when several definitions are appended in block' do
+    include_context 'questions'
+
+    let(:schema) do
+      Micro::UserTableSchema.new(context: { questions: questions }) do
+        columns Micro::PetTableSchema
+        columns Micro::QuestionTableSchema
+        column_converter :to_s, ->(val, *) { val.to_s }
+      end
+    end
+
+    describe 'Table#header' do
+      subject { table.header }
+
+      it {
+        is_expected.to eq [
+          'ID',
+          'Name',
+          'Pet 1',
+          'Pet 2',
+          'Pet 3',
+          'Q1',
+          'Q2',
+          'Q3'
+        ]
+      }
+    end
+
+    describe 'Table#body' do
+      include_context 'item'
+
+      subject { table.body([item]).first }
+
+      it {
+        is_expected.to eq [
+          '1',
+          'Taro',
+          'cat',
+          'dog',
+          '',
+          'yes',
+          'no',
+          'yes'
+        ]
+      }
+    end
+  end
+
+  context 'when several `column_converter` are defined' do
+    module ColumnConverter
+      class TestTableSchema
+        include TableStructure::Schema
+
+        columns Mono::TestTableSchema
+
+        column_converter :to_s, ->(val, *) { val.to_s }
+        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
+      end
+    end
+
+    include_context 'questions'
+
+    let(:schema) do
+      ColumnConverter::TestTableSchema.new(context: { questions: questions })
+    end
+
+    describe 'Table#header' do
+      subject { table.header }
+
+      it {
+        is_expected.to eq [
+          'ID',
+          'Name',
+          'Pet 1',
+          'Pet 2',
+          'Pet 3',
+          'Q1',
+          'Q2',
+          'Q3'
+        ]
+      }
+    end
+
+    describe 'Table#body' do
+      include_context 'item'
+
+      subject { table.body([item]).first }
+
+      it {
+        is_expected.to eq [
+          '1',
+          'Taro',
+          'cat',
+          'dog',
+          '-',
+          'yes',
+          'no',
+          'yes'
+        ]
+      }
+    end
+  end
+
+  context 'when several `context_builder` are defined' do
+    module ContextBuilder
+      class TestTableSchema
         include TableStructure::Schema
 
         TableContext = Struct.new(:questions)
@@ -237,28 +336,19 @@ RSpec.describe TableStructure::Schema do
             }
           end
         }
-
-        column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
-        column_converter :to_s, ->(val, *) { val.to_s }
       end
     end
 
+    include_context 'questions'
+
     let(:schema) do
-      described_class::Spec::TestTableSchema4.new(
-        context: {
-          questions: [
-            { id: 'Q1', text: 'Do you like sushi?' },
-            { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' }
-          ]
-        }
-      )
+      ContextBuilder::TestTableSchema.new(context: { questions: questions })
     end
 
     describe 'Table#header' do
-      subject { table.header(context: header) }
+      subject { table.header(context: headers) }
 
-      let(:header) do
+      let(:headers) do
         {
           id: 'ID',
           name: 'Name',
@@ -267,85 +357,116 @@ RSpec.describe TableStructure::Schema do
         }
       end
 
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'ID'
-        expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to eq 'Pet 1'
-        expect(subject.shift).to eq 'Pet 2'
-        expect(subject.shift).to eq 'Pet 3'
-        expect(subject.shift).to eq 'Q1'
-        expect(subject.shift).to eq 'Q2'
-        expect(subject.shift).to eq 'Q3'
-        expect(subject.shift).to be_nil
-      end
+      it {
+        is_expected.to eq [
+          'ID',
+          'Name',
+          'Pet 1',
+          'Pet 2',
+          'Pet 3',
+          'Q1',
+          'Q2',
+          'Q3'
+        ]
+      }
     end
 
     describe 'Table#row' do
+      include_context 'item'
+
       subject { table.row(context: item) }
 
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
-
-      it 'returns row columns' do
-        expect(subject.shift).to eq '1'
-        expect(subject.shift).to eq 'Taro'
-        expect(subject.shift).to eq 'cat'
-        expect(subject.shift).to eq 'dog'
-        expect(subject.shift).to eq 'cat'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to eq 'no'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to be_nil
-      end
+      it {
+        is_expected.to eq [
+          1,
+          'Taro',
+          'cat',
+          'dog',
+          'cat',
+          'yes',
+          'no',
+          'yes'
+        ]
+      }
     end
   end
 
-  context 'when result_builder is defined' do
+  context 'when `:row_type` is set `:hash`' do
+    include_context 'questions'
+
+    let(:schema) do
+      Mono::WithKeys::TestTableSchema.new(
+        context: { questions: questions }
+      )
+    end
+
+    let(:table) do
+      schema.create_table(
+        **[
+          { result_type: :hash }, # deprecated
+          { row_type: :hash }
+        ].sample
+      )
+    end
+
+    describe 'Table#header' do
+      subject { table.header }
+
+      it {
+        is_expected.to eq(
+          id: 'ID',
+          name: 'Name',
+          pet1: 'Pet 1',
+          pet2: 'Pet 2',
+          pet3: 'Pet 3',
+          q1: 'Q1',
+          q2: 'Q2',
+          q3: 'Q3'
+        )
+      }
+    end
+
+    describe 'Table#body' do
+      include_context 'item'
+
+      subject { table.body([item]).first }
+
+      it {
+        is_expected.to eq(
+          id: 1,
+          name: 'Taro',
+          pet1: 'cat',
+          pet2: 'dog',
+          pet3: nil,
+          q1: 'yes',
+          q2: 'no',
+          q3: 'yes'
+        )
+      }
+    end
+  end
+
+  context 'when `row_builder` is defined' do
+    include_context 'questions'
+
     require 'ostruct'
 
-    module described_class::Spec
-      class TestTableSchema5
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                key: :id,
-                value: ->(row, *) { row[:id] }
-
-        column  name: 'Name',
-                key: :name,
-                value: ->(row, *) { row[:name] }
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                key: %i[pet1 pet2 pet3],
-                value: ->(row, *) { row[:pets] }
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              key: question[:id].downcase.to_sym,
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-
-        result_builder  :to_ostruct,
-                        ->(values, *) { OpenStruct.new(values) },
-                        enabled_result_types: [:hash]
+    let(:schema) do
+      Mono::WithKeys::TestTableSchema.new(
+        context: { questions: questions }
+      ) do
+        row_builder :to_ostruct,
+                    ->(values, *) { OpenStruct.new(values) },
+                    enabled_row_types: [:hash]
       end
     end
 
-    let(:schema) do
-      described_class::Spec::TestTableSchema5.new(
-        context: {
-          questions: [
-            { id: 'Q1', text: 'Do you like sushi?' },
-            { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' }
-          ]
-        },
-        result_type: :hash
+    let(:table) do
+      schema.create_table(
+        **[
+          { result_type: :hash }, # deprecated
+          { row_type: :hash }
+        ].sample
       )
     end
 
@@ -364,12 +485,10 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    describe 'Table#row' do
-      subject { table.row(context: item) }
+    describe 'Table#body' do
+      include_context 'item'
 
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
+      subject { table.body([item]).first }
 
       it 'returns row columns' do
         expect(subject.id).to eq 1
@@ -384,88 +503,499 @@ RSpec.describe TableStructure::Schema do
     end
   end
 
-  # deprecated
-  context 'result_type: :hash is specified' do
-    module described_class::Spec
-      class TestTableSchema6
+  context 'when `:omitted` is defined' do
+    module Omitted
+      class TestTableSchema
         include TableStructure::Schema
 
-        column  name: 'ID',
-                key: :id,
-                value: ->(row, *) { row[:id] }
+        columns Micro::UserTableSchema
 
-        column  name: 'Name',
-                key: :name,
-                value: ->(row, *) { row[:name] }
+        column  name: 'Secret',
+                value: '**********',
+                omitted: ->(table) { !table[:admin] }
+      end
+    end
 
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                key: %i[pet1 pet2 pet3],
-                value: ->(row, *) { row[:pets] }
+    let(:schema) { Omitted::TestTableSchema.new(context: context) }
 
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              key: question[:id].downcase.to_sym,
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
+    context 'as true' do
+      let(:context) { { admin: false } }
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq %w[
+            ID
+            Name
+          ]
+        }
+      end
+
+      describe 'Table#body' do
+        include_context 'item'
+
+        subject { table.body([item]).first }
+
+        it {
+          is_expected.to eq [
+            1,
+            'Taro'
+          ]
         }
       end
     end
 
-    let(:schema) do
-      described_class::Spec::TestTableSchema6.new(
-        context: {
-          questions: [
-            { id: 'Q1', text: 'Do you like sushi?' },
-            { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' }
+    context 'as false' do
+      let(:context) { { admin: true } }
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq %w[
+            ID
+            Name
+            Secret
           ]
-        },
-        result_type: :hash # deprecated
+        }
+      end
+
+      describe 'Table#body' do
+        include_context 'item'
+
+        subject { table.body([item]).first }
+
+        it {
+          is_expected.to eq [
+            1,
+            'Taro',
+            '**********'
+          ]
+        }
+      end
+    end
+  end
+
+  context 'when `:nil_definitions_ignored` is specified' do
+
+    module NilDefinitionsIgnored
+      class TestTableSchema
+        include TableStructure::Schema
+
+        columns Micro::UserTableSchema
+
+        column  nil
+        column  ->(*) { nil }
+
+        columns [nil, nil]
+        columns ->(*) { [nil, nil] }
+
+        columns []
+        columns ->(*) { [] }
+      end
+    end
+
+    let(:schema) do
+      NilDefinitionsIgnored::TestTableSchema.new(
+        nil_definitions_ignored: nil_definitions_ignored
       )
+    end
+
+    context 'as true' do
+      let(:nil_definitions_ignored) { true }
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq %w[
+            ID
+            Name
+          ]
+        }
+      end
+
+      describe 'Table#body' do
+        include_context 'item'
+
+        subject { table.body([item]).first }
+
+        it {
+          is_expected.to eq [
+            1,
+            'Taro'
+          ]
+        }
+      end
+    end
+
+    context 'as false' do
+      let(:nil_definitions_ignored) { false }
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Columns::Error }
+      end
+
+      describe 'Table#body' do
+        include_context 'item'
+
+        subject { table.body([item]).first }
+
+        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Columns::Error }
+      end
+    end
+  end
+
+  context 'when schema is nested' do
+    include_context 'questions'
+    include_context 'item'
+
+    shared_examples 'to return row values as array' do
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq [
+            'ID',
+            'Name',
+            'Pet 1',
+            'Pet 2',
+            'Pet 3',
+            'Q1',
+            'Q2',
+            'Q3',
+            'Nested ID',
+            'Nested Name',
+            'Nested Pet 1',
+            'Nested Pet 2',
+            'Nested Pet 3',
+            'Nested Q1',
+            'Nested Q2',
+            'Nested Q3'
+          ]
+        }
+      end
+
+      describe 'Table#row' do
+        subject { table.row(context: item) }
+
+        it {
+          is_expected.to eq [
+            '1',
+            'Taro',
+            'cat',
+            'dog',
+            '',
+            'yes',
+            'no',
+            'yes',
+            'Nested 1',
+            'Nested Taro',
+            'Nested cat',
+            'Nested dog',
+            'Nested ',
+            'Nested yes',
+            'Nested no',
+            'Nested yes'
+          ]
+        }
+      end
+    end
+
+    shared_examples 'to return row values as hash' do
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq(
+            id: 'ID',
+            name: 'Name',
+            pet1: 'Pet 1',
+            pet2: 'Pet 2',
+            pet3: 'Pet 3',
+            q1: 'Q1',
+            q2: 'Q2',
+            q3: 'Q3',
+            nested_id: 'Nested ID',
+            nested_name: 'Nested Name',
+            nested_pet1: 'Nested Pet 1',
+            nested_pet2: 'Nested Pet 2',
+            nested_pet3: 'Nested Pet 3',
+            nested_q1: 'Nested Q1',
+            nested_q2: 'Nested Q2',
+            nested_q3: 'Nested Q3'
+          )
+        }
+      end
+
+      describe 'Table#row' do
+        subject { table.row(context: item) }
+
+        it {
+          is_expected.to eq(
+            id: '1',
+            name: 'Taro',
+            pet1: 'cat',
+            pet2: 'dog',
+            pet3: '',
+            q1: 'yes',
+            q2: 'no',
+            q3: 'yes',
+            nested_id: 'Nested 1',
+            nested_name: 'Nested Taro',
+            nested_pet1: 'Nested cat',
+            nested_pet2: 'Nested dog',
+            nested_pet3: 'Nested ',
+            nested_q1: 'Nested yes',
+            nested_q2: 'Nested no',
+            nested_q3: 'Nested yes'
+          )
+        }
+      end
+    end
+
+    let(:table) do
+      schema.create_table(
+        **[
+          { result_type: row_type }, # deprecated
+          { row_type: row_type }
+        ].sample
+      )
+    end
+
+    context 'using instance' do
+      let(:schema) do
+        Mono::WithKeys::TestTableSchema.new(
+          context: { questions: questions }
+        ) do
+          columns lambda { |table|
+            Mono::WithKeys::TestTableSchema.new(
+              context: table,
+              name_prefix: 'Nested ',
+              key_prefix: 'nested_'
+            ) do
+              column_converter :row_prefix, ->(val, *) { "Nested #{val}" }, header: false
+            end
+          }
+
+          column_converter :to_s, ->(val, *) { val.to_s }
+        end
+      end
+
+      context 'row_type: :array' do
+        let(:row_type) { :array }
+
+        it_behaves_like 'to return row values as array'
+      end
+
+      context 'row_type: :hash' do
+        let(:row_type) { :hash }
+
+        it_behaves_like 'to return row values as hash'
+      end
+    end
+
+    context 'using class' do
+      module Nested
+        class TestTableSchema
+          include TableStructure::Schema
+
+          columns lambda { |table|
+            Mono::WithKeys::TestTableSchema.new(
+              context: table,
+              key_prefix: 'nested_'
+            )
+          }
+
+          column_converter :row_prefix, ->(val, *) { "Nested #{val}" }
+        end
+      end
+
+      let(:schema) do
+        Mono::WithKeys::TestTableSchema.new(
+          context: { questions: questions }
+        ) do
+          columns Nested::TestTableSchema
+
+          column_converter :to_s, ->(val, *) { val.to_s }
+        end
+      end
+
+      context 'row_type: :array' do
+        let(:row_type) { :array }
+
+        it_behaves_like 'to return row values as array'
+      end
+
+      context 'row_type: :hash' do
+        let(:row_type) { :hash }
+
+        it_behaves_like 'to return row values as hash'
+      end
+    end
+  end
+
+  context 'when several schemas are concatenated' do
+    module Concatenated
+      class UserTableSchema
+        include TableStructure::Schema
+
+        columns Micro::UserTableSchema
+
+        column_converter :to_s, ->(val, *) { "user: #{val}" }
+      end
+
+      class PetTableSchema
+        include TableStructure::Schema
+
+        columns Micro::PetTableSchema
+
+        column_converter :to_s, ->(val, *) { "pet: #{val}" }
+      end
+
+      class QuestionTableSchema
+        include TableStructure::Schema
+
+        columns Micro::QuestionTableSchema
+
+        column_converter :to_s, ->(val, *) { "question: #{val}" }
+      end
+    end
+
+    include_context 'questions'
+
+    let(:schema) do
+      [
+        Concatenated::UserTableSchema,
+        Concatenated::PetTableSchema,
+        Concatenated::QuestionTableSchema
+      ]
+        .reduce(&:+)
+        .new(context: { questions: questions })
     end
 
     describe 'Table#header' do
       subject { table.header }
 
-      it 'returns header columns' do
-        expect(subject[:id]).to eq 'ID'
-        expect(subject[:name]).to eq 'Name'
-        expect(subject[:pet1]).to eq 'Pet 1'
-        expect(subject[:pet2]).to eq 'Pet 2'
-        expect(subject[:pet3]).to eq 'Pet 3'
-        expect(subject[:q1]).to eq 'Q1'
-        expect(subject[:q2]).to eq 'Q2'
-        expect(subject[:q3]).to eq 'Q3'
+      it {
+        is_expected.to eq [
+          'user: ID',
+          'user: Name',
+          'pet: Pet 1',
+          'pet: Pet 2',
+          'pet: Pet 3',
+          'question: Q1',
+          'question: Q2',
+          'question: Q3'
+        ]
+      }
+    end
+
+    describe 'Table#body' do
+      include_context 'item'
+
+      subject { table.body([item]).first }
+
+      it {
+        is_expected.to eq [
+          'user: 1',
+          'user: Taro',
+          'pet: cat',
+          'pet: dog',
+          'pet: ',
+          'question: yes',
+          'question: no',
+          'question: yes'
+        ]
+      }
+    end
+  end
+
+  context 'when several schemas are merged' do
+    module Merged
+      class UserTableSchema
+        include TableStructure::Schema
+
+        columns Micro::UserTableSchema
+
+        column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
+      end
+
+      class PetTableSchema
+        include TableStructure::Schema
+
+        columns Micro::PetTableSchema
+
+        column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
+      end
+
+      class QuestionTableSchema
+        include TableStructure::Schema
+
+        columns Micro::QuestionTableSchema
+
+        column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
       end
     end
 
-    describe 'Table#row' do
-      subject { table.row(context: item) }
+    include_context 'questions'
 
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
+    let(:schema) do
+      Merged::UserTableSchema
+        .merge(
+          Merged::PetTableSchema,
+          Merged::QuestionTableSchema,
+          TableStructure::Schema.create_class do
+            column_converter :to_s, ->(val, *) { val.to_s }
+          end
+        )
+        .new(context: { questions: questions })
+    end
 
-      it 'returns row columns' do
-        expect(subject[:id]).to eq 1
-        expect(subject[:name]).to eq 'Taro'
-        expect(subject[:pet1]).to eq 'cat'
-        expect(subject[:pet2]).to eq 'dog'
-        expect(subject[:pet3]).to eq nil
-        expect(subject[:q1]).to eq 'yes'
-        expect(subject[:q2]).to eq 'no'
-        expect(subject[:q3]).to eq 'yes'
-      end
+    describe 'Table#header' do
+      subject { table.header }
+
+      it {
+        is_expected.to eq [
+          'ID',
+          'Name',
+          'Pet 1',
+          'Pet 2',
+          'Pet 3',
+          'Q1',
+          'Q2',
+          'Q3'
+        ]
+      }
+    end
+
+    describe 'Table#body' do
+      include_context 'item'
+
+      subject { table.body([item]).first }
+
+      it {
+        is_expected.to eq [
+          '1',
+          'Taro',
+          'cat',
+          'dog',
+          '',
+          'yes',
+          'no',
+          'yes'
+        ]
+      }
     end
   end
 
   # deprecated
   context 'when option is defined' do
-    module described_class::Spec
-      class TestTableSchema7
+    module Option
+      class TestTableSchema
         include TableStructure::Schema
 
         column  name: 'ID',
@@ -480,777 +1010,59 @@ RSpec.describe TableStructure::Schema do
       end
     end
 
-    let(:schema) { described_class::Spec::TestTableSchema7.new }
+    let(:schema) { Option::TestTableSchema.new }
 
     describe 'Table#header' do
       subject { table.header }
 
-      it 'returns header columns' do
-        expect(subject[:id]).to eq 'ID'
-        expect(subject[:name]).to eq 'Name'
-      end
+      it {
+        is_expected.to eq(
+          id: 'ID',
+          name: 'Name'
+        )
+      }
     end
 
     describe 'Table#row' do
+      include_context 'item'
+
       subject { table.row(context: item) }
 
-      let(:item) do
-        { id: 1, name: 'Taro' }
-      end
-
-      it 'returns row columns' do
-        expect(subject[:id]).to eq 1
-        expect(subject[:name]).to eq 'Taro'
-      end
+      it {
+        is_expected.to eq(
+          id: 1,
+          name: 'Taro'
+        )
+      }
     end
 
     context 'when overwritten by argument' do
-      let(:schema) { described_class::Spec::TestTableSchema7.new(result_type: :array) } # deprecated
+      let(:schema) { Option::TestTableSchema.new(result_type: :array) } # deprecated
 
       describe 'Table#header' do
         subject { table.header }
 
-        it 'returns header columns' do
-          expect(subject.shift).to eq 'ID'
-          expect(subject.shift).to eq 'Name'
-          expect(subject.shift).to be_nil
-        end
-      end
-
-      describe 'Table#row' do
-        subject { table.row(context: item) }
-
-        let(:item) do
-          { id: 1, name: 'Taro' }
-        end
-
-        it 'returns row columns' do
-          expect(subject.shift).to eq 1
-          expect(subject.shift).to eq 'Taro'
-          expect(subject.shift).to be_nil
-        end
-      end
-    end
-  end
-
-  context 'when column is defined with :omitted' do
-    module described_class::Spec
-      class TestTableSchema8
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                value: ->(row, *) { row[:id] }
-
-        column  name: 'Name',
-                value: ->(row, *) { row[:name] }
-
-        column  name: 'Secret',
-                value: '**********',
-                omitted: ->(table) { !table[:admin] }
-      end
-    end
-
-    let(:schema) { described_class::Spec::TestTableSchema8.new(context: context) }
-
-    context 'as true' do
-      let(:context) { { admin: false } }
-
-      describe 'Table#header' do
-        subject { table.header }
-
-        it 'returns header columns' do
-          expect(subject.shift).to eq 'ID'
-          expect(subject.shift).to eq 'Name'
-          expect(subject.shift).to be_nil
-        end
-      end
-
-      describe 'Table#row' do
-        subject { table.row(context: item) }
-
-        let(:item) do
-          { id: 1, name: 'Taro' }
-        end
-
-        it 'returns row columns' do
-          expect(subject.shift).to eq 1
-          expect(subject.shift).to eq 'Taro'
-          expect(subject.shift).to be_nil
-        end
-      end
-    end
-
-    context 'as false' do
-      let(:context) { { admin: true } }
-
-      describe 'Table#header' do
-        subject { table.header }
-
-        it 'returns header columns' do
-          expect(subject.shift).to eq 'ID'
-          expect(subject.shift).to eq 'Name'
-          expect(subject.shift).to eq 'Secret'
-          expect(subject.shift).to be_nil
-        end
-      end
-
-      describe 'Table#row' do
-        subject { table.row(context: item) }
-
-        let(:item) do
-          { id: 1, name: 'Taro' }
-        end
-
-        it 'returns row columns' do
-          expect(subject.shift).to eq 1
-          expect(subject.shift).to eq 'Taro'
-          expect(subject.shift).to eq '**********'
-          expect(subject.shift).to be_nil
-        end
-      end
-    end
-  end
-
-  context 'when schema is nested' do
-    context 'using instance' do
-      module described_class::Spec
-        class NestedTestTableSchema9
-          include TableStructure::Schema
-
-          column  name: 'ID',
-                  key: :id,
-                  value: ->(row, _table) { row[:id] }
-
-          column  name: 'Name',
-                  key: :name,
-                  value: ->(row, *) { row[:name] }
-
-          columns name: 'Pets',
-                  key: %i[pet1 pet2 pet3],
-                  value: ->(row, *) { row[:pets] }
-
-          columns lambda { |table|
-            table[:questions].map do |question|
-              {
-                name: question[:id],
-                key: question[:id].downcase.to_sym,
-                value: ->(row, *) { row[:answers][question[:id]] }
-              }
-            end
-          }
-
-          column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
-        end
-
-        class TestTableSchema9
-          include TableStructure::Schema
-
-          column  name: 'ID',
-                  key: :id,
-                  value: ->(row, _table) { row[:id] }
-
-          column  name: 'Name',
-                  key: :name,
-                  value: ->(row, *) { row[:name] }
-
-          columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                  key: %i[pet1 pet2 pet3],
-                  value: ->(row, *) { row[:pets] }
-
-          columns lambda { |table|
-            table[:questions].map do |question|
-              {
-                name: question[:id],
-                key: question[:id].downcase.to_sym,
-                value: ->(row, *) { row[:answers][question[:id]] }
-              }
-            end
-          }
-
-          columns lambda { |table|
-            NestedTestTableSchema9.new(context: table, name_prefix: 'Nested ', key_prefix: 'nested_')
-          }
-
-          column_converter :to_s, ->(val, *) { val.to_s }
-        end
-      end
-
-      let(:schema) do
-        described_class::Spec::TestTableSchema9.new(
-          context: {
-            questions: [
-              { id: 'Q1', text: 'Do you like sushi?' },
-              { id: 'Q2', text: 'Do you like yakiniku?' },
-              { id: 'Q3', text: 'Do you like ramen?' }
-            ]
-          },
-          result_type: result_type
-        )
-      end
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
-
-      context 'result_type: :array' do
-        let(:result_type) { :array }
-
-        describe 'Table#header' do
-          subject { table.header }
-
-          it 'returns header columns' do
-            expect(subject.shift).to eq 'ID'
-            expect(subject.shift).to eq 'Name'
-            expect(subject.shift).to eq 'Pet 1'
-            expect(subject.shift).to eq 'Pet 2'
-            expect(subject.shift).to eq 'Pet 3'
-            expect(subject.shift).to eq 'Q1'
-            expect(subject.shift).to eq 'Q2'
-            expect(subject.shift).to eq 'Q3'
-            expect(subject.shift).to eq 'Nested ID'
-            expect(subject.shift).to eq 'Nested Name'
-            expect(subject.shift).to eq 'Nested Pets'
-            expect(subject.shift).to eq 'Nested -'
-            expect(subject.shift).to eq 'Nested -'
-            expect(subject.shift).to eq 'Nested Q1'
-            expect(subject.shift).to eq 'Nested Q2'
-            expect(subject.shift).to eq 'Nested Q3'
-            expect(subject.shift).to be_nil
-          end
-        end
-
-        describe 'Table#row' do
-          subject { table.row(context: item) }
-
-          it 'returns row columns' do
-            expect(subject.shift).to eq '1'
-            expect(subject.shift).to eq 'Taro'
-            expect(subject.shift).to eq 'cat'
-            expect(subject.shift).to eq 'dog'
-            expect(subject.shift).to eq ''
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to eq 'no'
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to eq '1'
-            expect(subject.shift).to eq 'Taro'
-            expect(subject.shift).to eq 'cat'
-            expect(subject.shift).to eq 'dog'
-            expect(subject.shift).to eq '-'
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to eq 'no'
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to be_nil
-          end
-        end
-      end
-
-      context 'result_type: :hash' do
-        let(:result_type) { :hash }
-
-        describe 'Table#header' do
-          subject { table.header }
-
-          it 'returns header columns' do
-            expect(subject[:id]).to eq 'ID'
-            expect(subject[:name]).to eq 'Name'
-            expect(subject[:pet1]).to eq 'Pet 1'
-            expect(subject[:pet2]).to eq 'Pet 2'
-            expect(subject[:pet3]).to eq 'Pet 3'
-            expect(subject[:q1]).to eq 'Q1'
-            expect(subject[:q2]).to eq 'Q2'
-            expect(subject[:q3]).to eq 'Q3'
-            expect(subject[:nested_id]).to eq 'Nested ID'
-            expect(subject[:nested_name]).to eq 'Nested Name'
-            expect(subject[:nested_pet1]).to eq 'Nested Pets'
-            expect(subject[:nested_pet2]).to eq 'Nested -'
-            expect(subject[:nested_pet3]).to eq 'Nested -'
-            expect(subject[:nested_q1]).to eq 'Nested Q1'
-            expect(subject[:nested_q2]).to eq 'Nested Q2'
-            expect(subject[:nested_q3]).to eq 'Nested Q3'
-          end
-        end
-
-        describe 'Table#row' do
-          subject { table.row(context: item) }
-
-          it 'returns row columns' do
-            expect(subject[:id]).to eq '1'
-            expect(subject[:name]).to eq 'Taro'
-            expect(subject[:pet1]).to eq 'cat'
-            expect(subject[:pet2]).to eq 'dog'
-            expect(subject[:pet3]).to eq ''
-            expect(subject[:q1]).to eq 'yes'
-            expect(subject[:q2]).to eq 'no'
-            expect(subject[:q3]).to eq 'yes'
-            expect(subject[:nested_id]).to eq '1'
-            expect(subject[:nested_name]).to eq 'Taro'
-            expect(subject[:nested_pet1]).to eq 'cat'
-            expect(subject[:nested_pet2]).to eq 'dog'
-            expect(subject[:nested_pet3]).to eq '-'
-            expect(subject[:nested_q1]).to eq 'yes'
-            expect(subject[:nested_q2]).to eq 'no'
-            expect(subject[:nested_q3]).to eq 'yes'
-          end
-        end
-      end
-    end
-
-    context 'using class' do
-      module described_class::Spec
-        class NestedTestTableSchemaA
-          include TableStructure::Schema
-
-          column  name: 'ID',
-                  key: :nested_id,
-                  value: ->(row, _table) { row[:id] }
-
-          column  name: 'Name',
-                  key: :nested_name,
-                  value: ->(row, *) { row[:name] }
-
-          columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                  key: %i[nested_pet1 nested_pet2 nested_pet3],
-                  value: ->(row, *) { row[:pets] }
-
-          columns lambda { |table|
-            table[:questions].map do |question|
-              {
-                name: question[:id],
-                key: "nested_#{question[:id]}".downcase.to_sym,
-                value: ->(row, *) { row[:answers][question[:id]] }
-              }
-            end
-          }
-
-          column_converter :nil_to_hyphen, ->(val, *) { val.nil? ? '-' : val }
-        end
-
-        class TestTableSchemaA
-          include TableStructure::Schema
-
-          column  name: 'ID',
-                  key: :id,
-                  value: ->(row, _table) { row[:id] }
-
-          column  name: 'Name',
-                  key: :name,
-                  value: ->(row, *) { row[:name] }
-
-          columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                  key: %i[pet1 pet2 pet3],
-                  value: ->(row, *) { row[:pets] }
-
-          columns lambda { |table|
-            table[:questions].map do |question|
-              {
-                name: question[:id],
-                key: question[:id].downcase.to_sym,
-                value: ->(row, *) { row[:answers][question[:id]] }
-              }
-            end
-          }
-
-          columns NestedTestTableSchemaA
-
-          column_converter :to_s, ->(val, *) { val.to_s }
-        end
-      end
-
-      let(:schema) do
-        described_class::Spec::TestTableSchemaA.new(
-          context: {
-            questions: [
-              { id: 'Q1', text: 'Do you like sushi?' },
-              { id: 'Q2', text: 'Do you like yakiniku?' },
-              { id: 'Q3', text: 'Do you like ramen?' }
-            ]
-          },
-          result_type: result_type
-        )
-      end
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
-
-      context 'result_type: :array' do
-        let(:result_type) { :array }
-
-        describe 'Table#header' do
-          subject { table.header }
-
-          it 'returns header columns' do
-            expect(subject.shift).to eq 'ID'
-            expect(subject.shift).to eq 'Name'
-            expect(subject.shift).to eq 'Pet 1'
-            expect(subject.shift).to eq 'Pet 2'
-            expect(subject.shift).to eq 'Pet 3'
-            expect(subject.shift).to eq 'Q1'
-            expect(subject.shift).to eq 'Q2'
-            expect(subject.shift).to eq 'Q3'
-            expect(subject.shift).to eq 'ID'
-            expect(subject.shift).to eq 'Name'
-            expect(subject.shift).to eq 'Pet 1'
-            expect(subject.shift).to eq 'Pet 2'
-            expect(subject.shift).to eq 'Pet 3'
-            expect(subject.shift).to eq 'Q1'
-            expect(subject.shift).to eq 'Q2'
-            expect(subject.shift).to eq 'Q3'
-            expect(subject.shift).to be_nil
-          end
-        end
-
-        describe 'Table#row' do
-          subject { table.row(context: item) }
-
-          it 'returns row columns' do
-            expect(subject.shift).to eq '1'
-            expect(subject.shift).to eq 'Taro'
-            expect(subject.shift).to eq 'cat'
-            expect(subject.shift).to eq 'dog'
-            expect(subject.shift).to eq ''
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to eq 'no'
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to eq '1'
-            expect(subject.shift).to eq 'Taro'
-            expect(subject.shift).to eq 'cat'
-            expect(subject.shift).to eq 'dog'
-            expect(subject.shift).to eq '-'
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to eq 'no'
-            expect(subject.shift).to eq 'yes'
-            expect(subject.shift).to be_nil
-          end
-        end
-      end
-
-      context 'result_type: :hash' do
-        let(:result_type) { :hash }
-
-        describe 'Table#header' do
-          subject { table.header }
-
-          it 'returns header columns' do
-            expect(subject[:id]).to eq 'ID'
-            expect(subject[:name]).to eq 'Name'
-            expect(subject[:pet1]).to eq 'Pet 1'
-            expect(subject[:pet2]).to eq 'Pet 2'
-            expect(subject[:pet3]).to eq 'Pet 3'
-            expect(subject[:q1]).to eq 'Q1'
-            expect(subject[:q2]).to eq 'Q2'
-            expect(subject[:q3]).to eq 'Q3'
-            expect(subject[:nested_id]).to eq 'ID'
-            expect(subject[:nested_name]).to eq 'Name'
-            expect(subject[:nested_pet1]).to eq 'Pet 1'
-            expect(subject[:nested_pet2]).to eq 'Pet 2'
-            expect(subject[:nested_pet3]).to eq 'Pet 3'
-            expect(subject[:nested_q1]).to eq 'Q1'
-            expect(subject[:nested_q2]).to eq 'Q2'
-            expect(subject[:nested_q3]).to eq 'Q3'
-          end
-        end
-
-        describe 'Table#row' do
-          subject { table.row(context: item) }
-
-          it 'returns row columns' do
-            expect(subject[:id]).to eq '1'
-            expect(subject[:name]).to eq 'Taro'
-            expect(subject[:pet1]).to eq 'cat'
-            expect(subject[:pet2]).to eq 'dog'
-            expect(subject[:pet3]).to eq ''
-            expect(subject[:q1]).to eq 'yes'
-            expect(subject[:q2]).to eq 'no'
-            expect(subject[:q3]).to eq 'yes'
-            expect(subject[:nested_id]).to eq '1'
-            expect(subject[:nested_name]).to eq 'Taro'
-            expect(subject[:nested_pet1]).to eq 'cat'
-            expect(subject[:nested_pet2]).to eq 'dog'
-            expect(subject[:nested_pet3]).to eq '-'
-            expect(subject[:nested_q1]).to eq 'yes'
-            expect(subject[:nested_q2]).to eq 'no'
-            expect(subject[:nested_q3]).to eq 'yes'
-          end
-        end
-      end
-    end
-  end
-
-  context 'when schemas are concatenated' do
-    module described_class::Spec::B
-      class UserTableSchema
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                value: ->(row, _table) { row[:id] }
-
-        column  name: 'Name',
-                value: ->(row, *) { row[:name] }
-
-        column_converter :to_s, ->(val, *) { "user: #{val}" }
-      end
-
-      class PetTableSchema
-        include TableStructure::Schema
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                value: ->(row, *) { row[:pets] }
-
-        column_converter :to_s, ->(val, *) { "pet: #{val}" }
-      end
-
-      class QuestionTableSchema
-        include TableStructure::Schema
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-
-        column_converter :to_s, ->(val, *) { "question: #{val}" }
-      end
-    end
-
-    let(:schema) do
-      namespace = described_class::Spec::B
-      [
-        namespace::UserTableSchema,
-        namespace::PetTableSchema,
-        namespace::QuestionTableSchema
-      ]
-        .reduce(&:+)
-        .new(
-          context: {
-            questions: [
-              { id: 'Q1', text: 'Do you like sushi?' },
-              { id: 'Q2', text: 'Do you like yakiniku?' },
-              { id: 'Q3', text: 'Do you like ramen?' }
-            ]
-          }
-        )
-    end
-
-    describe 'Table#header' do
-      subject { table.header }
-
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'user: ID'
-        expect(subject.shift).to eq 'user: Name'
-        expect(subject.shift).to eq 'pet: Pet 1'
-        expect(subject.shift).to eq 'pet: Pet 2'
-        expect(subject.shift).to eq 'pet: Pet 3'
-        expect(subject.shift).to eq 'question: Q1'
-        expect(subject.shift).to eq 'question: Q2'
-        expect(subject.shift).to eq 'question: Q3'
-        expect(subject.shift).to be_nil
-      end
-    end
-
-    describe 'Table#row' do
-      subject { table.row(context: item) }
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
-
-      it 'returns row columns' do
-        expect(subject.shift).to eq 'user: 1'
-        expect(subject.shift).to eq 'user: Taro'
-        expect(subject.shift).to eq 'pet: cat'
-        expect(subject.shift).to eq 'pet: dog'
-        expect(subject.shift).to eq 'pet: '
-        expect(subject.shift).to eq 'question: yes'
-        expect(subject.shift).to eq 'question: no'
-        expect(subject.shift).to eq 'question: yes'
-        expect(subject.shift).to be_nil
-      end
-    end
-  end
-
-  context 'when schemas are merged' do
-    module described_class::Spec::C
-      class UserTableSchema
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                value: ->(row, _table) { row[:id] }
-
-        column  name: 'Name',
-                value: ->(row, *) { row[:name] }
-
-        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
-      end
-
-      class PetTableSchema
-        include TableStructure::Schema
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                value: ->(row, *) { row[:pets] }
-
-        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
-      end
-
-      class QuestionTableSchema
-        include TableStructure::Schema
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-
-        column_converter :to_s, ->(_val, *) { raise 'this column_converter will be overwritten.' }
-      end
-    end
-
-    let(:schema) do
-      namespace = described_class::Spec::C
-      namespace::UserTableSchema.merge(
-        namespace::PetTableSchema,
-        namespace::QuestionTableSchema,
-        ::TableStructure::Schema.create_class do
-          column_converter :to_s, ->(val, *) { val.to_s }
-        end
-      )
-        .new(
-          context: {
-            questions: [
-              { id: 'Q1', text: 'Do you like sushi?' },
-              { id: 'Q2', text: 'Do you like yakiniku?' },
-              { id: 'Q3', text: 'Do you like ramen?' }
-            ]
-          }
-        )
-    end
-
-    describe 'Table#header' do
-      subject { table.header }
-
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'ID'
-        expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to eq 'Pet 1'
-        expect(subject.shift).to eq 'Pet 2'
-        expect(subject.shift).to eq 'Pet 3'
-        expect(subject.shift).to eq 'Q1'
-        expect(subject.shift).to eq 'Q2'
-        expect(subject.shift).to eq 'Q3'
-        expect(subject.shift).to be_nil
-      end
-    end
-
-    describe 'Table#row' do
-      subject { table.row(context: item) }
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
-      end
-
-      it 'returns row columns' do
-        expect(subject.shift).to eq '1'
-        expect(subject.shift).to eq 'Taro'
-        expect(subject.shift).to eq 'cat'
-        expect(subject.shift).to eq 'dog'
-        expect(subject.shift).to eq ''
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to eq 'no'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to be_nil
-      end
-    end
-  end
-
-  context 'when definitions are appended' do
-    module described_class::Spec::D
-      class UserTableSchema
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                value: ->(row, _table) { row[:id] }
-
-        column  name: 'Name',
-                value: ->(row, *) { row[:name] }
-      end
-
-      class PetTableSchema
-        include TableStructure::Schema
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                value: ->(row, *) { row[:pets] }
-      end
-
-      class QuestionTableSchema
-        include TableStructure::Schema
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-      end
-    end
-
-    let(:schema) do
-      namespace = described_class::Spec::D
-      namespace::UserTableSchema.new(
-        context: {
-          questions: [
-            { id: 'Q1', text: 'Do you like sushi?' },
-            { id: 'Q2', text: 'Do you like yakiniku?' },
-            { id: 'Q3', text: 'Do you like ramen?' }
+        it {
+          is_expected.to eq %w[
+            ID
+            Name
           ]
         }
-      ) do
-        columns namespace::PetTableSchema
-        columns namespace::QuestionTableSchema
-        column_converter :to_s, ->(val, *) { val.to_s }
-      end
-    end
-
-    describe 'Table#header' do
-      subject { table.header }
-
-      it 'returns header columns' do
-        expect(subject.shift).to eq 'ID'
-        expect(subject.shift).to eq 'Name'
-        expect(subject.shift).to eq 'Pet 1'
-        expect(subject.shift).to eq 'Pet 2'
-        expect(subject.shift).to eq 'Pet 3'
-        expect(subject.shift).to eq 'Q1'
-        expect(subject.shift).to eq 'Q2'
-        expect(subject.shift).to eq 'Q3'
-        expect(subject.shift).to be_nil
-      end
-    end
-
-    describe 'Table#row' do
-      subject { table.row(context: item) }
-
-      let(:item) do
-        { id: 1, name: 'Taro', pets: %w[cat dog], answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' } }
       end
 
-      it 'returns row columns' do
-        expect(subject.shift).to eq '1'
-        expect(subject.shift).to eq 'Taro'
-        expect(subject.shift).to eq 'cat'
-        expect(subject.shift).to eq 'dog'
-        expect(subject.shift).to eq ''
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to eq 'no'
-        expect(subject.shift).to eq 'yes'
-        expect(subject.shift).to be_nil
+      describe 'Table#row' do
+        subject { table.row(context: item) }
+
+        let(:item) do
+          { id: 1, name: 'Taro' }
+        end
+
+        it {
+          is_expected.to eq [
+            1,
+            'Taro'
+          ]
+        }
       end
     end
   end

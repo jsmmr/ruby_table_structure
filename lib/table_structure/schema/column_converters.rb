@@ -4,70 +4,66 @@ module TableStructure
   module Schema
     class ColumnConverters
       def initialize(converters)
-        @header_converters = select_converters_for(:header, converters)
-        @row_converters = select_converters_for(:row, converters)
+        @header_converters = converters.select { |_k, v| v.applicable_to_header? }
+        @body_converterss = converters.select { |_k, v| v.applicable_to_body? }
       end
 
       def extend_methods_for(table, name_prefix:, name_suffix:)
         table_context = table.instance_variable_get(:@context)
 
-        header_converters = @header_converters.merge(
-          optional_header_converters(name_prefix: name_prefix, name_suffix: name_suffix)
-        )
-        row_converters = @row_converters
+        header_converters =
+          @header_converters
+          .merge(
+            _prepend_prefix_: create_prepender(name_prefix),
+            _append_suffix_: create_appender(name_suffix)
+          )
+          .reject { |_k, v| v.nil? }
 
-        methods = {}
-        unless header_converters.empty?
-          methods[:header] = create_method(header_converters, table_context)
-        end
-        unless row_converters.empty?
-          methods[:row] = create_method(row_converters, table_context)
-        end
+        body_converterss = @body_converterss
+
+        methods =
+          {
+            header: create_method(header_converters, table_context),
+            data: create_method(body_converterss, table_context)
+          }
+          .reject { |_k, v| v.nil? }
 
         return if methods.empty?
 
-        table.extend ColumnConverter.new(methods)
+        table.extend ColumnConvertible.new(methods)
       end
 
       private
 
-      def select_converters_for(method, converters)
-        converters
-          .select { |_k, v| v[:options][method] }
-          .map { |k, v| [k, v[:callable]] }
-          .to_h
+      def create_prepender(prefix)
+        return unless prefix
+
+        Definition::ColumnConverter.new(
+          lambda { |val, *|
+            val.nil? ? val : "#{prefix}#{val}"
+          },
+          header: true,
+          body: false
+        )
       end
 
-      def optional_header_converters(name_prefix:, name_suffix:)
-        converters = {}
-        if name_prefix
-          converters[:_prepend_prefix_] =
-            create_prefix_converter(name_prefix)
-        end
-        if name_suffix
-          converters[:_append_suffix_] =
-            create_suffix_converter(name_suffix)
-        end
+      def create_appender(suffix)
+        return unless suffix
 
-        converters
-      end
-
-      def create_prefix_converter(prefix)
-        lambda { |val, *|
-          val.nil? ? val : "#{prefix}#{val}"
-        }
-      end
-
-      def create_suffix_converter(suffix)
-        lambda { |val, *|
-          val.nil? ? val : "#{val}#{suffix}"
-        }
+        Definition::ColumnConverter.new(
+          lambda { |val, *|
+            val.nil? ? val : "#{val}#{suffix}"
+          },
+          header: true,
+          body: false
+        )
       end
 
       def create_method(converters, table_context)
+        return if converters.empty?
+
         proc do |context: nil|
-          values = super(context: context)
-          values.map do |val|
+          super(context: context).map do |val|
             converters.reduce(val) do |val, (_, converter)|
               converter.call(val, context, table_context)
             end
@@ -76,7 +72,7 @@ module TableStructure
       end
     end
 
-    class ColumnConverter < Module
+    class ColumnConvertible < Module
       def initialize(methods)
         methods.each do |name, method|
           define_method(name, &method)
