@@ -5,7 +5,10 @@ module TableStructure
     module DSL
       module ContextBuilder
         def context_builder(name, callable)
-          context_builders[name] = callable
+          context_builders[name] =
+            ::TableStructure::Schema::Definition::ContextBuilder.new(
+              callable
+            )
           nil
         end
 

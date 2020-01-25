@@ -2,8 +2,8 @@
 
 module TableStructure
   module Schema
-    module Column
-      class Attrs
+    module Columns
+      class Attributes
         attr_reader :keys, :size
 
         def initialize(name:, key:, value:, size:)
@@ -21,6 +21,11 @@ module TableStructure
         def values(context, table_context)
           value = Utils.evaluate_callable(@value, context, table_context)
           optimize_size(value, @size)
+        end
+
+        def contain_callable?(attribute)
+          val = instance_variable_get("@#{attribute}")
+          Utils.callable?(val)
         end
 
         private

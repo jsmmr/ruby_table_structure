@@ -4,17 +4,24 @@ module TableStructure
   module Schema
     module DSL
       module ColumnConverter
-        DEFAULT_OPTIONS = {
+        def column_converter(
+          name,
+          callable,
           header: true,
-          row: true
-        }.freeze
+          body: true,
+          **deprecated_options
+        )
+          if deprecated_options.key?(:row)
+            warn '[TableStructure] `:row` option has been deprecated. Use `:body` option instead.'
+            body = deprecated_options[:row]
+          end
 
-        def column_converter(name, callable, **options)
-          options = DEFAULT_OPTIONS.merge(options)
-          column_converters[name] = {
-            callable: callable,
-            options: options
-          }
+          column_converters[name] =
+            ::TableStructure::Schema::Definition::ColumnConverter.new(
+              callable,
+              header: header,
+              body: body
+            )
           nil
         end
 

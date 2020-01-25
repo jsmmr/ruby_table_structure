@@ -7,7 +7,7 @@ module TableStructure
       klass.extend(DSL::ColumnDefinition)
       klass.extend(DSL::ContextBuilder)
       klass.extend(DSL::Option)
-      klass.extend(DSL::ResultBuilder)
+      klass.extend(DSL::RowBuilder)
       klass.extend(ClassMethods)
     end
 
@@ -21,13 +21,12 @@ module TableStructure
       end
     end
 
-    Definition = Struct.new(
-      'Definition',
+    MyDefinition = Struct.new(
       :name,
       :columns,
       :context_builders,
       :column_converters,
-      :result_builders,
+      :row_builders,
       :context,
       :options
     )
@@ -72,24 +71,26 @@ module TableStructure
         schema_classes.map(&:column_converters).reduce({}, &:merge!)
       )
 
-      result_builders = ResultBuilders.new(
-        schema_classes.map(&:result_builders).reduce({}, &:merge!)
+      row_builders = RowBuilders.new(
+        schema_classes.map(&:row_builders).reduce({}, &:merge!)
       )
 
-      columns = Column::Factory.create(
-        name,
-        schema_classes.map(&:column_definitions).reduce([], &:concat),
-        context_builders.build_for_table(context),
-        options
-      )
+      columns =
+        Definition::Columns::Compiler
+        .new(
+          name,
+          schema_classes.map(&:column_definitions).reduce([], &:concat),
+          options
+        )
+        .compile(context_builders.build_for_table(context))
 
       @_definition_ =
-        Definition.new(
+        MyDefinition.new(
           name,
           columns,
           context_builders,
           column_converters,
-          result_builders,
+          row_builders,
           context,
           options
         )
@@ -99,26 +100,46 @@ module TableStructure
     def create_table(**options)
       options = @_definition_.options.merge(options)
 
-      table = Table.new(
-        @_definition_.columns,
-        @_definition_.context,
-        options
+      if options.key?(:result_type)
+        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
+        options[:row_type] = options[:result_type]
+      end
+
+      keys_generator_options = {
+        prefix: options[:key_prefix],
+        suffix: options[:key_suffix]
+      }
+
+      keys_generator = KeysGenerator.new(
+        **keys_generator_options
       )
 
-      @_definition_.context_builders.extend_methods_for(table)
+      table = Table.new(
+        columns: @_definition_.columns,
+        context: @_definition_.context,
+        keys_generator: keys_generator
+      )
+
+      @_definition_
+        .context_builders
+        .extend_methods_for(table)
 
       column_converters_options = {
         name_prefix: options[:name_prefix],
         name_suffix: options[:name_suffix]
       }
 
-      @_definition_.column_converters.extend_methods_for(table, **column_converters_options)
+      @_definition_
+        .column_converters
+        .extend_methods_for(table, **column_converters_options)
 
-      result_builders_options = {
-        result_type: options[:result_type]
+      row_builders_options = {
+        row_type: options[:row_type]
       }
 
-      @_definition_.result_builders.extend_methods_for(table, **result_builders_options)
+      @_definition_
+        .row_builders
+        .extend_methods_for(table, **row_builders_options)
 
       if block_given?
         yield table
