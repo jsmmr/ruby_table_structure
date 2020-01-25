@@ -5,9 +5,9 @@
 - `TableStructure::Schema`
   - Defines columns of a table using DSL.
 - `TableStructure::Writer`
-  - Converts data with the schema, and outputs it.
+  - Converts data with the schema, and outputs table structured data.
 - `TableStructure::Iterator`
-  - Converts data with the schema, and enumerates it.
+  - Converts data with the schema, and enumerates table structured data.
 
 ## Installation
 
@@ -129,6 +129,15 @@ end
 ```
 [Sample with docker](https://github.com/jsmmr/ruby_table_structure_sample)
 
+You can also convert CSV character code:
+```ruby
+File.open('sample.csv', 'w') do |f|
+  writer.write(items, to: CSV.new(f)) do |row_values|
+    row_values.map { |val| val.to_s.encode('Shift_JIS', invalid: :replace, undef: :replace) }
+  end
+end
+```
+
 You can also use `TableStructure::CSV::Writer` instead:
 ```ruby
 writer = TableStructure::CSV::Writer.new(schema)
@@ -138,7 +147,7 @@ end
 ```
 
 #### TableStructure::Iterator
-Specifying `result_type: :hash` option works well.
+Specifying `row_type: :hash` option works well.
 To use this option, define `column(s)` with `:key`.
 
 Define a schema:
@@ -167,9 +176,7 @@ class SampleTableSchema
 
   ## If the schemas are nested, :key must be unique in parent and child schemas.
   ## This can also be avoided by specifying :key_prefix or :key_suffix option.
-  # columns ->(table) { NestedSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
-
-  column_converter :to_s, ->(val, *) { val.to_s }
+  # columns ->(table) { NestedTableSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
 end
 ```
 
@@ -184,7 +191,7 @@ context = {
 }
 
 schema = SampleTableSchema.new(context: context)
-iterator = TableStructure::Iterator.new(schema, result_type: :hash, header_omitted: true)
+iterator = TableStructure::Iterator.new(schema, row_type: :hash, header_omitted: true)
 ```
 
 Enumerate the items converted by the schema:
@@ -220,9 +227,26 @@ enum.lazy.select { |item| item[:q1] == '⭕️' }.take(1).force
 
 ### Advanced
 
+You can add definitions when initializing the schema.
+```ruby
+class UserTableSchema
+  include TableStructure::Schema
+
+  column  name: 'ID',
+          value: ->(row, *) { row[:id] }
+
+  column  name: 'Name',
+          value: ->(row, *) { row[:name] }
+end
+
+schema = UserTableSchema.new do
+  column_converter :to_s, ->(val, *) { val.to_s }
+end
+```
+
 You can also omit columns by defining `:omitted`.
 ```ruby
-class SampleTableSchema
+class UserTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
@@ -238,7 +262,7 @@ end
 
 context = { admin: true }
 
-schema = SampleTableSchema.new(context: context)
+schema = UserTableSchema.new(context: context)
 ```
 
 You can also omit columns by specifying `nil_definitions_ignored: true`.
@@ -268,25 +292,18 @@ context = { pet_num: 0 }
 schema = SampleTableSchema.new(context: context, nil_definitions_ignored: true)
 ```
 
-You can add definitions when initializing the schema.
+You can also nest the schemas.
 ```ruby
 class UserTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
-          value: ->(row, _table) { row[:id] }
+          value: ->(row, *) { row[:id] }
 
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
 end
 
-schema = UserTableSchema.new do
-  column_converter :to_s, ->(val, *) { val.to_s }
-end
-```
-
-You can also nest the schemas.
-```ruby
 class PetTableSchema
   include TableStructure::Schema
 
@@ -307,14 +324,12 @@ class QuestionTableSchema
   }
 end
 
-class UserTableSchema
+class SampleTableSchema
   include TableStructure::Schema
 
-  column  name: 'ID',
-          value: ->(row, *) { row[:id] }
-
-  column  name: 'Name',
-          value: ->(row, *) { row[:name] }
+  columns ->(table) { UserTableSchema.new(context: table) }
+  ## or
+  # columns UserTableSchema
 
   columns ->(table) { PetTableSchema.new(context: table) }
   ## or
@@ -333,7 +348,7 @@ context = {
   ]
 }
 
-schema = UserTableSchema.new(context: context)
+schema = SampleTableSchema.new(context: context)
 ```
 
 You can also concatenate or merge the schema classes.
@@ -349,7 +364,7 @@ class UserTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
-          value: ->(row, _table) { row[:id] }
+          value: ->(row, *) { row[:id] }
 
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
@@ -429,18 +444,9 @@ class SampleTableSchema
 end
 ```
 
-If you want to convert CSV character code, you can do so in a block of `write` method.
-```ruby
-File.open('sample.csv', 'w') do |f|
-  writer.write(items, to: CSV.new(f)) do |row_values|
-    row_values.map { |val| val.to_s.encode('Shift_JIS', invalid: :replace, undef: :replace) }
-  end
-end
-```
-
-You can also use only `TableStructure::Schema`.
+You can also use only `TableStructure::Schema` instance.
 ```erb
-<% @schema.create_table(result_type: :array) do |table| %>
+<% @schema.create_table(row_type: :array) do |table| %>
   <table>
     <thead>
       <tr>
@@ -451,7 +457,7 @@ You can also use only `TableStructure::Schema`.
     </thead>
 
     <tbody>
-      <% table.rows(@items).each do |row| %>
+      <% table.body(@items).each do |row| %>
         <tr>
           <% row.each do |val| %>
             <td><%= val %></td>

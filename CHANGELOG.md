@@ -1,3 +1,15 @@
+# 0.3.17
+Changes:
+- `TableStructure::Schema`
+  - `:row` option for `column_converter` DSL has been deprecated. Use `:body` option instead.
+  - `:result_type` option of `create_table` method has been deprecated. Use `:row_type` option instead.
+- `TableStructure::Schema::Table`
+  - `rows` method has been deprecated. Use `body` method instead.
+- `TableStructure::Writer`
+  - `:result_type` option has been deprecated. Use `:row_type` option instead.
+- `TableStructure::Iterator`
+  - `:result_type` option has been deprecated. Use `:row_type` option instead.
+
 # 0.3.16
 Changes:
 - `TableStructure::Schema`
@@ -12,11 +24,11 @@ Changes:
 
 # 0.3.14
 Changes:
-  - Support Ruby 2.7.
+- Support Ruby 2.7.
 
 # 0.3.13
 Changes:
-  - Minor improvements.
+- Minor improvements.
 
 # 0.3.12
 Changes:
@@ -67,7 +79,7 @@ Changes:
     - `column_converter`
       - Add `:header` and `:row` options.
         - If `header: false`, the converter is not applied to header values.
-        - If `row: false`, the converter is not applied to row values.
+        - If `row: false`, the converter is not applied to body values.
         - Both options default to `true`, which is same behavior as before.
 
 # 0.3.4
