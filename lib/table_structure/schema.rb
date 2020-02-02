@@ -22,7 +22,7 @@ module TableStructure
     end
 
     MyDefinition = Struct.new(
-      :schema_name,
+      :name,
       :columns,
       :context_builders,
       :column_converters,
@@ -32,7 +32,7 @@ module TableStructure
     )
 
     def initialize(
-      schema_name: self.class.name,
+      name: self.class.name,
       context: nil,
       name_prefix: nil,
       name_suffix: nil,
@@ -78,7 +78,7 @@ module TableStructure
       columns =
         Definition::Columns::Compiler
         .new(
-          schema_name,
+          name,
           schema_classes.map(&:column_definitions).reduce([], &:concat),
           options
         )
@@ -86,7 +86,7 @@ module TableStructure
 
       @_definition_ =
         MyDefinition.new(
-          schema_name,
+          name,
           columns,
           context_builders,
           column_converters,
