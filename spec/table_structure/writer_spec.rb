@@ -57,15 +57,15 @@ RSpec.describe TableStructure::Writer do
             'yes'
           ]
 
-          expect(table[2]).to eq [
-            '2',
-            '花子',
-            'rabbit',
-            'turtle',
-            'squirrel',
-            'yes',
-            'yes',
-            'no'
+          expect(table[2]).to eq %w[
+            2
+            花子
+            rabbit
+            turtle
+            squirrel
+            yes
+            yes
+            no
           ]
 
           expect(table[3]).to eq [
@@ -131,7 +131,13 @@ RSpec.describe TableStructure::Writer do
         it 'succeeds' do
           schema = ::Mono::TestTableSchema.new(context: context)
           writer = described_class.new(schema)
-          enum = ::Enumerator.new { |y| writer.write(items, to: y) }
+          times = 0
+          enum = ::Enumerator.new do |y|
+            writer.write(items, to: y) do |values|
+              times += 1
+              values
+            end
+          end
 
           expect(enum.next).to eq [
             'ID',
@@ -143,6 +149,7 @@ RSpec.describe TableStructure::Writer do
             'Q2',
             'Q3'
           ]
+          expect(times).to eq 1
 
           expect(enum.next).to eq [
             1,
@@ -154,6 +161,7 @@ RSpec.describe TableStructure::Writer do
             'no',
             'yes'
           ]
+          expect(times).to eq 2
 
           expect(enum.next).to eq [
             2,
@@ -165,6 +173,7 @@ RSpec.describe TableStructure::Writer do
             'yes',
             'no'
           ]
+          expect(times).to eq 3
 
           expect(enum.next).to eq [
             3,
@@ -176,6 +185,7 @@ RSpec.describe TableStructure::Writer do
             'yes',
             nil
           ]
+          expect(times).to eq 4
         end
       end
 
@@ -398,37 +408,68 @@ RSpec.describe TableStructure::Writer do
     end
 
     context 'when output to string' do
-      shared_examples 'to convert and write data' do
+      shared_examples 'to convert and write data with header' do
         it 'succeeds' do
-          require 'csv'
-
-          schema = ::Mono::TestTableSchema.new(context: context)
-          writer = described_class.new(schema)
-          s = String.new
-          writer.write(items, to: s) do |row_values|
-            row_values.join(',') + "\n"
-          end
-
-          expect(s).to eq "ID,Name,Pet 1,Pet 2,Pet 3,Q1,Q2,Q3\n" \
+          expect(@s).to eq "ID,Name,Pet 1,Pet 2,Pet 3,Q1,Q2,Q3\n" \
                           "1,太郎,cat,dog,,yes,no,yes\n" \
                           "2,花子,rabbit,turtle,squirrel,yes,yes,no\n" \
                           "3,次郎,tiger,elephant,doragon,no,yes,\n"
         end
       end
 
-      context 'when passed array_items' do
-        let(:items) { array_items }
-        it_behaves_like 'to convert and write data'
+      shared_examples 'to convert and write data without header' do
+        it 'succeeds' do
+          expect(@s).to eq "1,太郎,cat,dog,,yes,no,yes\n" \
+                          "2,花子,rabbit,turtle,squirrel,yes,yes,no\n" \
+                          "3,次郎,tiger,elephant,doragon,no,yes,\n"
+        end
       end
 
-      context 'when passed lambda_items' do
-        let(:items) { lambda_items }
-        it_behaves_like 'to convert and write data'
+      before do
+        schema = ::Mono::TestTableSchema.new(context: context)
+        writer = described_class.new(schema, header_omitted: header_omitted)
+        @s = ::String.new
+        writer.write(items, to: @s) do |row_values|
+          row_values.join(',') + "\n"
+        end
       end
 
-      context 'when passed enumerator_items' do
-        let(:items) { enumerator_items }
-        it_behaves_like 'to convert and write data'
+      context 'when header is omitted' do
+        let(:header_omitted) { true }
+
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data without header'
+        end
+
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data without header'
+        end
+
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data without header'
+        end
+      end
+
+      context 'when header is not omitted' do
+        let(:header_omitted) { false }
+
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data with header'
+        end
+
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data with header'
+        end
+
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data with header'
+        end
       end
     end
   end
