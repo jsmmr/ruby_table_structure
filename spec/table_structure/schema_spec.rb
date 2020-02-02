@@ -578,7 +578,6 @@ RSpec.describe TableStructure::Schema do
   end
 
   context 'when `:nil_definitions_ignored` is specified' do
-
     module NilDefinitionsIgnored
       class TestTableSchema
         include TableStructure::Schema

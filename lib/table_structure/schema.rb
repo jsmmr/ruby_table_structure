@@ -45,7 +45,7 @@ module TableStructure
       unless deprecated_options.empty?
         caller_location = caller_locations(1, 1)
         deprecated_options.keys.each do |k|
-          warn "[TableStructure] Specify :#{k} option on the writer or the iterator. #{caller_location}"
+          warn "[TableStructure] Specify :#{k} option on Writer or Iterator. #{caller_location}"
         end
       end
 
@@ -96,9 +96,8 @@ module TableStructure
         )
     end
 
-    # TODO: Specify options using keyword arguments.
-    def create_table(**options)
-      options = @_definition_.options.merge(options)
+    def create_table(row_type: :array, **deprecated_options)
+      options = @_definition_.options.merge(deprecated_options)
 
       if options.key?(:result_type)
         warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
@@ -134,7 +133,7 @@ module TableStructure
         .extend_methods_for(table, **column_converters_options)
 
       row_builders_options = {
-        row_type: options[:row_type]
+        row_type: options[:row_type] || row_type
       }
 
       @_definition_
