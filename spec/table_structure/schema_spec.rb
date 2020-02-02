@@ -1,153 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Schema do
-  module Mono
-    class TestTableSchema
-      include TableStructure::Schema
-
-      column  name: 'ID',
-              value: ->(row, _table) { row[:id] }
-
-      column  name: 'Name',
-              value: ->(row, *) { row[:name] }
-
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              value: ->(row, *) { row[:pets] }
-
-      columns lambda { |table|
-        table[:questions].map do |question|
-          {
-            name: question[:id],
-            value: ->(row, *) { row[:answers][question[:id]] }
-          }
-        end
-      }
-    end
-
-    module WithKeys
-      class TestTableSchema
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                key: :id,
-                value: ->(row, *) { row[:id] }
-
-        column  name: 'Name',
-                key: :name,
-                value: ->(row, *) { row[:name] }
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                key: %i[pet1 pet2 pet3],
-                value: ->(row, *) { row[:pets] }
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              key: question[:id].downcase.to_sym,
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-      end
-    end
-  end
-
-  module Micro
-    class UserTableSchema
-      include TableStructure::Schema
-
-      column  name: 'ID',
-              value: ->(row, *) { row[:id] }
-
-      column  name: 'Name',
-              value: ->(row, *) { row[:name] }
-    end
-
-    class PetTableSchema
-      include TableStructure::Schema
-
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              value: ->(row, *) { row[:pets] }
-    end
-
-    class QuestionTableSchema
-      include TableStructure::Schema
-
-      columns lambda { |table|
-        table[:questions].map do |question|
-          {
-            name: question[:id],
-            value: ->(row, *) { row[:answers][question[:id]] }
-          }
-        end
-      }
-    end
-
-    module Nested
-      class TestTableSchema
-        include TableStructure::Schema
-
-        columns UserTableSchema
-
-        columns PetTableSchema
-
-        columns QuestionTableSchema
-      end
-    end
-
-    module Concatenated
-      TestTableSchema =
-        [
-          UserTableSchema,
-          PetTableSchema,
-          QuestionTableSchema
-        ]
-        .reduce(&:+)
-    end
-
-    module Merged
-      TestTableSchema =
-        UserTableSchema
-        .merge(
-          PetTableSchema,
-          QuestionTableSchema
-        )
-    end
-  end
-
-  shared_context 'questions' do
-    let(:questions) do
-      [
-        { id: 'Q1', text: 'Do you like sushi?' },
-        { id: 'Q2', text: 'Do you like yakiniku?' },
-        { id: 'Q3', text: 'Do you like ramen?' }
-      ]
-    end
-  end
-
-  shared_context 'item' do
-    let(:item) do
-      {
-        id: 1,
-        name: 'Taro',
-        pets: %w[cat dog],
-        answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' }
-      }
-    end
-  end
-
   let(:table) { schema.create_table }
 
   context 'when several `columns` are defined' do
     include_context 'questions'
 
     schema_classes = [
-      Mono::TestTableSchema,
-      Mono::WithKeys::TestTableSchema,
-      Micro::Nested::TestTableSchema,
-      Micro::Concatenated::TestTableSchema,
-      Micro::Merged::TestTableSchema
+      ::Mono::TestTableSchema,
+      ::Mono::WithKeys::TestTableSchema,
+      ::Micro::Nested::TestTableSchema,
+      ::Micro::Concatenated::TestTableSchema,
+      ::Micro::Merged::TestTableSchema
     ]
 
     schema_classes.each do |schema_class|
@@ -173,14 +37,14 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#body' do
-        include_context 'item'
+        include_context 'users'
 
-        subject { table.body([item]).first }
+        subject { table.body(users).first }
 
         it {
           is_expected.to eq [
             1,
-            'Taro',
+            '太郎',
             'cat',
             'dog',
             nil,
@@ -197,9 +61,9 @@ RSpec.describe TableStructure::Schema do
     include_context 'questions'
 
     let(:schema) do
-      Micro::UserTableSchema.new(context: { questions: questions }) do
-        columns Micro::PetTableSchema
-        columns Micro::QuestionTableSchema
+      ::Micro::UserTableSchema.new(context: { questions: questions }) do
+        columns ::Micro::PetTableSchema
+        columns ::Micro::QuestionTableSchema
         column_converter :to_s, ->(val, *) { val.to_s }
       end
     end
@@ -222,14 +86,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#body' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.body([item]).first }
+      subject { table.body(users).first }
 
       it {
         is_expected.to eq [
           '1',
-          'Taro',
+          '太郎',
           'cat',
           'dog',
           '',
@@ -244,9 +108,9 @@ RSpec.describe TableStructure::Schema do
   context 'when several `column_converter` are defined' do
     module ColumnConverter
       class TestTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Mono::TestTableSchema
+        columns ::Mono::TestTableSchema
 
         column_converter :to_s, ->(val, *) { val.to_s }
         column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
@@ -277,14 +141,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#body' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.body([item]).first }
+      subject { table.body(users).first }
 
       it {
         is_expected.to eq [
           '1',
-          'Taro',
+          '太郎',
           'cat',
           'dog',
           '-',
@@ -299,7 +163,7 @@ RSpec.describe TableStructure::Schema do
   context 'when several `context_builder` are defined' do
     module ContextBuilder
       class TestTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
         TableContext = Struct.new(:questions)
 
@@ -372,14 +236,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#row' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.row(context: item) }
+      subject { table.row(context: users.first) }
 
       it {
         is_expected.to eq [
           1,
-          'Taro',
+          '太郎',
           'cat',
           'dog',
           'cat',
@@ -395,7 +259,7 @@ RSpec.describe TableStructure::Schema do
     include_context 'questions'
 
     let(:schema) do
-      Mono::WithKeys::TestTableSchema.new(
+      ::Mono::WithKeys::TestTableSchema.new(
         context: { questions: questions }
       )
     end
@@ -427,14 +291,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#body' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.body([item]).first }
+      subject { table.body(users).first }
 
       it {
         is_expected.to eq(
           id: 1,
-          name: 'Taro',
+          name: '太郎',
           pet1: 'cat',
           pet2: 'dog',
           pet3: nil,
@@ -452,7 +316,7 @@ RSpec.describe TableStructure::Schema do
     require 'ostruct'
 
     let(:schema) do
-      Mono::WithKeys::TestTableSchema.new(
+      ::Mono::WithKeys::TestTableSchema.new(
         context: { questions: questions }
       ) do
         row_builder :to_ostruct,
@@ -486,13 +350,13 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#body' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.body([item]).first }
+      subject { table.body(users).first }
 
       it 'returns row columns' do
         expect(subject.id).to eq 1
-        expect(subject.name).to eq 'Taro'
+        expect(subject.name).to eq '太郎'
         expect(subject.pet1).to eq 'cat'
         expect(subject.pet2).to eq 'dog'
         expect(subject.pet3).to eq nil
@@ -506,9 +370,9 @@ RSpec.describe TableStructure::Schema do
   context 'when `:omitted` is defined' do
     module Omitted
       class TestTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::UserTableSchema
+        columns ::Micro::UserTableSchema
 
         column  name: 'Secret',
                 value: '**********',
@@ -533,14 +397,14 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#body' do
-        include_context 'item'
+        include_context 'users'
 
-        subject { table.body([item]).first }
+        subject { table.body(users).first }
 
         it {
           is_expected.to eq [
             1,
-            'Taro'
+            '太郎'
           ]
         }
       end
@@ -562,14 +426,14 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#body' do
-        include_context 'item'
+        include_context 'users'
 
-        subject { table.body([item]).first }
+        subject { table.body(users).first }
 
         it {
           is_expected.to eq [
             1,
-            'Taro',
+            '太郎',
             '**********'
           ]
         }
@@ -580,9 +444,9 @@ RSpec.describe TableStructure::Schema do
   context 'when `:nil_definitions_ignored` is specified' do
     module NilDefinitionsIgnored
       class TestTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::UserTableSchema
+        columns ::Micro::UserTableSchema
 
         column  nil
         column  ->(*) { nil }
@@ -616,14 +480,14 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#body' do
-        include_context 'item'
+        include_context 'users'
 
-        subject { table.body([item]).first }
+        subject { table.body(users).first }
 
         it {
           is_expected.to eq [
             1,
-            'Taro'
+            '太郎'
           ]
         }
       end
@@ -635,22 +499,22 @@ RSpec.describe TableStructure::Schema do
       describe 'Table#header' do
         subject { table.header }
 
-        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Columns::Error }
+        it { expect { subject }.to raise_error described_class::Definition::Columns::Error }
       end
 
       describe 'Table#body' do
-        include_context 'item'
+        include_context 'users'
 
-        subject { table.body([item]).first }
+        subject { table.body(users).first }
 
-        it { expect { subject }.to raise_error TableStructure::Schema::Definition::Columns::Error }
+        it { expect { subject }.to raise_error described_class::Definition::Columns::Error }
       end
     end
   end
 
   context 'when schema is nested' do
     include_context 'questions'
-    include_context 'item'
+    include_context 'users'
 
     shared_examples 'to return row values as array' do
       describe 'Table#header' do
@@ -679,12 +543,12 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#row' do
-        subject { table.row(context: item) }
+        subject { table.row(context: users.first) }
 
         it {
           is_expected.to eq [
             '1',
-            'Taro',
+            '太郎',
             'cat',
             'dog',
             '',
@@ -692,7 +556,7 @@ RSpec.describe TableStructure::Schema do
             'no',
             'yes',
             'Nested 1',
-            'Nested Taro',
+            'Nested 太郎',
             'Nested cat',
             'Nested dog',
             'Nested ',
@@ -731,12 +595,12 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#row' do
-        subject { table.row(context: item) }
+        subject { table.row(context: users.first) }
 
         it {
           is_expected.to eq(
             id: '1',
-            name: 'Taro',
+            name: '太郎',
             pet1: 'cat',
             pet2: 'dog',
             pet3: '',
@@ -744,7 +608,7 @@ RSpec.describe TableStructure::Schema do
             q2: 'no',
             q3: 'yes',
             nested_id: 'Nested 1',
-            nested_name: 'Nested Taro',
+            nested_name: 'Nested 太郎',
             nested_pet1: 'Nested cat',
             nested_pet2: 'Nested dog',
             nested_pet3: 'Nested ',
@@ -767,11 +631,11 @@ RSpec.describe TableStructure::Schema do
 
     context 'using instance' do
       let(:schema) do
-        Mono::WithKeys::TestTableSchema.new(
+        ::Mono::WithKeys::TestTableSchema.new(
           context: { questions: questions }
         ) do
           columns lambda { |table|
-            Mono::WithKeys::TestTableSchema.new(
+            ::Mono::WithKeys::TestTableSchema.new(
               context: table,
               name_prefix: 'Nested ',
               key_prefix: 'nested_'
@@ -800,10 +664,10 @@ RSpec.describe TableStructure::Schema do
     context 'using class' do
       module Nested
         class TestTableSchema
-          include TableStructure::Schema
+          include ::TableStructure::Schema
 
           columns lambda { |table|
-            Mono::WithKeys::TestTableSchema.new(
+            ::Mono::WithKeys::TestTableSchema.new(
               context: table,
               key_prefix: 'nested_'
             )
@@ -814,7 +678,7 @@ RSpec.describe TableStructure::Schema do
       end
 
       let(:schema) do
-        Mono::WithKeys::TestTableSchema.new(
+        ::Mono::WithKeys::TestTableSchema.new(
           context: { questions: questions }
         ) do
           columns Nested::TestTableSchema
@@ -840,25 +704,25 @@ RSpec.describe TableStructure::Schema do
   context 'when several schemas are concatenated' do
     module Concatenated
       class UserTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::UserTableSchema
+        columns ::Micro::UserTableSchema
 
         column_converter :to_s, ->(val, *) { "user: #{val}" }
       end
 
       class PetTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::PetTableSchema
+        columns ::Micro::PetTableSchema
 
         column_converter :to_s, ->(val, *) { "pet: #{val}" }
       end
 
       class QuestionTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::QuestionTableSchema
+        columns ::Micro::QuestionTableSchema
 
         column_converter :to_s, ->(val, *) { "question: #{val}" }
       end
@@ -894,14 +758,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#body' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.body([item]).first }
+      subject { table.body(users).first }
 
       it {
         is_expected.to eq [
           'user: 1',
-          'user: Taro',
+          'user: 太郎',
           'pet: cat',
           'pet: dog',
           'pet: ',
@@ -916,25 +780,25 @@ RSpec.describe TableStructure::Schema do
   context 'when several schemas are merged' do
     module Merged
       class UserTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::UserTableSchema
+        columns ::Micro::UserTableSchema
 
         column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
       end
 
       class PetTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::PetTableSchema
+        columns ::Micro::PetTableSchema
 
         column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
       end
 
       class QuestionTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
-        columns Micro::QuestionTableSchema
+        columns ::Micro::QuestionTableSchema
 
         column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
       end
@@ -947,7 +811,7 @@ RSpec.describe TableStructure::Schema do
         .merge(
           Merged::PetTableSchema,
           Merged::QuestionTableSchema,
-          TableStructure::Schema.create_class do
+          described_class.create_class do
             column_converter :to_s, ->(val, *) { val.to_s }
           end
         )
@@ -972,14 +836,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#body' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.body([item]).first }
+      subject { table.body(users).first }
 
       it {
         is_expected.to eq [
           '1',
-          'Taro',
+          '太郎',
           'cat',
           'dog',
           '',
@@ -995,7 +859,7 @@ RSpec.describe TableStructure::Schema do
   context 'when option is defined' do
     module Option
       class TestTableSchema
-        include TableStructure::Schema
+        include ::TableStructure::Schema
 
         column  name: 'ID',
                 key: :id,
@@ -1023,14 +887,14 @@ RSpec.describe TableStructure::Schema do
     end
 
     describe 'Table#row' do
-      include_context 'item'
+      include_context 'users'
 
-      subject { table.row(context: item) }
+      subject { table.row(context: users.first) }
 
       it {
         is_expected.to eq(
           id: 1,
-          name: 'Taro'
+          name: '太郎'
         )
       }
     end
@@ -1050,16 +914,18 @@ RSpec.describe TableStructure::Schema do
       end
 
       describe 'Table#row' do
-        subject { table.row(context: item) }
+        include_context 'users'
+
+        subject { table.row(context: users.first) }
 
         let(:item) do
-          { id: 1, name: 'Taro' }
+          { id: 1, name: '太郎' }
         end
 
         it {
           is_expected.to eq [
             1,
-            'Taro'
+            '太郎'
           ]
         }
       end
