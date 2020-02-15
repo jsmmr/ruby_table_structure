@@ -2,6 +2,8 @@
 
 require 'bundler/setup'
 require 'table_structure'
+require 'support/shared_contexts'
+require 'support/test_schemas'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

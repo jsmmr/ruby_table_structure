@@ -19,7 +19,7 @@ RSpec.describe TableStructure::Schema::Table do
         ::TableStructure::Schema::Columns::Schema.new(
           ::TableStructure::Schema.create_class do
             columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              value: ->(row, *) { row[:pets] }
+                    value: ->(row, *) { row[:pets] }
 
             columns lambda { |table|
               table[:questions].map do |question|
