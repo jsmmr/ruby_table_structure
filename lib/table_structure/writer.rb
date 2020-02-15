@@ -2,36 +2,87 @@
 
 module TableStructure
   class Writer
-    DEFAULT_OPTIONS = {
+    def initialize(
+      schema,
       header_omitted: false,
       header_context: nil,
-      method: :<<
-    }.freeze
+      method: :<<,
+      row_type: :array,
+      **deprecated_options
+    )
+      if deprecated_options.key?(:result_type)
+        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
+        row_type = deprecated_options[:result_type]
+      end
 
-    def initialize(schema, **options)
       @schema = schema
-      @options = DEFAULT_OPTIONS.merge(options)
+      @options = {
+        header_omitted: header_omitted,
+        header_context: header_context,
+        method: method,
+        row_type: row_type
+      }
     end
 
-    def write(items, to:, **options)
-      options = @options.merge(options)
-      @schema.create_table(**options) do |table|
-        unless options[:header_omitted]
-          header = table.header(
-            context: options[:header_context]
+    def write(
+      items,
+      to:,
+      method: @options[:method],
+      header_omitted: @options[:header_omitted],
+      header_context: @options[:header_context],
+      row_type: @options[:row_type],
+      **deprecated_options,
+      &block
+    )
+      if deprecated_options.key?(:result_type)
+        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
+        row_type = deprecated_options[:result_type]
+      end
+
+      items = enumerize(items)
+
+      header_options =
+        if header_omitted
+          false
+        else
+          { context: header_context }
+        end
+
+      @schema.create_table(row_type: row_type) do |table|
+        output = Output.new(to, method: method)
+
+        enum =
+          Table::Iterator
+          .new(
+            table,
+            header: header_options
           )
-          header = yield header if block_given?
-          to.send(options[:method], header)
+          .iterate(items)
+
+        if block_given?
+          enum =
+            enum
+            .lazy
+            .map { |row| block.call(row) }
         end
-        table.body(enumerize(items)).each do |row|
-          row = yield row if block_given?
-          to.send(options[:method], row)
-        end
+
+        enum.each { |row| output.write(row) }
       end
       nil
     end
 
     private
+
+    class Output
+      def initialize(output, method: :<<)
+        @output = output
+        @method = method
+      end
+
+      def write(values)
+        @output.send(@method, values)
+      end
+    end
 
     def enumerize(items)
       if items.respond_to?(:each)

@@ -1,129 +1,68 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::Iterator do
-  let(:context) do
-    {
-      questions: [
-        { id: 'Q1', text: 'Do you like sushi?' },
-        { id: 'Q2', text: 'Do you like yakiniku?' },
-        { id: 'Q3', text: 'Do you like ramen?' }
-      ]
-    }
-  end
-
-  let(:items) do
-    [
-      {
-        id: 1,
-        name: '太郎',
-        pets: %w[cat dog],
-        answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' }
-      },
-      {
-        id: 2,
-        name: '花子',
-        pets: %w[rabbit turtle squirrel giraffe],
-        answers: { 'Q1' => 'yes', 'Q2' => 'yes', 'Q3' => 'no' }
-      },
-      {
-        id: 3,
-        name: '次郎',
-        pets: %w[tiger elephant doragon],
-        answers: { 'Q1' => 'no', 'Q2' => 'yes', 'Q999' => 'yes' }
-      }
-    ]
-  end
-
   describe '#iterate' do
+    include_context 'questions'
+    include_context 'users'
+
+    let(:context) { { questions: questions } }
+    let(:items) { users }
+
     context 'when :result_type is :array' do
-      let(:result_type_option) { { result_type: :array } }
+      let(:row_type_option) { [{ result_type: :array }, { row_type: :array }].sample }
 
-      class TestTableSchema31
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                value: ->(row, _table) { row[:id] }
-
-        column  name: 'Name',
-                value: ->(row, *) { row[:name] }
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                value: ->(row, *) { row[:pets] }
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              key: question[:id].downcase.to_sym,
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-
-        column_converter :to_s, ->(val, *) { val.to_s }
-      end
-
-      def expect_header_as_array(row)
-        expect(row.shift).to eq 'ID'
-        expect(row.shift).to eq 'Name'
-        expect(row.shift).to eq 'Pet 1'
-        expect(row.shift).to eq 'Pet 2'
-        expect(row.shift).to eq 'Pet 3'
-        expect(row.shift).to eq 'Q1'
-        expect(row.shift).to eq 'Q2'
-        expect(row.shift).to eq 'Q3'
-        expect(row.shift).to be_nil
-      end
-
-      def expect_item1_as_array(row)
-        expect(row.shift).to eq '1'
-        expect(row.shift).to eq '太郎'
-        expect(row.shift).to eq 'cat'
-        expect(row.shift).to eq 'dog'
-        expect(row.shift).to eq ''
-        expect(row.shift).to eq 'yes'
-        expect(row.shift).to eq 'no'
-        expect(row.shift).to eq 'yes'
-        expect(row.shift).to be_nil
-      end
-
-      def expect_item2_as_array(row)
-        expect(row.shift).to eq '2'
-        expect(row.shift).to eq '花子'
-        expect(row.shift).to eq 'rabbit'
-        expect(row.shift).to eq 'turtle'
-        expect(row.shift).to eq 'squirrel'
-        expect(row.shift).to eq 'yes'
-        expect(row.shift).to eq 'yes'
-        expect(row.shift).to eq 'no'
-        expect(row.shift).to be_nil
-      end
-
-      def expect_item3_as_array(row)
-        expect(row.shift).to eq '3'
-        expect(row.shift).to eq '次郎'
-        expect(row.shift).to eq 'tiger'
-        expect(row.shift).to eq 'elephant'
-        expect(row.shift).to eq 'doragon'
-        expect(row.shift).to eq 'no'
-        expect(row.shift).to eq 'yes'
-        expect(row.shift).to eq ''
-        expect(row.shift).to be_nil
-      end
-
-      shared_examples 'to convert and iterate data' do
+      shared_examples 'to iterate converted data' do
         context 'when :header_omitted is false' do
-          let(:header_omitted_option) { { header_omitted: false } }
+          let(:header_option) { { header_omitted: false } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
             it 'returns rows as array with header' do
               expect(subject.size).to eq 4
 
-              expect_header_as_array subject.shift
-              expect_item1_as_array subject.shift
-              expect_item2_as_array subject.shift
-              expect_item3_as_array subject.shift
+              expect(subject[0]).to eq [
+                'ID',
+                'Name',
+                'Pet 1',
+                'Pet 2',
+                'Pet 3',
+                'Q1',
+                'Q2',
+                'Q3'
+              ]
+
+              expect(subject[1]).to eq [
+                1,
+                '太郎',
+                'cat',
+                'dog',
+                nil,
+                'yes',
+                'no',
+                'yes'
+              ]
+
+              expect(subject[2]).to eq [
+                2,
+                '花子',
+                'rabbit',
+                'turtle',
+                'squirrel',
+                'yes',
+                'yes',
+                'no'
+              ]
+
+              expect(subject[3]).to eq [
+                3,
+                '次郎',
+                'tiger',
+                'elephant',
+                'doragon',
+                'no',
+                'yes',
+                nil
+              ]
             end
           end
 
@@ -132,22 +71,60 @@ RSpec.describe TableStructure::Iterator do
             it 'returns rows as array with header' do
               expect(subject.size).to eq 1
 
-              expect_header_as_array subject.shift
+              expect(subject[0]).to eq [
+                'ID',
+                'Name',
+                'Pet 1',
+                'Pet 2',
+                'Pet 3',
+                'Q1',
+                'Q2',
+                'Q3'
+              ]
             end
           end
         end
 
         context 'when :header_omitted is true' do
-          let(:header_omitted_option) { { header_omitted: true } }
+          let(:header_option) { { header_omitted: true } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
             it 'returns rows as array without header' do
               expect(subject.size).to eq 3
 
-              expect_item1_as_array subject.shift
-              expect_item2_as_array subject.shift
-              expect_item3_as_array subject.shift
+              expect(subject[0]).to eq [
+                1,
+                '太郎',
+                'cat',
+                'dog',
+                nil,
+                'yes',
+                'no',
+                'yes'
+              ]
+
+              expect(subject[1]).to eq [
+                2,
+                '花子',
+                'rabbit',
+                'turtle',
+                'squirrel',
+                'yes',
+                'yes',
+                'no'
+              ]
+
+              expect(subject[2]).to eq [
+                3,
+                '次郎',
+                'tiger',
+                'elephant',
+                'doragon',
+                'no',
+                'yes',
+                nil
+              ]
             end
           end
 
@@ -156,140 +133,116 @@ RSpec.describe TableStructure::Iterator do
             it 'returns rows as array without header' do
               expect(subject.size).to eq 1
 
-              expect_item1_as_array subject.shift
+              expect(subject[0]).to eq [
+                1,
+                '太郎',
+                'cat',
+                'dog',
+                nil,
+                'yes',
+                'no',
+                'yes'
+              ]
             end
           end
         end
       end
 
       context 'deprecated' do
-        let(:schema_options) { result_type_option }
-        let(:writer_options) { header_omitted_option }
+        let(:schema_options) { row_type_option }
+        let(:writer_options) { header_option }
 
         context 'when Schema is specified' do
           let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
-          let(:schema_or_writer) { TestTableSchema31.new(context: context, **schema_options) }
-          it_behaves_like 'to convert and iterate data'
+          let(:schema_or_writer) { ::Mono::TestTableSchema.new(context: context, **schema_options) }
+          it_behaves_like 'to iterate converted data'
         end
 
         context 'when Writer is specified' do
           let(:iterator) { described_class.new(schema_or_writer) }
           let(:schema_or_writer) do
-            schema = TestTableSchema31.new(context: context, **schema_options)
+            schema = ::Mono::TestTableSchema.new(context: context, **schema_options)
             TableStructure::Writer.new(schema, **writer_options)
           end
-          it_behaves_like 'to convert and iterate data'
+          it_behaves_like 'to iterate converted data'
         end
       end
 
       context 'recommend' do
-        let(:writer_options) { result_type_option.merge(header_omitted_option) }
+        let(:writer_options) { row_type_option.merge(header_option) }
 
         context 'when Schema is specified' do
           let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
-          let(:schema_or_writer) { TestTableSchema31.new(context: context) }
-          it_behaves_like 'to convert and iterate data'
+          let(:schema_or_writer) { ::Mono::TestTableSchema.new(context: context) }
+          it_behaves_like 'to iterate converted data'
         end
 
         context 'when Writer is specified' do
           let(:iterator) { described_class.new(schema_or_writer) }
           let(:schema_or_writer) do
-            schema = TestTableSchema31.new(context: context)
+            schema = ::Mono::TestTableSchema.new(context: context)
             TableStructure::Writer.new(schema, **writer_options)
           end
-          it_behaves_like 'to convert and iterate data'
+          it_behaves_like 'to iterate converted data'
         end
       end
     end
 
     context 'when :result_type is :hash' do
-      let(:result_type_option) { { result_type: :hash } }
+      let(:row_type_option) { [{ result_type: :hash }, { row_type: :hash }].sample }
 
-      class TestTableSchema32
-        include TableStructure::Schema
-
-        column  name: 'ID',
-                key: :id,
-                value: ->(row, _table) { row[:id] }
-
-        column  name: 'Name',
-                key: :name,
-                value: ->(row, *) { row[:name] }
-
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-                key: %i[pet1 pet2 pet3],
-                value: ->(row, *) { row[:pets] }
-
-        columns lambda { |table|
-          table[:questions].map do |question|
-            {
-              name: question[:id],
-              key: question[:id].downcase.to_sym,
-              value: ->(row, *) { row[:answers][question[:id]] }
-            }
-          end
-        }
-
-        column_converter :to_s, ->(val, *) { val.to_s }
-      end
-
-      def expect_header_as_hash(row)
-        expect(row[:id]).to eq 'ID'
-        expect(row[:name]).to eq 'Name'
-        expect(row[:pet1]).to eq 'Pet 1'
-        expect(row[:pet2]).to eq 'Pet 2'
-        expect(row[:pet3]).to eq 'Pet 3'
-        expect(row[:q1]).to eq 'Q1'
-        expect(row[:q2]).to eq 'Q2'
-        expect(row[:q3]).to eq 'Q3'
-      end
-
-      def expect_item1_as_hash(row)
-        expect(row[:id]).to eq '1'
-        expect(row[:name]).to eq '太郎'
-        expect(row[:pet1]).to eq 'cat'
-        expect(row[:pet2]).to eq 'dog'
-        expect(row[:pet3]).to eq ''
-        expect(row[:q1]).to eq 'yes'
-        expect(row[:q2]).to eq 'no'
-        expect(row[:q3]).to eq 'yes'
-      end
-
-      def expect_item2_as_hash(row)
-        expect(row[:id]).to eq '2'
-        expect(row[:name]).to eq '花子'
-        expect(row[:pet1]).to eq 'rabbit'
-        expect(row[:pet2]).to eq 'turtle'
-        expect(row[:pet3]).to eq 'squirrel'
-        expect(row[:q1]).to eq 'yes'
-        expect(row[:q2]).to eq 'yes'
-        expect(row[:q3]).to eq 'no'
-      end
-
-      def expect_item3_as_hash(row)
-        expect(row[:id]).to eq '3'
-        expect(row[:name]).to eq '次郎'
-        expect(row[:pet1]).to eq 'tiger'
-        expect(row[:pet2]).to eq 'elephant'
-        expect(row[:pet3]).to eq 'doragon'
-        expect(row[:q1]).to eq 'no'
-        expect(row[:q2]).to eq 'yes'
-        expect(row[:q3]).to eq ''
-      end
-
-      shared_examples 'to convert and iterate data' do
+      shared_examples 'to iterate converted data' do
         context 'when :header_omitted is false' do
-          let(:header_omitted_option) { { header_omitted: false } }
+          let(:header_option) { { header_omitted: false } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
             it 'returns rows as hash with header' do
               expect(subject.size).to eq 4
 
-              expect_header_as_hash subject.shift
-              expect_item1_as_hash subject.shift
-              expect_item2_as_hash subject.shift
-              expect_item3_as_hash subject.shift
+              expect(subject[0]).to eq(
+                id: 'ID',
+                name: 'Name',
+                pet1: 'Pet 1',
+                pet2: 'Pet 2',
+                pet3: 'Pet 3',
+                q1: 'Q1',
+                q2: 'Q2',
+                q3: 'Q3'
+              )
+
+              expect(subject[1]).to eq(
+                id: 1,
+                name: '太郎',
+                pet1: 'cat',
+                pet2: 'dog',
+                pet3: nil,
+                q1: 'yes',
+                q2: 'no',
+                q3: 'yes'
+              )
+
+              expect(subject[2]).to eq(
+                id: 2,
+                name: '花子',
+                pet1: 'rabbit',
+                pet2: 'turtle',
+                pet3: 'squirrel',
+                q1: 'yes',
+                q2: 'yes',
+                q3: 'no'
+              )
+
+              expect(subject[3]).to eq(
+                id: 3,
+                name: '次郎',
+                pet1: 'tiger',
+                pet2: 'elephant',
+                pet3: 'doragon',
+                q1: 'no',
+                q2: 'yes',
+                q3: nil
+              )
             end
           end
 
@@ -298,22 +251,60 @@ RSpec.describe TableStructure::Iterator do
             it 'returns rows as hash with header' do
               expect(subject.size).to eq 1
 
-              expect_header_as_hash subject.shift
+              expect(subject[0]).to eq(
+                id: 'ID',
+                name: 'Name',
+                pet1: 'Pet 1',
+                pet2: 'Pet 2',
+                pet3: 'Pet 3',
+                q1: 'Q1',
+                q2: 'Q2',
+                q3: 'Q3'
+              )
             end
           end
         end
 
         context 'when :header_omitted is true' do
-          let(:header_omitted_option) { { header_omitted: true } }
+          let(:header_option) { { header_omitted: true } }
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
             it 'returns rows as hash without header' do
               expect(subject.size).to eq 3
 
-              expect_item1_as_hash subject.shift
-              expect_item2_as_hash subject.shift
-              expect_item3_as_hash subject.shift
+              expect(subject[0]).to eq(
+                id: 1,
+                name: '太郎',
+                pet1: 'cat',
+                pet2: 'dog',
+                pet3: nil,
+                q1: 'yes',
+                q2: 'no',
+                q3: 'yes'
+              )
+
+              expect(subject[1]).to eq(
+                id: 2,
+                name: '花子',
+                pet1: 'rabbit',
+                pet2: 'turtle',
+                pet3: 'squirrel',
+                q1: 'yes',
+                q2: 'yes',
+                q3: 'no'
+              )
+
+              expect(subject[2]).to eq(
+                id: 3,
+                name: '次郎',
+                pet1: 'tiger',
+                pet2: 'elephant',
+                pet3: 'doragon',
+                q1: 'no',
+                q2: 'yes',
+                q3: nil
+              )
             end
           end
 
@@ -322,48 +313,57 @@ RSpec.describe TableStructure::Iterator do
             it 'returns rows as hash without header' do
               expect(subject.size).to eq 1
 
-              expect_item1_as_hash subject.shift
+              expect(subject[0]).to eq(
+                id: 1,
+                name: '太郎',
+                pet1: 'cat',
+                pet2: 'dog',
+                pet3: nil,
+                q1: 'yes',
+                q2: 'no',
+                q3: 'yes'
+              )
             end
           end
         end
       end
 
       context 'deprecated' do
-        let(:schema_options) { result_type_option }
-        let(:writer_options) { header_omitted_option }
+        let(:schema_options) { row_type_option }
+        let(:writer_options) { header_option }
 
         context 'when Schema is specified' do
           let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
-          let(:schema_or_writer) { TestTableSchema32.new(context: context, **schema_options) }
-          it_behaves_like 'to convert and iterate data'
+          let(:schema_or_writer) { ::Mono::WithKeys::TestTableSchema.new(context: context, **schema_options) }
+          it_behaves_like 'to iterate converted data'
         end
 
         context 'when Writer is specified' do
           let(:iterator) { described_class.new(schema_or_writer) }
           let(:schema_or_writer) do
-            schema = TestTableSchema32.new(context: context, **schema_options)
+            schema = ::Mono::WithKeys::TestTableSchema.new(context: context, **schema_options)
             TableStructure::Writer.new(schema, **writer_options)
           end
-          it_behaves_like 'to convert and iterate data'
+          it_behaves_like 'to iterate converted data'
         end
       end
 
       context 'recommend' do
-        let(:writer_options) { result_type_option.merge(header_omitted_option) }
+        let(:writer_options) { row_type_option.merge(header_option) }
 
         context 'when Schema is specified' do
           let(:iterator) { described_class.new(schema_or_writer, **writer_options) }
-          let(:schema_or_writer) { TestTableSchema32.new(context: context) }
-          it_behaves_like 'to convert and iterate data'
+          let(:schema_or_writer) { ::Mono::WithKeys::TestTableSchema.new(context: context) }
+          it_behaves_like 'to iterate converted data'
         end
 
         context 'when Writer is specified' do
           let(:iterator) { described_class.new(schema_or_writer) }
           let(:schema_or_writer) do
-            schema = TestTableSchema32.new(context: context)
+            schema = ::Mono::WithKeys::TestTableSchema.new(context: context)
             TableStructure::Writer.new(schema, **writer_options)
           end
-          it_behaves_like 'to convert and iterate data'
+          it_behaves_like 'to iterate converted data'
         end
       end
     end

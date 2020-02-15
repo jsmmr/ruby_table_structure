@@ -2,69 +2,19 @@
 
 RSpec.describe TableStructure::Writer do
   describe '#write' do
-    class TestTableSchema21
-      include TableStructure::Schema
+    include_context 'questions'
+    include_context 'users'
 
-      column  name: 'ID',
-              value: ->(row, _table) { row[:id] }
+    let(:context) { { questions: questions } }
 
-      column  name: 'Name',
-              value: ->(row, *) { row[:name] }
-
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-              value: ->(row, *) { row[:pets] }
-
-      columns lambda { |table|
-        table[:questions].map do |question|
-          {
-            name: question[:id],
-            value: ->(row, *) { row[:answers][question[:id]] }
-          }
-        end
-      }
-
-      column_converter :to_s, ->(val, _row, _table) { val.to_s }
-    end
-
-    let(:context) do
-      {
-        questions: [
-          { id: 'Q1', text: 'Do you like sushi?' },
-          { id: 'Q2', text: 'Do you like yakiniku?' },
-          { id: 'Q3', text: 'Do you like ramen?' }
-        ]
-      }
-    end
-
-    let(:array_items) do
-      [
-        {
-          id: 1,
-          name: '太郎',
-          pets: %w[cat dog],
-          answers: { 'Q1' => 'yes', 'Q2' => 'no', 'Q3' => 'yes' }
-        },
-        {
-          id: 2,
-          name: '花子',
-          pets: %w[rabbit turtle squirrel giraffe],
-          answers: { 'Q1' => 'yes', 'Q2' => 'yes', 'Q3' => 'no' }
-        },
-        {
-          id: 3,
-          name: '次郎',
-          pets: %w[tiger elephant doragon],
-          answers: { 'Q1' => 'no', 'Q2' => 'yes', 'Q999' => 'yes' }
-        }
-      ]
-    end
+    let(:array_items) { users }
 
     let(:lambda_items) do
       ->(y) { array_items.each { |item| y << item } }
     end
 
     let(:enumerator_items) do
-      Enumerator.new { |y| array_items.each { |item| y << item } }
+      ::Enumerator.new { |y| array_items.each { |item| y << item } }
     end
 
     context 'when output to CSV file' do
@@ -73,55 +23,61 @@ RSpec.describe TableStructure::Writer do
           require 'csv'
           require 'tempfile'
 
-          schema = TestTableSchema21.new(context: context)
-          writer = TableStructure::Writer.new(schema)
+          schema = ::Mono::TestTableSchema.new(context: context) do
+            column_converter :to_s, ->(val, *) { val.to_s }
+          end
+          writer = described_class.new(schema)
 
-          tf = Tempfile.open do |fp|
-            writer.write(items, to: CSV.new(fp), &converter)
+          tf = ::Tempfile.open do |fp|
+            writer.write(items, to: ::CSV.new(fp), &converter)
             fp
           end
 
-          table = CSV.read(tf.path, **csv_options)
+          table = ::CSV.read(tf.path, **csv_options)
 
-          expect(table[0].shift).to eq 'ID'
-          expect(table[0].shift).to eq 'Name'
-          expect(table[0].shift).to eq 'Pet 1'
-          expect(table[0].shift).to eq 'Pet 2'
-          expect(table[0].shift).to eq 'Pet 3'
-          expect(table[0].shift).to eq 'Q1'
-          expect(table[0].shift).to eq 'Q2'
-          expect(table[0].shift).to eq 'Q3'
-          expect(table[0].shift).to be_nil
+          expect(table[0]).to eq [
+            'ID',
+            'Name',
+            'Pet 1',
+            'Pet 2',
+            'Pet 3',
+            'Q1',
+            'Q2',
+            'Q3'
+          ]
 
-          expect(table[1].shift).to eq '1'
-          expect(table[1].shift).to eq '太郎'
-          expect(table[1].shift).to eq 'cat'
-          expect(table[1].shift).to eq 'dog'
-          expect(table[1].shift).to eq ''
-          expect(table[1].shift).to eq 'yes'
-          expect(table[1].shift).to eq 'no'
-          expect(table[1].shift).to eq 'yes'
-          expect(table[1].shift).to be_nil
+          expect(table[1]).to eq [
+            '1',
+            '太郎',
+            'cat',
+            'dog',
+            '',
+            'yes',
+            'no',
+            'yes'
+          ]
 
-          expect(table[2].shift).to eq '2'
-          expect(table[2].shift).to eq '花子'
-          expect(table[2].shift).to eq 'rabbit'
-          expect(table[2].shift).to eq 'turtle'
-          expect(table[2].shift).to eq 'squirrel'
-          expect(table[2].shift).to eq 'yes'
-          expect(table[2].shift).to eq 'yes'
-          expect(table[2].shift).to eq 'no'
-          expect(table[2].shift).to be_nil
+          expect(table[2]).to eq %w[
+            2
+            花子
+            rabbit
+            turtle
+            squirrel
+            yes
+            yes
+            no
+          ]
 
-          expect(table[3].shift).to eq '3'
-          expect(table[3].shift).to eq '次郎'
-          expect(table[3].shift).to eq 'tiger'
-          expect(table[3].shift).to eq 'elephant'
-          expect(table[3].shift).to eq 'doragon'
-          expect(table[3].shift).to eq 'no'
-          expect(table[3].shift).to eq 'yes'
-          expect(table[3].shift).to eq ''
-          expect(table[3].shift).to be_nil
+          expect(table[3]).to eq [
+            '3',
+            '次郎',
+            'tiger',
+            'elephant',
+            'doragon',
+            'no',
+            'yes',
+            ''
+          ]
         end
       end
 
@@ -149,7 +105,7 @@ RSpec.describe TableStructure::Writer do
         let(:csv_options) { { encoding: 'Shift_JIS:UTF-8' } }
         let(:converter) do
           lambda do |values|
-            values.map { |val| val&.to_s&.encode('Shift_JIS', invalid: :replace, undef: :replace) }
+            values.map { |val| val.encode('Shift_JIS', invalid: :replace, undef: :replace) }
           end
         end
 
@@ -173,53 +129,63 @@ RSpec.describe TableStructure::Writer do
     context 'when output to yielder' do
       shared_examples 'to convert and write data' do
         it 'succeeds' do
-          schema = TestTableSchema21.new(context: context)
-          writer = TableStructure::Writer.new(schema)
-          enum = Enumerator.new { |y| writer.write(items, to: y) }
+          schema = ::Mono::TestTableSchema.new(context: context)
+          writer = described_class.new(schema)
+          times = 0
+          enum = ::Enumerator.new do |y|
+            writer.write(items, to: y) do |values|
+              times += 1
+              values
+            end
+          end
 
-          row = enum.next
-          expect(row.shift).to eq 'ID'
-          expect(row.shift).to eq 'Name'
-          expect(row.shift).to eq 'Pet 1'
-          expect(row.shift).to eq 'Pet 2'
-          expect(row.shift).to eq 'Pet 3'
-          expect(row.shift).to eq 'Q1'
-          expect(row.shift).to eq 'Q2'
-          expect(row.shift).to eq 'Q3'
-          expect(row.shift).to be_nil
+          expect(enum.next).to eq [
+            'ID',
+            'Name',
+            'Pet 1',
+            'Pet 2',
+            'Pet 3',
+            'Q1',
+            'Q2',
+            'Q3'
+          ]
+          expect(times).to eq 1
 
-          row = enum.next
-          expect(row.shift).to eq '1'
-          expect(row.shift).to eq '太郎'
-          expect(row.shift).to eq 'cat'
-          expect(row.shift).to eq 'dog'
-          expect(row.shift).to eq ''
-          expect(row.shift).to eq 'yes'
-          expect(row.shift).to eq 'no'
-          expect(row.shift).to eq 'yes'
-          expect(row.shift).to be_nil
+          expect(enum.next).to eq [
+            1,
+            '太郎',
+            'cat',
+            'dog',
+            nil,
+            'yes',
+            'no',
+            'yes'
+          ]
+          expect(times).to eq 2
 
-          row = enum.next
-          expect(row.shift).to eq '2'
-          expect(row.shift).to eq '花子'
-          expect(row.shift).to eq 'rabbit'
-          expect(row.shift).to eq 'turtle'
-          expect(row.shift).to eq 'squirrel'
-          expect(row.shift).to eq 'yes'
-          expect(row.shift).to eq 'yes'
-          expect(row.shift).to eq 'no'
-          expect(row.shift).to be_nil
+          expect(enum.next).to eq [
+            2,
+            '花子',
+            'rabbit',
+            'turtle',
+            'squirrel',
+            'yes',
+            'yes',
+            'no'
+          ]
+          expect(times).to eq 3
 
-          row = enum.next
-          expect(row.shift).to eq '3'
-          expect(row.shift).to eq '次郎'
-          expect(row.shift).to eq 'tiger'
-          expect(row.shift).to eq 'elephant'
-          expect(row.shift).to eq 'doragon'
-          expect(row.shift).to eq 'no'
-          expect(row.shift).to eq 'yes'
-          expect(row.shift).to eq ''
-          expect(row.shift).to be_nil
+          expect(enum.next).to eq [
+            3,
+            '次郎',
+            'tiger',
+            'elephant',
+            'doragon',
+            'no',
+            'yes',
+            nil
+          ]
+          expect(times).to eq 4
         end
       end
 
@@ -241,66 +207,67 @@ RSpec.describe TableStructure::Writer do
 
     context 'when output to array' do
       context 'with result_type: :array' do
-        let(:options) { { result_type: :array } }
+        let(:options) do
+          [
+            { result_type: :array }, # deprecated
+            { row_type: :array }
+          ].sample
+        end
 
         shared_examples 'to convert and write data' do
           it 'succeeds' do
             table = []
             writer.write(items, to: table)
 
-            expect(table[0]).to be_a Array
+            expect(table[0]).to eq [
+              'ID',
+              'Name',
+              'Pet 1',
+              'Pet 2',
+              'Pet 3',
+              'Q1',
+              'Q2',
+              'Q3'
+            ]
 
-            expect(table[0].shift).to eq 'ID'
-            expect(table[0].shift).to eq 'Name'
-            expect(table[0].shift).to eq 'Pet 1'
-            expect(table[0].shift).to eq 'Pet 2'
-            expect(table[0].shift).to eq 'Pet 3'
-            expect(table[0].shift).to eq 'Q1'
-            expect(table[0].shift).to eq 'Q2'
-            expect(table[0].shift).to eq 'Q3'
-            expect(table[0].shift).to be_nil
+            expect(table[1]).to eq [
+              1,
+              '太郎',
+              'cat',
+              'dog',
+              nil,
+              'yes',
+              'no',
+              'yes'
+            ]
 
-            expect(table[1]).to be_a Array
+            expect(table[2]).to eq [
+              2,
+              '花子',
+              'rabbit',
+              'turtle',
+              'squirrel',
+              'yes',
+              'yes',
+              'no'
+            ]
 
-            expect(table[1].shift).to eq '1'
-            expect(table[1].shift).to eq '太郎'
-            expect(table[1].shift).to eq 'cat'
-            expect(table[1].shift).to eq 'dog'
-            expect(table[1].shift).to eq ''
-            expect(table[1].shift).to eq 'yes'
-            expect(table[1].shift).to eq 'no'
-            expect(table[1].shift).to eq 'yes'
-            expect(table[1].shift).to be_nil
-
-            expect(table[2]).to be_a Array
-
-            expect(table[2].shift).to eq '2'
-            expect(table[2].shift).to eq '花子'
-            expect(table[2].shift).to eq 'rabbit'
-            expect(table[2].shift).to eq 'turtle'
-            expect(table[2].shift).to eq 'squirrel'
-            expect(table[2].shift).to eq 'yes'
-            expect(table[2].shift).to eq 'yes'
-            expect(table[2].shift).to eq 'no'
-            expect(table[2].shift).to be_nil
-
-            expect(table[3]).to be_a Array
-
-            expect(table[3].shift).to eq '3'
-            expect(table[3].shift).to eq '次郎'
-            expect(table[3].shift).to eq 'tiger'
-            expect(table[3].shift).to eq 'elephant'
-            expect(table[3].shift).to eq 'doragon'
-            expect(table[3].shift).to eq 'no'
-            expect(table[3].shift).to eq 'yes'
-            expect(table[3].shift).to eq ''
-            expect(table[3].shift).to be_nil
+            expect(table[3]).to eq [
+              3,
+              '次郎',
+              'tiger',
+              'elephant',
+              'doragon',
+              'no',
+              'yes',
+              nil
+            ]
           end
         end
 
         context 'deprecated' do
-          let(:schema) { TestTableSchema21.new(context: context, **options) }
-          let(:writer) { TableStructure::Writer.new(schema) }
+          let(:schema) { ::Mono::TestTableSchema.new(context: context, **options) }
+          let(:writer) { described_class.new(schema) }
 
           context 'when passed array_items' do
             let(:items) { array_items }
@@ -319,8 +286,8 @@ RSpec.describe TableStructure::Writer do
         end
 
         context 'recommend' do
-          let(:schema) { TestTableSchema21.new(context: context) }
-          let(:writer) { TableStructure::Writer.new(schema, **options) }
+          let(:schema) { ::Mono::TestTableSchema.new(context: context) }
+          let(:writer) { described_class.new(schema, **options) }
 
           context 'when passed array_items' do
             let(:items) { array_items }
@@ -339,63 +306,68 @@ RSpec.describe TableStructure::Writer do
         end
       end
 
-      context 'with result_type: :hash' do
-        let(:options) { { result_type: :hash } }
+      context 'with row_type: :hash' do
+        let(:options) do
+          [
+            { result_type: :hash }, # deprecated
+            { row_type: :hash }
+          ].sample
+        end
 
         shared_examples 'to convert and write data' do
           it 'succeeds' do
             table = []
             writer.write(items, to: table)
 
-            expect(table[0]).to be_a Hash
+            expect(table[0]).to eq(
+              0 => 'ID',
+              1 => 'Name',
+              2 => 'Pet 1',
+              3 => 'Pet 2',
+              4 => 'Pet 3',
+              5 => 'Q1',
+              6 => 'Q2',
+              7 => 'Q3'
+            )
 
-            expect(table[0].fetch(0)).to eq 'ID'
-            expect(table[0].fetch(1)).to eq 'Name'
-            expect(table[0].fetch(2)).to eq 'Pet 1'
-            expect(table[0].fetch(3)).to eq 'Pet 2'
-            expect(table[0].fetch(4)).to eq 'Pet 3'
-            expect(table[0].fetch(5)).to eq 'Q1'
-            expect(table[0].fetch(6)).to eq 'Q2'
-            expect(table[0].fetch(7)).to eq 'Q3'
+            expect(table[1]).to eq(
+              0 => 1,
+              1 => '太郎',
+              2 => 'cat',
+              3 => 'dog',
+              4 => nil,
+              5 => 'yes',
+              6 => 'no',
+              7 => 'yes'
+            )
 
-            expect(table[1]).to be_a Hash
+            expect(table[2]).to eq(
+              0 => 2,
+              1 => '花子',
+              2 => 'rabbit',
+              3 => 'turtle',
+              4 => 'squirrel',
+              5 => 'yes',
+              6 => 'yes',
+              7 => 'no'
+            )
 
-            expect(table[1].fetch(0)).to eq '1'
-            expect(table[1].fetch(1)).to eq '太郎'
-            expect(table[1].fetch(2)).to eq 'cat'
-            expect(table[1].fetch(3)).to eq 'dog'
-            expect(table[1].fetch(4)).to eq ''
-            expect(table[1].fetch(5)).to eq 'yes'
-            expect(table[1].fetch(6)).to eq 'no'
-            expect(table[1].fetch(7)).to eq 'yes'
-
-            expect(table[2]).to be_a Hash
-
-            expect(table[2].fetch(0)).to eq '2'
-            expect(table[2].fetch(1)).to eq '花子'
-            expect(table[2].fetch(2)).to eq 'rabbit'
-            expect(table[2].fetch(3)).to eq 'turtle'
-            expect(table[2].fetch(4)).to eq 'squirrel'
-            expect(table[2].fetch(5)).to eq 'yes'
-            expect(table[2].fetch(6)).to eq 'yes'
-            expect(table[2].fetch(7)).to eq 'no'
-
-            expect(table[3]).to be_a Hash
-
-            expect(table[3].fetch(0)).to eq '3'
-            expect(table[3].fetch(1)).to eq '次郎'
-            expect(table[3].fetch(2)).to eq 'tiger'
-            expect(table[3].fetch(3)).to eq 'elephant'
-            expect(table[3].fetch(4)).to eq 'doragon'
-            expect(table[3].fetch(5)).to eq 'no'
-            expect(table[3].fetch(6)).to eq 'yes'
-            expect(table[3].fetch(7)).to eq ''
+            expect(table[3]).to eq(
+              0 => 3,
+              1 => '次郎',
+              2 => 'tiger',
+              3 => 'elephant',
+              4 => 'doragon',
+              5 => 'no',
+              6 => 'yes',
+              7 => nil
+            )
           end
         end
 
         context 'deprecated' do
-          let(:schema) { TestTableSchema21.new(context: context, **options) }
-          let(:writer) { TableStructure::Writer.new(schema) }
+          let(:schema) { ::Mono::TestTableSchema.new(context: context, **options) }
+          let(:writer) { described_class.new(schema) }
 
           context 'when passed array_items' do
             let(:items) { array_items }
@@ -414,8 +386,8 @@ RSpec.describe TableStructure::Writer do
         end
 
         context 'recommend' do
-          let(:schema) { TestTableSchema21.new(context: context) }
-          let(:writer) { TableStructure::Writer.new(schema, **options) }
+          let(:schema) { ::Mono::TestTableSchema.new(context: context) }
+          let(:writer) { described_class.new(schema, **options) }
 
           context 'when passed array_items' do
             let(:items) { array_items }
@@ -436,37 +408,68 @@ RSpec.describe TableStructure::Writer do
     end
 
     context 'when output to string' do
-      shared_examples 'to convert and write data' do
+      shared_examples 'to convert and write data with header' do
         it 'succeeds' do
-          require 'csv'
-
-          schema = TestTableSchema21.new(context: context)
-          writer = TableStructure::Writer.new(schema)
-          s = String.new
-          writer.write(items, to: s) do |row_values|
-            row_values.join(',') + "\n"
-          end
-
-          expect(s).to eq "ID,Name,Pet 1,Pet 2,Pet 3,Q1,Q2,Q3\n" \
+          expect(@s).to eq "ID,Name,Pet 1,Pet 2,Pet 3,Q1,Q2,Q3\n" \
                           "1,太郎,cat,dog,,yes,no,yes\n" \
                           "2,花子,rabbit,turtle,squirrel,yes,yes,no\n" \
                           "3,次郎,tiger,elephant,doragon,no,yes,\n"
         end
       end
 
-      context 'when passed array_items' do
-        let(:items) { array_items }
-        it_behaves_like 'to convert and write data'
+      shared_examples 'to convert and write data without header' do
+        it 'succeeds' do
+          expect(@s).to eq "1,太郎,cat,dog,,yes,no,yes\n" \
+                          "2,花子,rabbit,turtle,squirrel,yes,yes,no\n" \
+                          "3,次郎,tiger,elephant,doragon,no,yes,\n"
+        end
       end
 
-      context 'when passed lambda_items' do
-        let(:items) { lambda_items }
-        it_behaves_like 'to convert and write data'
+      before do
+        schema = ::Mono::TestTableSchema.new(context: context)
+        writer = described_class.new(schema, header_omitted: header_omitted)
+        @s = ::String.new
+        writer.write(items, to: @s) do |row_values|
+          row_values.join(',') + "\n"
+        end
       end
 
-      context 'when passed enumerator_items' do
-        let(:items) { enumerator_items }
-        it_behaves_like 'to convert and write data'
+      context 'when header is omitted' do
+        let(:header_omitted) { true }
+
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data without header'
+        end
+
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data without header'
+        end
+
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data without header'
+        end
+      end
+
+      context 'when header is not omitted' do
+        let(:header_omitted) { false }
+
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data with header'
+        end
+
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data with header'
+        end
+
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data with header'
+        end
       end
     end
   end
