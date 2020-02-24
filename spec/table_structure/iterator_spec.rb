@@ -13,7 +13,15 @@ RSpec.describe TableStructure::Iterator do
 
       shared_examples 'to iterate converted data' do
         context 'when :header_omitted is false' do
-          let(:header_option) { { header_omitted: false } }
+          let(:header_option) do
+            [
+              { header_omitted: false, header_context: {} },
+              { header_context: {} },
+              { header: true },
+              { header: { context: {} } },
+              {}
+            ].sample
+          end
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -86,7 +94,12 @@ RSpec.describe TableStructure::Iterator do
         end
 
         context 'when :header_omitted is true' do
-          let(:header_option) { { header_omitted: true } }
+          let(:header_option) do
+            [
+              { header_omitted: true },
+              { header: false }
+            ].sample
+          end
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -193,7 +206,15 @@ RSpec.describe TableStructure::Iterator do
 
       shared_examples 'to iterate converted data' do
         context 'when :header_omitted is false' do
-          let(:header_option) { { header_omitted: false } }
+          let(:header_option) do
+            [
+              { header_omitted: false, header_context: {} },
+              { header_context: {} },
+              { header: true },
+              { header: { context: {} } },
+              {}
+            ].sample
+          end
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
@@ -266,7 +287,12 @@ RSpec.describe TableStructure::Iterator do
         end
 
         context 'when :header_omitted is true' do
-          let(:header_option) { { header_omitted: true } }
+          let(:header_option) do
+            [
+              { header_omitted: true },
+              { header: false }
+            ].sample
+          end
 
           describe '#map' do
             subject { iterator.iterate(items).map(&:itself) }
