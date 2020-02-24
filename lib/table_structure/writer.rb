@@ -38,11 +38,11 @@ module TableStructure
       items,
       to:,
       method: @options[:method],
-      row_type: @options[:row_type],
       **deprecated_options,
       &block
     )
       header = @options[:header]
+      row_type = @options[:row_type]
 
       if deprecated_options.key?(:header)
         header = deprecated_options[:header]
@@ -59,6 +59,11 @@ module TableStructure
         header_context = deprecated_options[:header_context]
         warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
         header = { context: header_context }
+      end
+
+      if deprecated_options.key?(:row_type)
+        row_type = deprecated_options[:row_type]
+        warn '[TableStructure] Specify :row_type option as an argument for initialize method.'
       end
 
       if deprecated_options.key?(:result_type)
