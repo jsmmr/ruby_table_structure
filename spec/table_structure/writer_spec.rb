@@ -427,7 +427,7 @@ RSpec.describe TableStructure::Writer do
 
       before do
         schema = ::Mono::TestTableSchema.new(context: context)
-        writer = described_class.new(schema, header_omitted: header_omitted)
+        writer = described_class.new(schema, **options)
         @s = ::String.new
         writer.write(items, to: @s) do |row_values|
           row_values.join(',') + "\n"
@@ -435,7 +435,12 @@ RSpec.describe TableStructure::Writer do
       end
 
       context 'when header is omitted' do
-        let(:header_omitted) { true }
+        let(:options) do
+          [
+            { header_omitted: true },
+            { header: false }
+          ].sample
+        end
 
         context 'when passed array_items' do
           let(:items) { array_items }
@@ -454,7 +459,13 @@ RSpec.describe TableStructure::Writer do
       end
 
       context 'when header is not omitted' do
-        let(:header_omitted) { false }
+        let(:options) do
+          [
+            { header_omitted: false },
+            { header: true },
+            {}
+          ].sample
+        end
 
         context 'when passed array_items' do
           let(:items) { array_items }
