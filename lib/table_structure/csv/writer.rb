@@ -9,9 +9,21 @@ module TableStructure
         schema,
         bom: false,
         csv_options: {},
-        header_omitted: false,
-        header_context: nil
+        header: { context: nil },
+        **deprecated_options
       )
+        if deprecated_options.key?(:header_omitted)
+          header_omitted = deprecated_options[:header_omitted]
+          warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
+          header = !header_omitted
+        end
+
+        if deprecated_options.key?(:header_context)
+          header_context = deprecated_options[:header_context]
+          warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
+          header = { context: header_context }
+        end
+
         require 'csv'
 
         @options = {
@@ -19,8 +31,7 @@ module TableStructure
           csv_options: csv_options
         }
         @inner_options = {
-          header_omitted: header_omitted,
-          header_context: header_context
+          header: header
         }
 
         @writer = ::TableStructure::Writer.new(schema, **@inner_options)
@@ -31,13 +42,30 @@ module TableStructure
         to:,
         bom: @options[:bom],
         csv_options: @options[:csv_options],
-        header_omitted: @inner_options[:header_omitted],
-        header_context: @inner_options[:header_context],
+        **deprecated_options,
         &block
       )
+        header = @inner_options[:header]
+
+        if deprecated_options.key?(:header)
+          header = deprecated_options[:header]
+          warn '[TableStructure] Specify :header option as an argument for initialize method.'
+        end
+
+        if deprecated_options.key?(:header_omitted)
+          header_omitted = deprecated_options[:header_omitted]
+          warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
+          header = !header_omitted
+        end
+
+        if deprecated_options.key?(:header_context)
+          header_context = deprecated_options[:header_context]
+          warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
+          header = { context: header_context }
+        end
+
         inner_options = {
-          header_omitted: header_omitted,
-          header_context: header_context
+          header: header
         }
 
         to << BOM if bom
