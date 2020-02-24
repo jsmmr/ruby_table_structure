@@ -42,10 +42,16 @@ module TableStructure
         to:,
         bom: @options[:bom],
         csv_options: @options[:csv_options],
-        header: @inner_options[:header],
         **deprecated_options,
         &block
       )
+        header = @inner_options[:header]
+
+        if deprecated_options.key?(:header)
+          header = deprecated_options[:header]
+          warn '[TableStructure] Specify :header option as an argument for initialize method.'
+        end
+
         if deprecated_options.key?(:header_omitted)
           header_omitted = deprecated_options[:header_omitted]
           warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
