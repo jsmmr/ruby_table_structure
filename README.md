@@ -77,10 +77,10 @@ Initialize a writer with the schema:
 ```ruby
 writer = TableStructure::Writer.new(schema)
 ## To omit header, write:
-# writer = TableStructure::Writer.new(schema, header_omitted: true)
+# writer = TableStructure::Writer.new(schema, header: false)
 ```
 
-Writes the items converted by the schema to array:
+Write the items converted by the schema to array:
 ```ruby
 items = [
   {
@@ -109,14 +109,14 @@ writer.write(items, to: table)
 # => [["ID", "Name", "Pet 1", "Pet 2", "Pet 3", "Q1", "Q2", "Q3"], ["1", "Taro", "🐱", "🐶", "", "⭕️", "❌", "⭕️"], ["2", "Hanako", "🐇", "🐢", "🐿", "⭕️", "⭕️", "❌"]]
 ```
 
-Writes the items converted by the schema to file as CSV:
+Write the items converted by the schema to file as CSV:
 ```ruby
 File.open('sample.csv', 'w') do |f|
   writer.write(items, to: CSV.new(f))
 end
 ```
 
-Writes the items converted by the schema to stream as CSV with Rails:
+Write the items converted by the schema to stream as CSV with Rails:
 ```ruby
 # response.headers['X-Accel-Buffering'] = 'no' # Required if Nginx is used for reverse proxy
 response.headers['Cache-Control'] = 'no-cache'
@@ -191,7 +191,7 @@ context = {
 }
 
 schema = SampleTableSchema.new(context: context)
-iterator = TableStructure::Iterator.new(schema, row_type: :hash, header_omitted: true)
+iterator = TableStructure::Iterator.new(schema, row_type: :hash, header: false)
 ```
 
 Enumerate the items converted by the schema:
@@ -446,12 +446,12 @@ end
 
 You can also use only `TableStructure::Schema` instance.
 ```erb
-<% @schema.create_table(row_type: :array) do |table| %>
+<% @schema.create_table(row_type: :hash) do |table| %>
   <table>
     <thead>
       <tr>
-        <% table.header.each do |val| %>
-          <th><%= val %></th>
+        <% table.header.each do |key, value| %>
+          <th class="<%= key %>"><%= value %></th>
         <% end %>
       </tr>
     </thead>
@@ -459,8 +459,8 @@ You can also use only `TableStructure::Schema` instance.
     <tbody>
       <% table.body(@items).each do |row| %>
         <tr>
-          <% row.each do |val| %>
-            <td><%= val %></td>
+          <% row.each do |key, value| %>
+            <td class="<%= key %>"><%= value %></td>
           <% end %>
         </tr>
       <% end %>

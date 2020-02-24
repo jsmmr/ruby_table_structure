@@ -1,3 +1,12 @@
+# 0.3.19
+Changes:
+- `TableStructure::Writer`
+  - `header_omitted: true` option has been deprecated. Use `header: false` option instead.
+- `TableStructure::CSV::Writer`
+  - `header_omitted: true` option has been deprecated. Use `header: false` option instead.
+- `TableStructure::Iterator`
+  - `header_omitted: true` option has been deprecated. Use `header: false` option instead.
+
 # 0.3.18
 Changes:
 - Minor improvements.
