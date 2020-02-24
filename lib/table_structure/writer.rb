@@ -4,12 +4,23 @@ module TableStructure
   class Writer
     def initialize(
       schema,
-      header_omitted: false,
-      header_context: nil,
+      header: { context: nil },
       method: :<<,
       row_type: :array,
       **deprecated_options
     )
+      if deprecated_options.key?(:header_omitted)
+        header_omitted = deprecated_options[:header_omitted]
+        warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
+        header = !header_omitted
+      end
+
+      if deprecated_options.key?(:header_context)
+        header_context = deprecated_options[:header_context]
+        warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
+        header = { context: header_context }
+      end
+
       if deprecated_options.key?(:result_type)
         warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
         row_type = deprecated_options[:result_type]
@@ -17,8 +28,7 @@ module TableStructure
 
       @schema = schema
       @options = {
-        header_omitted: header_omitted,
-        header_context: header_context,
+        header: header,
         method: method,
         row_type: row_type
       }
@@ -28,25 +38,29 @@ module TableStructure
       items,
       to:,
       method: @options[:method],
-      header_omitted: @options[:header_omitted],
-      header_context: @options[:header_context],
+      header: @options[:header],
       row_type: @options[:row_type],
       **deprecated_options,
       &block
     )
+      if deprecated_options.key?(:header_omitted)
+        header_omitted = deprecated_options[:header_omitted]
+        warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
+        header = !header_omitted
+      end
+
+      if deprecated_options.key?(:header_context)
+        header_context = deprecated_options[:header_context]
+        warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
+        header = { context: header_context }
+      end
+
       if deprecated_options.key?(:result_type)
         warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
         row_type = deprecated_options[:result_type]
       end
 
       items = enumerize(items)
-
-      header_options =
-        if header_omitted
-          false
-        else
-          { context: header_context }
-        end
 
       @schema.create_table(row_type: row_type) do |table|
         output = Output.new(to, method: method)
@@ -55,7 +69,7 @@ module TableStructure
           Table::Iterator
           .new(
             table,
-            header: header_options
+            header: header
           )
           .iterate(items)
 

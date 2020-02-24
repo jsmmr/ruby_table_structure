@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe TableStructure::CSV::Writer do
-  module described_class::Spec
-    class TestTableSchema1
-      include TableStructure::Schema
-
-      column  name: 'ID',
-              key: :id,
-              value: ->(row, _table) { row[:id] }
-
-      column  name: 'Name',
-              key: :name,
-              value: ->(row, *) { row[:name] }
-    end
-  end
-
   let(:schema) do
-    described_class::Spec::TestTableSchema1.new
+    ::Micro::UserTableSchema.new
   end
 
-  let(:inner_writer_options) { { header_omitted: [true, false].sample, header_context: nil } }
+  let(:inner_writer_options) do
+    [
+      { header_omitted: false, header_context: {} },
+      { header_context: {} },
+      { header: { context: {} } }
+    ].sample
+  end
 
   let(:csv_writer) do
     described_class.new(schema, **inner_writer_options.merge(csv_writer_options))
@@ -40,11 +32,11 @@ RSpec.describe TableStructure::CSV::Writer do
       writer = double('TableStructure::Writer')
 
       expect(TableStructure::Writer).to receive(:new)
-        .with(schema, inner_writer_options)
+        .with(schema, header: { context: {} })
         .and_return(writer)
 
       expect(writer).to receive(:write)
-        .with(items, inner_writer_options.merge(to: instance_of(::CSV))) do |&block|
+        .with(items, to: instance_of(::CSV), header: { context: {} }) do |&block|
           expect(block).to eq handler
         end
     end
