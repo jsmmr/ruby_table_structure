@@ -1,3 +1,8 @@
+# 0.3.20
+Changes:
+- `TableStructure::Schema`
+  - Fix case where `context_builder` for `:table` do not apply.
+
 # 0.3.19
 Changes:
 - `TableStructure::Writer`
