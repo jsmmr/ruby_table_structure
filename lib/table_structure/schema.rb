@@ -75,6 +75,8 @@ module TableStructure
         schema_classes.map(&:row_builders).reduce({}, &:merge!)
       )
 
+      table_context = context_builders.build_for_table(context)
+
       columns =
         Definition::Columns::Compiler
         .new(
@@ -82,7 +84,7 @@ module TableStructure
           schema_classes.map(&:column_definitions).reduce([], &:concat),
           options
         )
-        .compile(context_builders.build_for_table(context))
+        .compile(table_context)
 
       @_definition_ =
         MyDefinition.new(
@@ -91,7 +93,7 @@ module TableStructure
           context_builders,
           column_converters,
           row_builders,
-          context,
+          table_context,
           options
         )
     end

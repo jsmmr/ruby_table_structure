@@ -176,26 +176,26 @@ RSpec.describe TableStructure::Schema do
         end
 
         context_builder :table, ->(context) { TableContext.new(*context.values) }
-        context_builder :header, ->(context) { HeaderContext.new(*context.values) }
+        context_builder :header, ->(context) { HeaderContext.new(*context.values) } # TODO: will remove or rename
         context_builder :row, ->(context) { RowContext.new(*context.values) }
 
-        column  name: ->(header, *) { header.id },
-                value: ->(row, _table) { row.id },
+        column  name: ->(row, *) { row.id },
+                value: ->(row, *) { row.id },
                 size: 1
 
-        column  name: ->(header, *) { header.name },
+        column  name: ->(row, *) { row.name },
                 value: ->(row, *) { row.name },
                 size: 1
 
-        columns name: ->(header, *) { header.pets },
+        columns name: ->(row, *) { row.pets },
                 value: ->(row, *) { row.more_pets },
                 size: 3
 
         columns lambda { |table|
           table.questions.map.with_index do |question, i|
             {
-              name: ->(header, *) { header.questions[i] },
-              value: ->(row, *) { row.answers[question[:id]] },
+              name: ->(row, table) { "#{row.questions[i]}:#{table.questions[i][:text]}" },
+              value: ->(row, table) { "#{table.questions[i][:id]}:#{row.answers[question[:id]]}" },
               size: 1
             }
           end
@@ -228,9 +228,9 @@ RSpec.describe TableStructure::Schema do
           'Pet 1',
           'Pet 2',
           'Pet 3',
-          'Q1',
-          'Q2',
-          'Q3'
+          'Q1:Do you like sushi?',
+          'Q2:Do you like yakiniku?',
+          'Q3:Do you like ramen?'
         ]
       }
     end
@@ -247,9 +247,9 @@ RSpec.describe TableStructure::Schema do
           'cat',
           'dog',
           'cat',
-          'yes',
-          'no',
-          'yes'
+          'Q1:yes',
+          'Q2:no',
+          'Q3:yes'
         ]
       }
     end
