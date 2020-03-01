@@ -5,7 +5,7 @@ module TableStructure
     class ColumnConverters
       def initialize(converters)
         @header_converters = converters.select { |_k, v| v.applicable_to_header? }
-        @body_converterss = converters.select { |_k, v| v.applicable_to_body? }
+        @body_converters = converters.select { |_k, v| v.applicable_to_body? }
       end
 
       def extend_methods_for(table, name_prefix:, name_suffix:)
@@ -19,12 +19,12 @@ module TableStructure
           )
           .reject { |_k, v| v.nil? }
 
-        body_converterss = @body_converterss
+        body_converters = @body_converters
 
         methods =
           {
             header: create_method(header_converters, table_context),
-            data: create_method(body_converterss, table_context)
+            data: create_method(body_converters, table_context)
           }
           .reject { |_k, v| v.nil? }
 
