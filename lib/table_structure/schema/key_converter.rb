@@ -2,13 +2,13 @@
 
 module TableStructure
   module Schema
-    class KeysGenerator
+    class KeyConverter
       def initialize(prefix: nil, suffix: nil)
         @prefix = prefix
         @suffix = suffix
       end
 
-      def generate(keys)
+      def convert(keys)
         return keys unless has_any_options?
 
         keys.map do |key|

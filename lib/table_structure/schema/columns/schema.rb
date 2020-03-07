@@ -5,7 +5,8 @@ module TableStructure
     module Columns
       class Schema
         def initialize(schema)
-          @table = schema.create_table
+          @schema = schema
+          @table = ::TableStructure::Table.new(schema)
         end
 
         def names(header_context, _table_context)
@@ -25,7 +26,7 @@ module TableStructure
         end
 
         def contain_callable?(attribute)
-          @table.send(:contain_callable?, attribute)
+          @schema.contain_callable?(attribute)
         end
       end
     end
