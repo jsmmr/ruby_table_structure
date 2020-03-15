@@ -40,11 +40,11 @@ module TableStructure
       &block
     )
       if deprecated_options.key?(:row_type)
-        warn '[TableStructure] Specify :row_type option on Writer or Iterator.'
+        raise ::TableStructure::Error, 'Use :row_type option with Table, Writer or Iterator.'
       end
 
       if deprecated_options.key?(:result_type)
-        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
+        raise ::TableStructure::Error, ':result_type option has been deprecated. Use :row_type option instead.'
       end
 
       options =
