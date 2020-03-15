@@ -69,8 +69,8 @@ module TableStructure
 
       @context_builders =
         schema_classes
-          .map(&:context_builders)
-          .reduce({}, &:merge!)
+        .map(&:context_builders)
+        .reduce({}, &:merge!)
 
       table_context_builder = @context_builders.delete(:table)
 
@@ -78,14 +78,14 @@ module TableStructure
 
       @column_converters =
         schema_classes
-          .map(&:column_converters)
-          .reduce({}, &:merge!)
-          .merge(
-            ColumnConverter.create_optional_converters(
-              name_prefix: options.delete(:name_prefix),
-              name_suffix: options.delete(:name_suffix)
-            )
+        .map(&:column_converters)
+        .reduce({}, &:merge!)
+        .merge(
+          ColumnConverter.create_optional_converters(
+            name_prefix: options.delete(:name_prefix),
+            name_suffix: options.delete(:name_suffix)
           )
+        )
 
       @key_converter = KeyConverter.new(
         prefix: options.delete(:key_prefix),

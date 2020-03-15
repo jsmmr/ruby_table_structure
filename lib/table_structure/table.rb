@@ -12,19 +12,19 @@ module TableStructure
         apply_to_name: schema.contain_callable?(:name),
         apply_to_value: schema.contain_callable?(:value),
         context: schema.context
-      ) { |mod| self.extend mod }
+      ) { |mod| extend mod }
 
       ColumnConverter.create_module(
         schema.column_converters,
         context: schema.context
-      ) { |mod| self.extend mod }
+      ) { |mod| extend mod }
 
       RowBuilder.create_module(
         schema.row_builders,
         row_type: row_type,
         keys: keys,
         context: schema.context
-      ) { |mod| self.extend mod }
+      ) { |mod| extend mod }
 
       yield self if block_given?
     end
