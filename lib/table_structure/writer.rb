@@ -46,7 +46,7 @@ module TableStructure
 
       if deprecated_options.key?(:header)
         header = deprecated_options[:header]
-        warn '[TableStructure] Specify :header option as an argument for initialize method.'
+        warn '[TableStructure] Use :header option on initialize method.'
       end
 
       if deprecated_options.key?(:header_omitted)
@@ -63,7 +63,7 @@ module TableStructure
 
       if deprecated_options.key?(:row_type)
         row_type = deprecated_options[:row_type]
-        warn '[TableStructure] Specify :row_type option as an argument for initialize method.'
+        warn '[TableStructure] Use :row_type option on initialize method.'
       end
 
       if deprecated_options.key?(:result_type)
@@ -71,28 +71,13 @@ module TableStructure
         row_type = deprecated_options[:result_type]
       end
 
-      items = enumerize(items)
+      output = Output.new(to, method: method)
 
-      @schema.create_table(row_type: row_type) do |table|
-        output = Output.new(to, method: method)
+      Iterator
+        .new(@schema, header: header, row_type: row_type)
+        .iterate(items, &block)
+        .each { |row| output.write(row) }
 
-        enum =
-          Table::Iterator
-          .new(
-            table,
-            header: header
-          )
-          .iterate(items)
-
-        if block_given?
-          enum =
-            enum
-            .lazy
-            .map { |row| block.call(row) }
-        end
-
-        enum.each { |row| output.write(row) }
-      end
       nil
     end
 
@@ -106,17 +91,6 @@ module TableStructure
 
       def write(values)
         @output.send(@method, values)
-      end
-    end
-
-    def enumerize(items)
-      if items.respond_to?(:each)
-        items
-      elsif items.respond_to?(:call)
-        warn "[TableStructure] Use `Enumerator` to wrap items instead of `lambda`. The use of `lambda` has been deprecated. #{items}"
-        Enumerator.new { |y| items.call(y) }
-      else
-        raise ::TableStructure::Error, "Must be enumerable. #{items}"
       end
     end
   end
