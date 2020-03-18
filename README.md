@@ -8,6 +8,8 @@
   - Converts data with the schema, and outputs table structured data.
 - `TableStructure::Iterator`
   - Converts data with the schema, and enumerates table structured data.
+- `TableStructure::Table`
+  - Provides methods for converting data with the schema.
 
 ## Installation
 
@@ -127,7 +129,6 @@ response_body = Enumerator.new do |y|
   writer.write(items, to: CSV.new(y))
 end
 ```
-[Sample with docker](https://github.com/jsmmr/ruby_table_structure_sample)
 
 You can also convert CSV character code:
 ```ruby
@@ -147,27 +148,31 @@ end
 ```
 
 #### TableStructure::Iterator
-Specifying `row_type: :hash` option works well.
-To use this option, define `column(s)` with `:key`.
+If you want to convert the item to row as Hash instead of Array, specify `row_type: :hash`.
+To use this option, define `:key` on `column(s)`.
 
 Define a schema:
 ```ruby
 class SampleTableSchema
   include TableStructure::Schema
 
-  # If header is required, :name must also be defined.
-  column  key: :id,
+  # If `:header` is set to `false`, `:name` is optional.
+  column  name: 'ID',
+          key: :id,
           value: ->(row, *) { row[:id] }
 
-  column  key: :name,
+  column  name: 'Name',
+          key: :name,
           value: ->(row, *) { row[:name] }
 
-  columns key: %i[pet1 pet2 pet3],
+  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          key: %i[pet1 pet2 pet3],
           value: ->(row, *) { row[:pets] }
 
   columns ->(table) {
     table[:questions].map do |question|
       {
+        name: question[:id],
         key: question[:id].downcase.to_sym,
         value: ->(row, *) { row[:answers][question[:id]] }
       }
@@ -175,7 +180,7 @@ class SampleTableSchema
   }
 
   ## If the schemas are nested, :key must be unique in parent and child schemas.
-  ## This can also be avoided by specifying :key_prefix or :key_suffix option.
+  ## This can also be avoided by using :key_prefix or :key_suffix option.
   # columns ->(table) { NestedTableSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
 end
 ```
@@ -191,7 +196,7 @@ context = {
 }
 
 schema = SampleTableSchema.new(context: context)
-iterator = TableStructure::Iterator.new(schema, row_type: :hash, header: false)
+iterator = TableStructure::Iterator.new(schema, header: false, row_type: :hash)
 ```
 
 Enumerate the items converted by the schema:
@@ -225,6 +230,33 @@ enum.lazy.select { |item| item[:q1] == '⭕️' }.take(1).force
 # => [{:id=>1, :name=>"Taro", :pet1=>"🐱", :pet2=>"🐶", :pet3=>nil, :q1=>"⭕️", :q2=>"❌", :q3=>"⭕️"}]
 ```
 
+#### TableStructure::Table
+
+Initialize a table with the schema and render the table:
+```erb
+<% TableStructure::Table.new(schema, row_type: :hash) do |table| %>
+  <table>
+    <thead>
+      <tr>
+        <% table.header.each do |key, value| %>
+          <th class="<%= key %>"><%= value %></th>
+        <% end %>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% table.body(@items).each do |row| %>
+        <tr>
+          <% row.each do |key, value| %>
+            <td class="<%= key %>"><%= value %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+```
+
 ### Advanced
 
 You can add definitions when initializing the schema.
@@ -244,7 +276,7 @@ schema = UserTableSchema.new do
 end
 ```
 
-You can also omit columns by defining `:omitted`.
+You can also omit columns by using `:omitted`.
 ```ruby
 class UserTableSchema
   include TableStructure::Schema
@@ -265,7 +297,7 @@ context = { admin: true }
 schema = UserTableSchema.new(context: context)
 ```
 
-You can also omit columns by specifying `nil_definitions_ignored: true`.
+You can also omit columns by using `:nil_definitions_ignored` option.
 If this option is set to `true` and `column(s)` difinition returns `nil`, the difinition is ignored.
 ```ruby
 class SampleTableSchema
@@ -327,37 +359,27 @@ end
 class SampleTableSchema
   include TableStructure::Schema
 
-  columns ->(table) { UserTableSchema.new(context: table) }
+  columns UserTableSchema
   ## or
-  # columns UserTableSchema
+  # columns ->(table) { UserTableSchema.new(context: table) }
 
-  columns ->(table) { PetTableSchema.new(context: table) }
+  columns PetTableSchema
   ## or
-  # columns PetTableSchema
+  # columns ->(table) { PetTableSchema.new(context: table) }
 
-  columns ->(table) { QuestionTableSchema.new(context: table) }
+  columns QuestionTableSchema
   ## or
-  # columns QuestionTableSchema
+  # columns ->(table) { QuestionTableSchema.new(context: table) }
 end
-
-context = {
-  questions: [
-    { id: 'Q1', text: 'Do you like sushi?' },
-    { id: 'Q2', text: 'Do you like yakiniku?' },
-    { id: 'Q3', text: 'Do you like ramen?' }
-  ]
-}
-
-schema = SampleTableSchema.new(context: context)
 ```
 
 You can also concatenate or merge the schema classes.
 Both create a schema class, with a few differences.
 - `+`
   - Similar to nesting the schemas.
-    `column_converter` or `context_builder` works only to columns in the schema that they was defined.
+    `column_converter` works only to columns in the schema that they was defined.
 - `merge`
-  - If there are some definitions of `column_converter` or `context_builder` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
+  - If there are some definitions of `column_converter` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
 
 ```ruby
 class UserTableSchema
@@ -444,30 +466,9 @@ class SampleTableSchema
 end
 ```
 
-You can also use only `TableStructure::Schema` instance.
-```erb
-<% @schema.create_table(row_type: :hash) do |table| %>
-  <table>
-    <thead>
-      <tr>
-        <% table.header.each do |key, value| %>
-          <th class="<%= key %>"><%= value %></th>
-        <% end %>
-      </tr>
-    </thead>
+## Sample with docker
 
-    <tbody>
-      <% table.body(@items).each do |row| %>
-        <tr>
-          <% row.each do |key, value| %>
-            <td class="<%= key %>"><%= value %></td>
-          <% end %>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% end %>
-```
+https://github.com/jsmmr/ruby_table_structure_sample
 
 ## Contributing
 

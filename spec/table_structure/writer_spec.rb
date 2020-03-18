@@ -265,44 +265,22 @@ RSpec.describe TableStructure::Writer do
           end
         end
 
-        context 'deprecated' do
-          let(:schema) { ::Mono::TestTableSchema.new(context: context, **options) }
-          let(:writer) { described_class.new(schema) }
+        let(:schema) { ::Mono::TestTableSchema.new(context: context) }
+        let(:writer) { described_class.new(schema, **options) }
 
-          context 'when passed array_items' do
-            let(:items) { array_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed lambda_items' do
-            let(:items) { lambda_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed enumerator_items' do
-            let(:items) { enumerator_items }
-            it_behaves_like 'to convert and write data'
-          end
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data'
         end
 
-        context 'recommend' do
-          let(:schema) { ::Mono::TestTableSchema.new(context: context) }
-          let(:writer) { described_class.new(schema, **options) }
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data'
+        end
 
-          context 'when passed array_items' do
-            let(:items) { array_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed lambda_items' do
-            let(:items) { lambda_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed enumerator_items' do
-            let(:items) { enumerator_items }
-            it_behaves_like 'to convert and write data'
-          end
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data'
         end
       end
 
@@ -365,44 +343,22 @@ RSpec.describe TableStructure::Writer do
           end
         end
 
-        context 'deprecated' do
-          let(:schema) { ::Mono::TestTableSchema.new(context: context, **options) }
-          let(:writer) { described_class.new(schema) }
+        let(:schema) { ::Mono::TestTableSchema.new(context: context) }
+        let(:writer) { described_class.new(schema, **options) }
 
-          context 'when passed array_items' do
-            let(:items) { array_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed lambda_items' do
-            let(:items) { lambda_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed enumerator_items' do
-            let(:items) { enumerator_items }
-            it_behaves_like 'to convert and write data'
-          end
+        context 'when passed array_items' do
+          let(:items) { array_items }
+          it_behaves_like 'to convert and write data'
         end
 
-        context 'recommend' do
-          let(:schema) { ::Mono::TestTableSchema.new(context: context) }
-          let(:writer) { described_class.new(schema, **options) }
+        context 'when passed lambda_items' do
+          let(:items) { lambda_items }
+          it_behaves_like 'to convert and write data'
+        end
 
-          context 'when passed array_items' do
-            let(:items) { array_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed lambda_items' do
-            let(:items) { lambda_items }
-            it_behaves_like 'to convert and write data'
-          end
-
-          context 'when passed enumerator_items' do
-            let(:items) { enumerator_items }
-            it_behaves_like 'to convert and write data'
-          end
+        context 'when passed enumerator_items' do
+          let(:items) { enumerator_items }
+          it_behaves_like 'to convert and write data'
         end
       end
     end

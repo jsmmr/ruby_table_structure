@@ -2,11 +2,11 @@
 
 RSpec.describe TableStructure::Schema::Columns::Schema do
   let(:schema) { double('TestTableSchema') }
-  let(:table) { double('TableStructure::Schema::Table') }
+  let(:table) { double('TableStructure::Table') }
   let(:column) { described_class.new(schema) }
 
   before do
-    expect(schema).to receive(:create_table).and_return(table)
+    allow(::TableStructure::Table).to receive(:new).and_return(table)
   end
 
   describe '#names' do
@@ -47,7 +47,7 @@ RSpec.describe TableStructure::Schema::Columns::Schema do
     let(:attribute) { 'attribute' }
 
     it 'delegates to table' do
-      expect(table).to receive(:contain_callable?).with(attribute)
+      expect(schema).to receive(:contain_callable?).with(attribute)
       column.contain_callable?(attribute)
     end
   end
