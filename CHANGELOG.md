@@ -1,3 +1,11 @@
+# 0.3.21
+Changes:
+- Add `TableStructure::Table`
+  - This provides methods for converting data with the schema.
+  - Use `TableStructure::Table.new` instead of `TableStructure::Schema#create_table`.
+- `TableStructure::Schema`
+  - `TableStructure::Schema#create_table` has been deprecated. Use `TableStructure::Table.new` instead.
+
 # 0.3.20
 Changes:
 - `TableStructure::Schema`
