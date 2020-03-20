@@ -124,6 +124,7 @@ Write the items converted by the schema to stream as CSV with Rails:
 response.headers['Cache-Control'] = 'no-cache'
 response.headers['Content-Type'] = 'text/csv'
 response.headers['Content-Disposition'] = 'attachment; filename="sample.csv"'
+response.headers['Last-Modified'] = Time.zone.now.ctime.to_s # Required if Rack >= 2.2.0
 response_body = Enumerator.new do |y|
   # y << "\uFEFF" # BOM (Prevent garbled characters for Excel)
   writer.write(items, to: CSV.new(y))
