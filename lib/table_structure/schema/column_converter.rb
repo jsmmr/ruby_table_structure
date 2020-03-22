@@ -27,20 +27,18 @@ module TableStructure
 
         def create_prepender(string, **options)
           Definition::ColumnConverter.new(
-            lambda { |val, *|
-              val.nil? ? val : "#{string}#{val}"
-            },
             **options
-          )
+          ) do |val, *|
+            val.nil? ? val : "#{string}#{val}"
+          end
         end
 
         def create_appender(string, **options)
           Definition::ColumnConverter.new(
-            lambda { |val, *|
-              val.nil? ? val : "#{val}#{string}"
-            },
             **options
-          )
+          ) do |val, *|
+            val.nil? ? val : "#{val}#{string}"
+          end
         end
       end
     end

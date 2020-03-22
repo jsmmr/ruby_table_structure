@@ -17,9 +17,8 @@ RSpec.describe TableStructure::Table::ColumnConverter do
     let(:table) do
       converters = {
         test: ::TableStructure::Schema::Definition::ColumnConverter.new(
-          ->(val, row, table) { "#{table[:name]}_#{row[:name]}_#{val}" },
           **converter_options
-        )
+        ) { |val, row, table| "#{table[:name]}_#{row[:name]}_#{val}" }
       }
 
       described_class.create_module(
