@@ -68,7 +68,13 @@ RSpec.describe TableStructure::Table do
       ::Micro::UserTableSchema.new(context: { questions: questions }) do
         columns ::Micro::PetTableSchema
         columns ::Micro::QuestionTableSchema
-        column_converter :to_s, ->(val, *) { val.to_s }
+        if [true, false].sample # deprecated
+          column_converter :to_s, ->(val, *) { val.to_s }
+        else
+          column_converter :to_s do |val, *|
+            val.to_s
+          end
+        end
       end
     end
 
@@ -116,8 +122,18 @@ RSpec.describe TableStructure::Table do
 
         columns ::Mono::TestTableSchema
 
-        column_converter :to_s, ->(val, *) { val.to_s }
-        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
+        if [true, false].sample # deprecated
+          column_converter :to_s, ->(val, *) { val.to_s }
+          column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
+        else
+          column_converter :to_s do |val, *|
+            val.to_s
+          end
+
+          column_converter :empty_to_hyphen, header: true, row: true do |val, *|
+            val.empty? ? '-' : val
+          end
+        end
       end
     end
 
@@ -181,9 +197,23 @@ RSpec.describe TableStructure::Table do
           end
         end
 
-        context_builder :table, ->(context) { TableContext.new(*context.values) }
-        context_builder :header, ->(context) { HeaderContext.new(*context.values) } # TODO: will remove or rename
-        context_builder :row, ->(context) { RowContext.new(*context.values) }
+        if [true, false].sample # deprecated
+          context_builder :table, ->(context) { TableContext.new(*context.values) }
+          context_builder :header, ->(context) { HeaderContext.new(*context.values) } # TODO: will remove or rename
+          context_builder :row, ->(context) { RowContext.new(*context.values) }
+        else
+          context_builder :table do |context|
+            TableContext.new(*context.values)
+          end
+
+          context_builder :header do |context|
+            HeaderContext.new(*context.values)
+          end
+
+          context_builder :row do |context|
+            RowContext.new(*context.values)
+          end
+        end
 
         column  name: ->(row, *) { row.id },
                 value: ->(row, *) { row.id },
@@ -629,11 +659,23 @@ RSpec.describe TableStructure::Table do
               name_prefix: 'Nested ',
               key_prefix: 'nested_'
             ) do
-              column_converter :row_prefix, ->(val, *) { "Nested #{val}" }, header: false
+              if [true, false].sample # deprecated
+                column_converter :row_prefix, ->(val, *) { "Nested #{val}" }, header: false
+              else
+                column_converter :row_prefix, header: false do |val, *|
+                  "Nested #{val}"
+                end
+              end
             end
           }
 
-          column_converter :to_s, ->(val, *) { val.to_s }
+          if [true, false].sample # deprecated
+            column_converter :to_s, ->(val, *) { val.to_s }
+          else
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
+          end
         end
       end
 
@@ -662,7 +704,13 @@ RSpec.describe TableStructure::Table do
             )
           }
 
-          column_converter :row_prefix, ->(val, *) { "Nested #{val}" }
+          if [true, false].sample # deprecated
+            column_converter :row_prefix, ->(val, *) { "Nested #{val}" }
+          else
+            column_converter :row_prefix do |val, *|
+              "Nested #{val}"
+            end
+          end
         end
       end
 
@@ -672,7 +720,13 @@ RSpec.describe TableStructure::Table do
         ) do
           columns Nested::TestTableSchema
 
-          column_converter :to_s, ->(val, *) { val.to_s }
+          if [true, false].sample # deprecated
+            column_converter :to_s, ->(val, *) { val.to_s }
+          else
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
+          end
         end
       end
 
@@ -695,12 +749,12 @@ RSpec.describe TableStructure::Table do
       class UserTableSchema
         include ::TableStructure::Schema
 
-        context_builder :row, lambda { |context|
+        context_builder :row do |context|
           {
             user_id: context[:id],
             user_name: context[:name]
           }
-        }
+        end
 
         column  name: 'ID',
                 key: :id,
@@ -710,37 +764,41 @@ RSpec.describe TableStructure::Table do
                 key: :name,
                 value: ->(row, *) { row[:user_name] }
 
-        column_converter :to_s, ->(val, *) { "user: #{val}" }
+        column_converter :to_s do |val, *|
+          "user: #{val}"
+        end
       end
 
       class PetTableSchema
         include ::TableStructure::Schema
 
-        context_builder :row, lambda { |context|
+        context_builder :row do |context|
           {
             user_pets: context[:pets]
           }
-        }
+        end
 
         columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
                 key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:user_pets] }
 
-        column_converter :to_s, ->(val, *) { "pet: #{val}" }
+        column_converter :to_s do |val, *|
+          "pet: #{val}"
+        end
       end
 
       class QuestionTableSchema
         include ::TableStructure::Schema
 
-        context_builder :table, lambda { |context|
+        context_builder :table do |context|
           context.map { |k, v| [k.to_s, v] }.to_h
-        }
+        end
 
-        context_builder :row, lambda { |context|
+        context_builder :row do |context|
           {
             user_answers: context[:answers]
           }
-        }
+        end
 
         columns lambda { |table|
           table['questions'].map do |question|
@@ -752,7 +810,9 @@ RSpec.describe TableStructure::Table do
           end
         }
 
-        column_converter :to_s, ->(val, *) { "question: #{val}" }
+        column_converter :to_s do |val, *|
+          "question: #{val}"
+        end
       end
     end
 
@@ -812,34 +872,55 @@ RSpec.describe TableStructure::Table do
       class UserTableSchema
         include ::TableStructure::Schema
 
-        context_builder :table, proc { raise 'this context_builder will be overwritten.' }
-        context_builder :row, proc { raise 'this context_builder will be overwritten.' }
+        context_builder :table do
+          raise 'this context_builder will be overwritten.'
+        end
+
+        context_builder :row do
+          raise 'this context_builder will be overwritten.'
+        end
 
         columns ::Micro::UserTableSchema
 
-        column_converter :to_s, proc { raise 'this column_converter will be overwritten.' }
+        column_converter :to_s do
+          raise 'this column_converter will be overwritten.'
+        end
       end
 
       class PetTableSchema
         include ::TableStructure::Schema
 
-        context_builder :table, proc { raise 'this context_builder will be overwritten.' }
-        context_builder :row, proc { raise 'this context_builder will be overwritten.' }
+        context_builder :table do
+          raise 'this context_builder will be overwritten.'
+        end
+
+        context_builder :row do
+          raise 'this context_builder will be overwritten.'
+        end
 
         columns ::Micro::PetTableSchema
 
-        column_converter :to_s, proc { raise 'this column_converter will be overwritten.' }
+        column_converter :to_s do
+          raise 'this column_converter will be overwritten.'
+        end
       end
 
       class QuestionTableSchema
         include ::TableStructure::Schema
 
-        context_builder :table, proc { raise 'this context_builder will be overwritten.' }
-        context_builder :row, proc { raise 'this context_builder will be overwritten.' }
+        context_builder :table do
+          raise 'this context_builder will be overwritten.'
+        end
+
+        context_builder :row do
+          raise 'this context_builder will be overwritten.'
+        end
 
         columns ::Micro::QuestionTableSchema
 
-        column_converter :to_s, proc { raise 'this column_converter will be overwritten.' }
+        column_converter :to_s do
+          raise 'this column_converter will be overwritten.'
+        end
       end
     end
 
@@ -853,9 +934,17 @@ RSpec.describe TableStructure::Table do
           Merged::PetTableSchema,
           Merged::QuestionTableSchema,
           ::TableStructure::Schema.create_class do
-            context_builder :table, ->(context) { context }
-            context_builder :row, ->(context) { context }
-            column_converter :to_s, ->(val, *) { val.to_s }
+            context_builder :table do |context|
+              context
+            end
+
+            context_builder :row do |context|
+              context
+            end
+
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
           end
         )
         .new(context: { questions: questions })
@@ -907,8 +996,13 @@ RSpec.describe TableStructure::Table do
             name_prefix: 'Partner ',
             key_prefix: 'partner_'
           ) do
-            context_builder :row, ->(context) { context[:partner] }
-            column_converter :to_s, ->(val, *) { val.to_s }
+            context_builder :row do |context|
+              context[:partner]
+            end
+
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
           end
         }
       end.new
