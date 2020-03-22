@@ -9,11 +9,11 @@ module TableStructure
         def_delegator :@callable, :call
 
         def initialize(
-          callable,
-          enabled_row_types: %i[array hash]
+          enabled_row_types: %i[array hash],
+          &block
         )
-          @callable = callable
           @enabled_row_types = [enabled_row_types].flatten
+          @callable = block
         end
 
         def enabled?(row_type)
