@@ -16,12 +16,12 @@ RSpec.describe TableStructure::Table::ContextBuilder do
 
     let(:table) do
       builders = {
-        header: ::TableStructure::Schema::Definition::ContextBuilder.new(
-          ->(context) { context.merge(value: 'header') }
-        ),
-        row: ::TableStructure::Schema::Definition::ContextBuilder.new(
-          ->(context) { context.merge(value: 'row') }
-        )
+        header: ::TableStructure::Schema::Definition::ContextBuilder.new do |context|
+          context.merge(value: 'header')
+        end,
+        row: ::TableStructure::Schema::Definition::ContextBuilder.new do |context|
+          context.merge(value: 'row')
+        end
       }
 
       described_class.create_module(
