@@ -83,6 +83,42 @@ module Micro
     }
   end
 
+  module WithKeys
+    class UserTableSchema
+      include TableStructure::Schema
+
+      column  name: 'ID',
+              key: :id,
+              value: ->(row, *) { row[:id] }
+
+      column  name: 'Name',
+              key: :name,
+              value: ->(row, *) { row[:name] }
+    end
+
+    class PetTableSchema
+      include TableStructure::Schema
+
+      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+              key: %i[pet1 pet2 pet3],
+              value: ->(row, *) { row[:pets] }
+    end
+
+    class QuestionTableSchema
+      include TableStructure::Schema
+
+      columns lambda { |table|
+        table[:questions].map do |question|
+          {
+            name: question[:id],
+            key: question[:id].downcase.to_sym,
+            value: ->(row, *) { row[:answers][question[:id]] }
+          }
+        end
+      }
+    end
+  end
+
   module Nested
     class TestTableSchema
       include TableStructure::Schema
