@@ -6,11 +6,7 @@ RSpec.describe TableStructure::CSV::Writer do
   end
 
   let(:inner_writer_options) do
-    [
-      { header_omitted: false, header_context: {} },
-      { header_context: {} },
-      { header: { context: {} } }
-    ].sample
+    { header: { context: {} } }
   end
 
   let(:csv_writer) do
