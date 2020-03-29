@@ -1,3 +1,12 @@
+# 0.3.22
+Changes:
+- `TableStructure::Schema`
+  - DSL
+    - `column_converter`
+      - Using `lambda` has been deprecated. Use `block` instead.
+    - `context_builder`
+      - Using `lambda` has been deprecated. Use `block` instead.
+
 # 0.3.21
 Changes:
 - Add `TableStructure::Table`
