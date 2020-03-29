@@ -36,7 +36,7 @@ RSpec.describe TableStructure::CSV::Writer do
         .and_return(writer)
 
       expect(writer).to receive(:write)
-        .with(items, to: instance_of(::CSV), header: { context: {} }) do |&block|
+        .with(items, to: instance_of(::CSV)) do |&block|
           expect(block).to eq handler
         end
     end
@@ -46,7 +46,7 @@ RSpec.describe TableStructure::CSV::Writer do
     context 'when `bom: true` is specified' do
       let(:csv_writer_options) { { bom: true } }
       it 'writes items' do
-        csv_writer.write(items, to: output, **inner_writer_options, &handler)
+        csv_writer.write(items, to: output, &handler)
         expect(output).to eq ["\uFEFF"]
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe TableStructure::CSV::Writer do
     context 'when `bom: false` is specified' do
       let(:csv_writer_options) { { bom: false } }
       it 'writes items' do
-        csv_writer.write(items, to: output, **inner_writer_options, &handler)
+        csv_writer.write(items, to: output, &handler)
         expect(output).to be_empty
       end
     end
@@ -67,7 +67,7 @@ RSpec.describe TableStructure::CSV::Writer do
           .with(output, **csv_options)
           .and_call_original
 
-        csv_writer.write(items, to: output, **inner_writer_options, &handler)
+        csv_writer.write(items, to: output, &handler)
       end
     end
   end

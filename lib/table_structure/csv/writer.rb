@@ -30,11 +30,11 @@ module TableStructure
           bom: bom,
           csv_options: csv_options
         }
-        @inner_options = {
+        inner_options = {
           header: header
         }
 
-        @writer = ::TableStructure::Writer.new(schema, **@inner_options)
+        @writer = ::TableStructure::Writer.new(schema, **inner_options)
       end
 
       def write(
@@ -42,35 +42,12 @@ module TableStructure
         to:,
         bom: @options[:bom],
         csv_options: @options[:csv_options],
-        **deprecated_options,
         &block
       )
-        header = nil
-
-        if deprecated_options.key?(:header)
-          header = deprecated_options[:header]
-          warn '[TableStructure] Specify :header option as an argument for initialize method.'
-        end
-
-        if deprecated_options.key?(:header_omitted)
-          header_omitted = deprecated_options[:header_omitted]
-          warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
-          header = !header_omitted
-        end
-
-        if deprecated_options.key?(:header_context)
-          header_context = deprecated_options[:header_context]
-          warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
-          header = { context: header_context }
-        end
-
-        inner_options = {}
-        inner_options[:header] = header if header
-
         to << BOM if bom
 
         csv = ::CSV.new(to, **csv_options)
-        @writer.write(items, to: csv, **inner_options, &block)
+        @writer.write(items, to: csv, &block)
       end
     end
   end
