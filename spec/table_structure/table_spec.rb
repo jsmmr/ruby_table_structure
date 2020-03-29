@@ -199,14 +199,15 @@ RSpec.describe TableStructure::Table do
 
         if [true, false].sample # deprecated
           context_builder :table, ->(context) { TableContext.new(*context.values) }
-          context_builder :header, ->(context) { HeaderContext.new(*context.values) } # TODO: will remove or rename
+          context_builder :header, ->(context) { HeaderContext.new(*context.values) }
           context_builder :row, ->(context) { RowContext.new(*context.values) }
         else
+          # TODO: Change definition style
           context_builder :table do |context|
             TableContext.new(*context.values)
           end
 
-          context_builder :header do |context|
+          context_builder :header do |context| # TODO: Change not to use keyword of `header`
             HeaderContext.new(*context.values)
           end
 

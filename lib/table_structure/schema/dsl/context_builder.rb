@@ -4,6 +4,7 @@ module TableStructure
   module Schema
     module DSL
       module ContextBuilder
+        # TODO: Change definition style
         def context_builder(name, callable = nil, &block)
           if callable
             warn "[TableStructure] Use `block` instead of #{callable}."
