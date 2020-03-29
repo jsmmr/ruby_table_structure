@@ -9,10 +9,6 @@ RSpec.describe TableStructure::Writer do
 
     let(:array_items) { users }
 
-    let(:lambda_items) do
-      ->(y) { array_items.each { |item| y << item } }
-    end
-
     let(:enumerator_items) do
       ::Enumerator.new { |y| array_items.each { |item| y << item } }
     end
@@ -24,7 +20,9 @@ RSpec.describe TableStructure::Writer do
           require 'tempfile'
 
           schema = ::Mono::TestTableSchema.new(context: context) do
-            column_converter :to_s, ->(val, *) { val.to_s }
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
           end
           writer = described_class.new(schema)
 
@@ -90,11 +88,6 @@ RSpec.describe TableStructure::Writer do
           it_behaves_like 'to convert and write data'
         end
 
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
-          it_behaves_like 'to convert and write data'
-        end
-
         context 'when passed enumerator_items' do
           let(:items) { enumerator_items }
           it_behaves_like 'to convert and write data'
@@ -111,11 +104,6 @@ RSpec.describe TableStructure::Writer do
 
         context 'when passed array_items' do
           let(:items) { array_items }
-          it_behaves_like 'to convert and write data'
-        end
-
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
           it_behaves_like 'to convert and write data'
         end
 
@@ -194,11 +182,6 @@ RSpec.describe TableStructure::Writer do
         it_behaves_like 'to convert and write data'
       end
 
-      context 'when passed lambda_items' do
-        let(:items) { lambda_items }
-        it_behaves_like 'to convert and write data'
-      end
-
       context 'when passed enumerator_items' do
         let(:items) { enumerator_items }
         it_behaves_like 'to convert and write data'
@@ -206,12 +189,9 @@ RSpec.describe TableStructure::Writer do
     end
 
     context 'when output to array' do
-      context 'with result_type: :array' do
+      context 'with row_type: :array' do
         let(:options) do
-          [
-            { result_type: :array }, # deprecated
-            { row_type: :array }
-          ].sample
+          { row_type: :array }
         end
 
         shared_examples 'to convert and write data' do
@@ -273,11 +253,6 @@ RSpec.describe TableStructure::Writer do
           it_behaves_like 'to convert and write data'
         end
 
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
-          it_behaves_like 'to convert and write data'
-        end
-
         context 'when passed enumerator_items' do
           let(:items) { enumerator_items }
           it_behaves_like 'to convert and write data'
@@ -286,10 +261,7 @@ RSpec.describe TableStructure::Writer do
 
       context 'with row_type: :hash' do
         let(:options) do
-          [
-            { result_type: :hash }, # deprecated
-            { row_type: :hash }
-          ].sample
+          { row_type: :hash }
         end
 
         shared_examples 'to convert and write data' do
@@ -351,11 +323,6 @@ RSpec.describe TableStructure::Writer do
           it_behaves_like 'to convert and write data'
         end
 
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
-          it_behaves_like 'to convert and write data'
-        end
-
         context 'when passed enumerator_items' do
           let(:items) { enumerator_items }
           it_behaves_like 'to convert and write data'
@@ -403,11 +370,6 @@ RSpec.describe TableStructure::Writer do
           it_behaves_like 'to convert and write data without header'
         end
 
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
-          it_behaves_like 'to convert and write data without header'
-        end
-
         context 'when passed enumerator_items' do
           let(:items) { enumerator_items }
           it_behaves_like 'to convert and write data without header'
@@ -425,11 +387,6 @@ RSpec.describe TableStructure::Writer do
 
         context 'when passed array_items' do
           let(:items) { array_items }
-          it_behaves_like 'to convert and write data with header'
-        end
-
-        context 'when passed lambda_items' do
-          let(:items) { lambda_items }
           it_behaves_like 'to convert and write data with header'
         end
 
