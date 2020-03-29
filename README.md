@@ -56,7 +56,9 @@ class SampleTableSchema
     end
   }
 
-  column_converter :to_s, ->(val, _row, _table) { val.to_s }
+  column_converter :to_s do |val, _row, _table|
+    val.to_s
+  end
 end
 ```
 
@@ -134,8 +136,8 @@ end
 You can also convert CSV character code:
 ```ruby
 File.open('sample.csv', 'w') do |f|
-  writer.write(items, to: CSV.new(f)) do |row_values|
-    row_values.map { |val| val.to_s.encode('Shift_JIS', invalid: :replace, undef: :replace) }
+  writer.write(items, to: CSV.new(f)) do |row|
+    row.map { |val| val.to_s.encode('Shift_JIS', invalid: :replace, undef: :replace) }
   end
 end
 ```
@@ -179,10 +181,6 @@ class SampleTableSchema
       }
     end
   }
-
-  ## If the schemas are nested, :key must be unique in parent and child schemas.
-  ## This can also be avoided by using :key_prefix or :key_suffix option.
-  # columns ->(table) { NestedTableSchema.new(context: table, key_prefix: 'foo_', key_suffix: '_bar') }
 end
 ```
 
@@ -273,7 +271,9 @@ class UserTableSchema
 end
 
 schema = UserTableSchema.new do
-  column_converter :to_s, ->(val, *) { val.to_s }
+  column_converter :to_s do |val, *|
+    val.to_s
+  end
 end
 ```
 
@@ -325,53 +325,91 @@ context = { pet_num: 0 }
 schema = SampleTableSchema.new(context: context, nil_definitions_ignored: true)
 ```
 
+You can also use `context_builder` to change the context object that the `lambda` receives.
+```ruby
+class SampleTableSchema
+  include TableStructure::Schema
+
+  TableContext = Struct.new(:questions, keyword_init: true)
+
+  RowContext = Struct.new(:id, :name, :pets, :answers, keyword_init: true) do
+    def increase_pets
+      pets + pets
+    end
+  end
+
+  context_builder :table do |context|
+    TableContext.new(**context)
+  end
+
+  context_builder :row, :value do |context|
+    RowContext.new(**context)
+  end
+
+  column  name: 'ID',
+          value: ->(row, *) { row.id }
+
+  column  name: 'Name',
+          value: ->(row, *) { row.name }
+
+  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+          value: ->(row, *) { row.increase_pets }
+
+  columns ->(table) {
+    table.questions.map do |question|
+      {
+        name: question[:id],
+        value: ->(row, *) { row.answers[question[:id]] }
+      }
+    end
+  }
+end
+```
+
 You can also nest the schemas.
+If you nest the schemas and use `row_type: :hash`, `:key` must be unique in the schemas.
+You can also use `:key_prefix` or `:key_suffix` option to keep uniqueness of the keys.
+
 ```ruby
 class UserTableSchema
   include TableStructure::Schema
 
   column  name: 'ID',
+          key: :id,
           value: ->(row, *) { row[:id] }
 
   column  name: 'Name',
+          key: :name,
           value: ->(row, *) { row[:name] }
-end
-
-class PetTableSchema
-  include TableStructure::Schema
-
-  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-          value: ->(row, *) { row[:pets] }
-end
-
-class QuestionTableSchema
-  include TableStructure::Schema
-
-  columns ->(table) {
-    table[:questions].map do |question|
-      {
-        name: question[:id],
-        value: ->(row, *) { row[:answers][question[:id]] }
-      }
-    end
-  }
 end
 
 class SampleTableSchema
   include TableStructure::Schema
 
   columns UserTableSchema
-  ## or
-  # columns ->(table) { UserTableSchema.new(context: table) }
 
-  columns PetTableSchema
-  ## or
-  # columns ->(table) { PetTableSchema.new(context: table) }
-
-  columns QuestionTableSchema
-  ## or
-  # columns ->(table) { QuestionTableSchema.new(context: table) }
+  columns ->(table) {
+    UserTableSchema.new(context: table, name_prefix: 'Friend ', key_prefix: 'friend_') do
+      context_builder :row do |context|
+        context[:friend]
+      end
+    end
+  }
 end
+
+items = [
+  {
+    id: 1,
+    name: 'Taro',
+    friend: {
+      id: 2,
+      name: 'Hanako'
+    }
+  }
+]
+
+schema = SampleTableSchema.new(context: {})
+TableStructure::Iterator.new(schema, row_type: :hash).iterate(items)
 ```
 
 You can also concatenate or merge the schema classes.
@@ -399,7 +437,9 @@ class PetTableSchema
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 
-  column_converter :same_name, ->(val, *) { "pet: #{val}" }
+  column_converter :same_name do |val, *|
+    "pet: #{val}"
+  end
 end
 
 class QuestionTableSchema
@@ -414,7 +454,9 @@ class QuestionTableSchema
     end
   }
 
-  column_converter :same_name, ->(val, *) { "question: #{val}" }
+  column_converter :same_name do |val, *|
+    "question: #{val}"
+  end
 end
 
 context = {
@@ -428,43 +470,6 @@ context = {
 concatenated_schema = (UserTableSchema + PetTableSchema + QuestionTableSchema).new(context: context)
 
 merged_schema = UserTableSchema.merge(PetTableSchema, QuestionTableSchema).new(context: context)
-```
-
-You can also use `context_builder`.
-This may be useful if `column(s)` lambda is complicated.
-```ruby
-class SampleTableSchema
-  include TableStructure::Schema
-
-  TableContext = Struct.new(:questions, keyword_init: true)
-
-  RowContext = Struct.new(:id, :name, :pets, :answers, keyword_init: true) do
-    def more_pets
-      pets + pets
-    end
-  end
-
-  context_builder :table, ->(context) { TableContext.new(**context) }
-  context_builder :row, ->(context) { RowContext.new(**context) }
-
-  column  name: 'ID',
-          value: ->(row, *) { row.id }
-
-  column  name: 'Name',
-          value: ->(row, *) { row.name }
-
-  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
-          value: ->(row, *) { row.more_pets }
-
-  columns ->(table) {
-    table.questions.map do |question|
-      {
-        name: question[:id],
-        value: ->(row, *) { row.answers[question[:id]] }
-      }
-    end
-  }
-end
 ```
 
 ## Sample with docker

@@ -19,7 +19,7 @@ module TableStructure
       )
         return if builders.empty?
 
-        header_builder = builders[:header] # will remove
+        header_builder = builders[:header] # TODO: Change not to use keyword of `header`
         row_builder = builders[:row]
 
         methods = {}

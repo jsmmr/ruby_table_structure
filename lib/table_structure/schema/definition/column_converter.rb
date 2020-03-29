@@ -9,13 +9,13 @@ module TableStructure
         def_delegator :@callable, :call
 
         def initialize(
-          callable,
           header: true,
-          body: true
+          body: true,
+          &block
         )
-          @callable = callable
           @applicable_to_header = header
           @applicable_to_body = body
+          @callable = block
         end
 
         def applicable_to_header?

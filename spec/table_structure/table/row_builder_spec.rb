@@ -5,19 +5,16 @@ RSpec.describe TableStructure::Table::RowBuilder do
     let(:table) do
       builders = {
         test1: ::TableStructure::Schema::Definition::RowBuilder.new(
-          lambda do |vals, _keys, row, table|
-            vals.map { |val| "#{table[:name]}_#{row[:name]}_#{val}" }
-          end,
           enabled_row_types: %i[array]
-        ),
+        ) do |vals, _keys, row, table|
+          vals.map { |val| "#{table[:name]}_#{row[:name]}_#{val}" }
+        end,
         test2: ::TableStructure::Schema::Definition::RowBuilder.new(
-          ->(vals, keys, *) { keys.zip(vals).to_h },
           enabled_row_types: %i[array]
-        ),
+        ) { |vals, keys, *| keys.zip(vals).to_h },
         test3: ::TableStructure::Schema::Definition::RowBuilder.new(
-          ->(vals, *) { OpenStruct.new(vals) },
           enabled_row_types: %i[hash]
-        )
+        ) { |vals, *| OpenStruct.new(vals) }
       }
 
       described_class.create_module(

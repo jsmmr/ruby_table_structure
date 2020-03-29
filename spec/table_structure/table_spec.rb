@@ -68,7 +68,13 @@ RSpec.describe TableStructure::Table do
       ::Micro::UserTableSchema.new(context: { questions: questions }) do
         columns ::Micro::PetTableSchema
         columns ::Micro::QuestionTableSchema
-        column_converter :to_s, ->(val, *) { val.to_s }
+        if [true, false].sample # deprecated
+          column_converter :to_s, ->(val, *) { val.to_s }
+        else
+          column_converter :to_s do |val, *|
+            val.to_s
+          end
+        end
       end
     end
 
@@ -116,8 +122,18 @@ RSpec.describe TableStructure::Table do
 
         columns ::Mono::TestTableSchema
 
-        column_converter :to_s, ->(val, *) { val.to_s }
-        column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
+        if [true, false].sample # deprecated
+          column_converter :to_s, ->(val, *) { val.to_s }
+          column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
+        else
+          column_converter :to_s do |val, *|
+            val.to_s
+          end
+
+          column_converter :empty_to_hyphen, header: true, row: true do |val, *|
+            val.empty? ? '-' : val
+          end
+        end
       end
     end
 
@@ -181,9 +197,24 @@ RSpec.describe TableStructure::Table do
           end
         end
 
-        context_builder :table, ->(context) { TableContext.new(*context.values) }
-        context_builder :header, ->(context) { HeaderContext.new(*context.values) } # TODO: will remove or rename
-        context_builder :row, ->(context) { RowContext.new(*context.values) }
+        if [true, false].sample # deprecated
+          context_builder :table, ->(context) { TableContext.new(*context.values) }
+          context_builder :header, ->(context) { HeaderContext.new(*context.values) }
+          context_builder :row, ->(context) { RowContext.new(*context.values) }
+        else
+          # TODO: Change definition style
+          context_builder :table do |context|
+            TableContext.new(*context.values)
+          end
+
+          context_builder :header do |context| # TODO: Change not to use keyword of `header`
+            HeaderContext.new(*context.values)
+          end
+
+          context_builder :row do |context|
+            RowContext.new(*context.values)
+          end
+        end
 
         column  name: ->(row, *) { row.id },
                 value: ->(row, *) { row.id },
@@ -246,7 +277,7 @@ RSpec.describe TableStructure::Table do
     describe 'Table#row' do
       include_context 'users'
 
-      subject { table.row(context: users.first) }
+      subject { table.body(users).first }
 
       it {
         is_expected.to eq [
@@ -541,7 +572,7 @@ RSpec.describe TableStructure::Table do
       end
 
       describe 'Table#row' do
-        subject { table.row(context: users.first) }
+        subject { table.body(users).first }
 
         it {
           is_expected.to eq [
@@ -593,7 +624,7 @@ RSpec.describe TableStructure::Table do
       end
 
       describe 'Table#row' do
-        subject { table.row(context: users.first) }
+        subject { table.body(users).first }
 
         it {
           is_expected.to eq(
@@ -629,11 +660,23 @@ RSpec.describe TableStructure::Table do
               name_prefix: 'Nested ',
               key_prefix: 'nested_'
             ) do
-              column_converter :row_prefix, ->(val, *) { "Nested #{val}" }, header: false
+              if [true, false].sample # deprecated
+                column_converter :row_prefix, ->(val, *) { "Nested #{val}" }, header: false
+              else
+                column_converter :row_prefix, header: false do |val, *|
+                  "Nested #{val}"
+                end
+              end
             end
           }
 
-          column_converter :to_s, ->(val, *) { val.to_s }
+          if [true, false].sample # deprecated
+            column_converter :to_s, ->(val, *) { val.to_s }
+          else
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
+          end
         end
       end
 
@@ -662,7 +705,13 @@ RSpec.describe TableStructure::Table do
             )
           }
 
-          column_converter :row_prefix, ->(val, *) { "Nested #{val}" }
+          if [true, false].sample # deprecated
+            column_converter :row_prefix, ->(val, *) { "Nested #{val}" }
+          else
+            column_converter :row_prefix do |val, *|
+              "Nested #{val}"
+            end
+          end
         end
       end
 
@@ -672,7 +721,13 @@ RSpec.describe TableStructure::Table do
         ) do
           columns Nested::TestTableSchema
 
-          column_converter :to_s, ->(val, *) { val.to_s }
+          if [true, false].sample # deprecated
+            column_converter :to_s, ->(val, *) { val.to_s }
+          else
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
+          end
         end
       end
 
@@ -695,25 +750,70 @@ RSpec.describe TableStructure::Table do
       class UserTableSchema
         include ::TableStructure::Schema
 
-        columns ::Micro::UserTableSchema
+        context_builder :row do |context|
+          {
+            user_id: context[:id],
+            user_name: context[:name]
+          }
+        end
 
-        column_converter :to_s, ->(val, *) { "user: #{val}" }
+        column  name: 'ID',
+                key: :id,
+                value: ->(row, *) { row[:user_id] }
+
+        column  name: 'Name',
+                key: :name,
+                value: ->(row, *) { row[:user_name] }
+
+        column_converter :to_s do |val, *|
+          "user: #{val}"
+        end
       end
 
       class PetTableSchema
         include ::TableStructure::Schema
 
-        columns ::Micro::PetTableSchema
+        context_builder :row do |context|
+          {
+            user_pets: context[:pets]
+          }
+        end
 
-        column_converter :to_s, ->(val, *) { "pet: #{val}" }
+        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+                key: %i[pet1 pet2 pet3],
+                value: ->(row, *) { row[:user_pets] }
+
+        column_converter :to_s do |val, *|
+          "pet: #{val}"
+        end
       end
 
       class QuestionTableSchema
         include ::TableStructure::Schema
 
-        columns ::Micro::QuestionTableSchema
+        context_builder :table do |context|
+          context.map { |k, v| [k.to_s, v] }.to_h
+        end
 
-        column_converter :to_s, ->(val, *) { "question: #{val}" }
+        context_builder :row do |context|
+          {
+            user_answers: context[:answers]
+          }
+        end
+
+        columns lambda { |table|
+          table['questions'].map do |question|
+            {
+              name: question[:id],
+              key: question[:id].downcase.to_sym,
+              value: ->(row, *) { row[:user_answers][question[:id]] }
+            }
+          end
+        }
+
+        column_converter :to_s do |val, *|
+          "question: #{val}"
+        end
       end
     end
 
@@ -773,25 +873,55 @@ RSpec.describe TableStructure::Table do
       class UserTableSchema
         include ::TableStructure::Schema
 
+        context_builder :table do
+          raise 'this context_builder will be overwritten.'
+        end
+
+        context_builder :row do
+          raise 'this context_builder will be overwritten.'
+        end
+
         columns ::Micro::UserTableSchema
 
-        column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
+        column_converter :to_s do
+          raise 'this column_converter will be overwritten.'
+        end
       end
 
       class PetTableSchema
         include ::TableStructure::Schema
 
+        context_builder :table do
+          raise 'this context_builder will be overwritten.'
+        end
+
+        context_builder :row do
+          raise 'this context_builder will be overwritten.'
+        end
+
         columns ::Micro::PetTableSchema
 
-        column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
+        column_converter :to_s do
+          raise 'this column_converter will be overwritten.'
+        end
       end
 
       class QuestionTableSchema
         include ::TableStructure::Schema
 
+        context_builder :table do
+          raise 'this context_builder will be overwritten.'
+        end
+
+        context_builder :row do
+          raise 'this context_builder will be overwritten.'
+        end
+
         columns ::Micro::QuestionTableSchema
 
-        column_converter :to_s, ->(*) { raise 'this column_converter will be overwritten.' }
+        column_converter :to_s do
+          raise 'this column_converter will be overwritten.'
+        end
       end
     end
 
@@ -805,7 +935,17 @@ RSpec.describe TableStructure::Table do
           Merged::PetTableSchema,
           Merged::QuestionTableSchema,
           ::TableStructure::Schema.create_class do
-            column_converter :to_s, ->(val, *) { val.to_s }
+            context_builder :table do |context|
+              context
+            end
+
+            context_builder :row do |context|
+              context
+            end
+
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
           end
         )
         .new(context: { questions: questions })
@@ -845,6 +985,92 @@ RSpec.describe TableStructure::Table do
           'yes'
         ]
       }
+    end
+  end
+
+  context 'when the same schemas are nested' do
+    let(:schema) do
+      ::TableStructure::Schema.create_class do
+        columns ::Micro::WithKeys::UserTableSchema
+        columns proc {
+          ::Micro::WithKeys::UserTableSchema.new(
+            name_prefix: 'Partner ',
+            key_prefix: 'partner_'
+          ) do
+            context_builder :row do |context|
+              context[:partner]
+            end
+
+            column_converter :to_s do |val, *|
+              val.to_s
+            end
+          end
+        }
+      end.new
+    end
+
+    context 'row_type: :array' do
+      let(:row_type) { :array }
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq [
+            'ID',
+            'Name',
+            'Partner ID',
+            'Partner Name'
+          ]
+        }
+      end
+
+      describe 'Table#body' do
+        include_context 'users'
+
+        subject { table.body(nested_users).first }
+
+        it {
+          is_expected.to eq [
+            1,
+            '太郎',
+            '2',
+            '花子'
+          ]
+        }
+      end
+    end
+
+    context 'row_type: :hash' do
+      let(:row_type) { :hash }
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it {
+          is_expected.to eq(
+            id: 'ID',
+            name: 'Name',
+            partner_id: 'Partner ID',
+            partner_name: 'Partner Name'
+          )
+        }
+      end
+
+      describe 'Table#body' do
+        include_context 'users'
+
+        subject { table.body(nested_users).first }
+
+        it {
+          is_expected.to eq(
+            id: 1,
+            name: '太郎',
+            partner_id: '2',
+            partner_name: '花子'
+          )
+        }
+      end
     end
   end
 end

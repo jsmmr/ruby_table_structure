@@ -33,4 +33,12 @@ RSpec.shared_context 'users' do
       }
     ]
   end
+
+  let(:nested_users) do
+    [
+      users[0].merge(partner: users[1]),
+      users[1].merge(partner: users[0]),
+      users[2].merge(partner: nil)
+    ]
+  end
 end

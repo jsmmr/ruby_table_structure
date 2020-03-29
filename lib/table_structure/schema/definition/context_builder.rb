@@ -8,8 +8,8 @@ module TableStructure
 
         def_delegator :@callable, :call
 
-        def initialize(callable)
-          @callable = callable
+        def initialize(&block)
+          @callable = block
         end
       end
     end
