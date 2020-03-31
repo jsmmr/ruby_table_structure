@@ -36,48 +36,16 @@ module TableStructure
       }
     end
 
-    def iterate(
-      items,
-      **deprecated_options,
-      &block
-    )
-      header = @options[:header]
-      row_type = @options[:row_type]
-
-      if deprecated_options.key?(:header)
-        header = deprecated_options[:header]
-        warn '[TableStructure] Use :header option on initialize method.'
+    def iterate(items, &block)
+      unless items.respond_to?(:each)
+        raise ::TableStructure::Error, "Must be enumerable. #{items}"
       end
-
-      if deprecated_options.key?(:header_omitted)
-        header_omitted = deprecated_options[:header_omitted]
-        warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
-        header = !header_omitted
-      end
-
-      if deprecated_options.key?(:header_context)
-        header_context = deprecated_options[:header_context]
-        warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
-        header = { context: header_context }
-      end
-
-      if deprecated_options.key?(:row_type)
-        row_type = deprecated_options[:row_type]
-        warn '[TableStructure] Use :row_type option on initialize method.'
-      end
-
-      if deprecated_options.key?(:result_type)
-        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
-        row_type = deprecated_options[:result_type]
-      end
-
-      items = enumerize(items)
 
       enum =
         Table::Iterator
         .new(
-          Table.new(@schema, row_type: row_type),
-          header: header
+          Table.new(@schema, row_type: @options[:row_type]),
+          header: @options[:header]
         )
         .iterate(items)
 
@@ -89,19 +57,6 @@ module TableStructure
       end
 
       enum
-    end
-
-    private
-
-    def enumerize(items)
-      if items.respond_to?(:each)
-        items
-      elsif items.respond_to?(:call)
-        warn "[TableStructure] Use `Enumerator` to wrap items instead of `lambda`. The use of `lambda` has been deprecated. #{items}"
-        Enumerator.new { |y| items.call(y) }
-      else
-        raise ::TableStructure::Error, "Must be enumerable. #{items}"
-      end
     end
   end
 end
