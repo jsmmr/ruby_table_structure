@@ -359,10 +359,7 @@ RSpec.describe TableStructure::Writer do
 
       context 'when header is omitted' do
         let(:options) do
-          [
-            { header_omitted: true },
-            { header: false }
-          ].sample
+          { header: false }
         end
 
         context 'when passed array_items' do
@@ -379,7 +376,6 @@ RSpec.describe TableStructure::Writer do
       context 'when header is not omitted' do
         let(:options) do
           [
-            { header_omitted: false },
             { header: true },
             {}
           ].sample

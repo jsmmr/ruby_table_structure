@@ -6,26 +6,8 @@ module TableStructure
       schema,
       header: { context: nil },
       method: :<<,
-      row_type: :array,
-      **deprecated_options
+      row_type: :array
     )
-      if deprecated_options.key?(:header_omitted)
-        header_omitted = deprecated_options[:header_omitted]
-        warn "[TableStructure] `header_omitted: #{!!header_omitted}` option has been deprecated. Use `header: #{!header_omitted}` option instead."
-        header = !header_omitted
-      end
-
-      if deprecated_options.key?(:header_context)
-        header_context = deprecated_options[:header_context]
-        warn '[TableStructure] `:header_context` option has been deprecated. Use `header: { context: ... }` option instead.'
-        header = { context: header_context }
-      end
-
-      if deprecated_options.key?(:result_type)
-        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
-        row_type = deprecated_options[:result_type]
-      end
-
       @schema = schema
       @options = {
         header: header,
