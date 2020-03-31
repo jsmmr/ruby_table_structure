@@ -1,3 +1,8 @@
+# 0.3.23
+Changes:
+- `TableStructure::CSV::Writer`
+  - Fix not to output wrong warning.
+
 # 0.3.22
 Changes:
 - `TableStructure::Schema`

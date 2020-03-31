@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    table_structure (0.3.22)
+    table_structure (0.3.23)
 
 GEM
   remote: https://rubygems.org/
