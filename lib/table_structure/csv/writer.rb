@@ -45,7 +45,7 @@ module TableStructure
         **deprecated_options,
         &block
       )
-        header = @inner_options[:header]
+        header = nil
 
         if deprecated_options.key?(:header)
           header = deprecated_options[:header]
@@ -64,9 +64,8 @@ module TableStructure
           header = { context: header_context }
         end
 
-        inner_options = {
-          header: header
-        }
+        inner_options = {}
+        inner_options[:header] = header if header
 
         to << BOM if bom
 
