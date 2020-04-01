@@ -68,12 +68,9 @@ RSpec.describe TableStructure::Table do
       ::Micro::UserTableSchema.new(context: { questions: questions }) do
         columns ::Micro::PetTableSchema
         columns ::Micro::QuestionTableSchema
-        if [true, false].sample # deprecated
-          column_converter :to_s, ->(val, *) { val.to_s }
-        else
-          column_converter :to_s do |val, *|
-            val.to_s
-          end
+
+        column_converter :to_s do |val, *|
+          val.to_s
         end
       end
     end
@@ -122,17 +119,12 @@ RSpec.describe TableStructure::Table do
 
         columns ::Mono::TestTableSchema
 
-        if [true, false].sample # deprecated
-          column_converter :to_s, ->(val, *) { val.to_s }
-          column_converter :empty_to_hyphen, ->(val, *) { val.empty? ? '-' : val }, header: true, row: true
-        else
-          column_converter :to_s do |val, *|
-            val.to_s
-          end
+        column_converter :to_s do |val, *|
+          val.to_s
+        end
 
-          column_converter :empty_to_hyphen, header: true, row: true do |val, *|
-            val.empty? ? '-' : val
-          end
+        column_converter :empty_to_hyphen, header: true, row: true do |val, *|
+          val.empty? ? '-' : val
         end
       end
     end
@@ -197,23 +189,17 @@ RSpec.describe TableStructure::Table do
           end
         end
 
-        if [true, false].sample # deprecated
-          context_builder :table, ->(context) { TableContext.new(*context.values) }
-          context_builder :header, ->(context) { HeaderContext.new(*context.values) }
-          context_builder :row, ->(context) { RowContext.new(*context.values) }
-        else
-          # TODO: Change definition style
-          context_builder :table do |context|
-            TableContext.new(*context.values)
-          end
+        # TODO: Change definition style
+        context_builder :table do |context|
+          TableContext.new(*context.values)
+        end
 
-          context_builder :header do |context| # TODO: Change not to use keyword of `header`
-            HeaderContext.new(*context.values)
-          end
+        context_builder :header do |context| # TODO: Change not to use keyword of `header`
+          HeaderContext.new(*context.values)
+        end
 
-          context_builder :row do |context|
-            RowContext.new(*context.values)
-          end
+        context_builder :row do |context|
+          RowContext.new(*context.values)
         end
 
         column  name: ->(row, *) { row.id },
@@ -660,22 +646,14 @@ RSpec.describe TableStructure::Table do
               name_prefix: 'Nested ',
               key_prefix: 'nested_'
             ) do
-              if [true, false].sample # deprecated
-                column_converter :row_prefix, ->(val, *) { "Nested #{val}" }, header: false
-              else
-                column_converter :row_prefix, header: false do |val, *|
-                  "Nested #{val}"
-                end
+              column_converter :row_prefix, header: false do |val, *|
+                "Nested #{val}"
               end
             end
           }
 
-          if [true, false].sample # deprecated
-            column_converter :to_s, ->(val, *) { val.to_s }
-          else
-            column_converter :to_s do |val, *|
-              val.to_s
-            end
+          column_converter :to_s do |val, *|
+            val.to_s
           end
         end
       end
@@ -705,12 +683,8 @@ RSpec.describe TableStructure::Table do
             )
           }
 
-          if [true, false].sample # deprecated
-            column_converter :row_prefix, ->(val, *) { "Nested #{val}" }
-          else
-            column_converter :row_prefix do |val, *|
-              "Nested #{val}"
-            end
+          column_converter :row_prefix do |val, *|
+            "Nested #{val}"
           end
         end
       end
@@ -721,12 +695,8 @@ RSpec.describe TableStructure::Table do
         ) do
           columns Nested::TestTableSchema
 
-          if [true, false].sample # deprecated
-            column_converter :to_s, ->(val, *) { val.to_s }
-          else
-            column_converter :to_s do |val, *|
-              val.to_s
-            end
+          column_converter :to_s do |val, *|
+            val.to_s
           end
         end
       end
