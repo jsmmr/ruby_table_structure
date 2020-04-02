@@ -123,7 +123,7 @@ RSpec.describe TableStructure::Table do
           val.to_s
         end
 
-        column_converter :empty_to_hyphen, header: true, row: true do |val, *|
+        column_converter :empty_to_hyphen, header: true, body: true do |val, *|
           val.empty? ? '-' : val
         end
       end
