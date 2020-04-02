@@ -6,7 +6,6 @@ module TableStructure
       klass.extend(DSL::ColumnConverter)
       klass.extend(DSL::ColumnDefinition)
       klass.extend(DSL::ContextBuilder)
-      klass.extend(DSL::Option)
       klass.extend(DSL::RowBuilder)
       klass.extend(ClassMethods)
     end
@@ -49,7 +48,6 @@ module TableStructure
 
       options =
         [
-          self.class.options,
           {
             name_prefix: name_prefix,
             name_suffix: name_suffix,
