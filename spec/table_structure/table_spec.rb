@@ -123,7 +123,7 @@ RSpec.describe TableStructure::Table do
           val.to_s
         end
 
-        column_converter :empty_to_hyphen, header: true, row: true do |val, *|
+        column_converter :empty_to_hyphen, header: true, body: true do |val, *|
           val.empty? ? '-' : val
         end
       end
@@ -339,9 +339,9 @@ RSpec.describe TableStructure::Table do
       ::Mono::WithKeys::TestTableSchema.new(
         context: { questions: questions }
       ) do
-        row_builder :to_ostruct,
-                    ->(values, *) { OpenStruct.new(values) },
-                    enabled_row_types: [:hash]
+        row_builder :to_ostruct, enabled_row_types: [:hash] do |values, *|
+          OpenStruct.new(values)
+        end
       end
     end
 

@@ -6,23 +6,10 @@ module TableStructure
       module ColumnConverter
         def column_converter(
           name,
-          callable = nil,
           header: true,
           body: true,
-          **deprecated_options,
           &block
         )
-          if deprecated_options.key?(:row)
-            warn '[TableStructure] `:row` option has been deprecated. Use `:body` option instead.'
-            body = deprecated_options[:row]
-          end
-
-          if callable
-            warn "[TableStructure] Use `block` instead of #{callable}."
-          end
-
-          block ||= callable
-
           column_converters[name] =
             ::TableStructure::Schema::Definition::ColumnConverter.new(
               header: header,

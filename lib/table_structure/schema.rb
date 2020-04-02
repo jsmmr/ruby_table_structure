@@ -6,7 +6,6 @@ module TableStructure
       klass.extend(DSL::ColumnConverter)
       klass.extend(DSL::ColumnDefinition)
       klass.extend(DSL::ContextBuilder)
-      klass.extend(DSL::Option)
       klass.extend(DSL::RowBuilder)
       klass.extend(ClassMethods)
     end
@@ -36,31 +35,8 @@ module TableStructure
       key_prefix: nil,
       key_suffix: nil,
       nil_definitions_ignored: false,
-      **deprecated_options,
       &block
     )
-      if deprecated_options.key?(:row_type)
-        raise ::TableStructure::Error, 'Use :row_type option with Table, Writer or Iterator.'
-      end
-
-      if deprecated_options.key?(:result_type)
-        raise ::TableStructure::Error, ':result_type option has been deprecated. Use :row_type option instead.'
-      end
-
-      options =
-        [
-          self.class.options,
-          {
-            name_prefix: name_prefix,
-            name_suffix: name_suffix,
-            key_prefix: key_prefix,
-            key_suffix: key_suffix,
-            nil_definitions_ignored: nil_definitions_ignored
-          },
-          deprecated_options
-        ]
-        .reduce({}, &:merge!)
-
       schema_classes = [self.class]
 
       if block_given?
@@ -82,14 +58,14 @@ module TableStructure
         .reduce({}, &:merge!)
         .merge(
           ColumnConverter.create_optional_converters(
-            name_prefix: options.delete(:name_prefix),
-            name_suffix: options.delete(:name_suffix)
+            name_prefix: name_prefix,
+            name_suffix: name_suffix
           )
         )
 
       @key_converter = KeyConverter.new(
-        prefix: options.delete(:key_prefix),
-        suffix: options.delete(:key_suffix)
+        prefix: key_prefix,
+        suffix: key_suffix
       )
 
       @row_builders =
@@ -104,24 +80,9 @@ module TableStructure
         .new(
           name,
           schema_classes.map(&:column_definitions).reduce([], &:concat),
-          { nil_definitions_ignored: options.delete(:nil_definitions_ignored) }
+          { nil_definitions_ignored: nil_definitions_ignored }
         )
         .compile(@context)
-
-      @options = options
-    end
-
-    def create_table(row_type: :array, **deprecated_options, &block)
-      warn '[TableStructure] `TableStructure::Schema#create_table` has been deprecated. Use `TableStructure::Table.new` instead.'
-
-      options = @options.merge(deprecated_options)
-
-      if options.key?(:result_type)
-        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
-        options[:row_type] = options[:result_type]
-      end
-
-      ::TableStructure::Table.new(self, row_type: options[:row_type] || row_type, &block)
     end
 
     def contain_callable?(attribute)
