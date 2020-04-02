@@ -111,19 +111,6 @@ module TableStructure
       @options = options
     end
 
-    def create_table(row_type: :array, **deprecated_options, &block)
-      warn '[TableStructure] `TableStructure::Schema#create_table` has been deprecated. Use `TableStructure::Table.new` instead.'
-
-      options = @options.merge(deprecated_options)
-
-      if options.key?(:result_type)
-        warn '[TableStructure] `:result_type` option has been deprecated. Use `:row_type` option instead.'
-        options[:row_type] = options[:result_type]
-      end
-
-      ::TableStructure::Table.new(self, row_type: options[:row_type] || row_type, &block)
-    end
-
     def contain_callable?(attribute)
       @columns.any? { |column| column.contain_callable?(attribute) }
     end
