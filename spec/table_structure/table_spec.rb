@@ -339,9 +339,9 @@ RSpec.describe TableStructure::Table do
       ::Mono::WithKeys::TestTableSchema.new(
         context: { questions: questions }
       ) do
-        row_builder :to_ostruct,
-                    ->(values, *) { OpenStruct.new(values) },
-                    enabled_row_types: [:hash]
+        row_builder :to_ostruct, enabled_row_types: [:hash] do |values, *|
+          OpenStruct.new(values)
+        end
       end
     end
 
