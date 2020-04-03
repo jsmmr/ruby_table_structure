@@ -256,6 +256,10 @@ Initialize a table with the schema and render the table:
 <% end %>
 ```
 
+### Sample with docker
+
+https://github.com/jsmmr/ruby_table_structure_sample
+
 ### Advanced
 
 You can add definitions when initializing the schema.
@@ -471,10 +475,6 @@ concatenated_schema = (UserTableSchema + PetTableSchema + QuestionTableSchema).n
 
 merged_schema = UserTableSchema.merge(PetTableSchema, QuestionTableSchema).new(context: context)
 ```
-
-## Sample with docker
-
-https://github.com/jsmmr/ruby_table_structure_sample
 
 ## Contributing
 

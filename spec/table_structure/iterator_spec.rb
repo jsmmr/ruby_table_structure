@@ -13,15 +13,13 @@ RSpec.describe TableStructure::Iterator do
         described_class.new(
           ::Mono::TestTableSchema.new(context: context),
           **header_option,
-          **[{ result_type: :array }, { row_type: :array }].sample
+          row_type: :array
         )
       end
 
-      context 'when :header_omitted is false' do
+      context 'when :header is set true' do
         let(:header_option) do
           [
-            { header_omitted: false, header_context: {} },
-            { header_context: {} },
             { header: true },
             { header: { context: {} } },
             {}
@@ -98,12 +96,9 @@ RSpec.describe TableStructure::Iterator do
         end
       end
 
-      context 'when :header_omitted is true' do
+      context 'when :header is set false' do
         let(:header_option) do
-          [
-            { header_omitted: true },
-            { header: false }
-          ].sample
+          { header: false }
         end
 
         describe '#map' do
@@ -171,15 +166,13 @@ RSpec.describe TableStructure::Iterator do
         described_class.new(
           ::Mono::WithKeys::TestTableSchema.new(context: context),
           **header_option,
-          **[{ result_type: :hash }, { row_type: :hash }].sample
+          row_type: :hash
         )
       end
 
-      context 'when :header_omitted is false' do
+      context 'when :header is set true' do
         let(:header_option) do
           [
-            { header_omitted: false, header_context: {} },
-            { header_context: {} },
             { header: true },
             { header: { context: {} } },
             {}
@@ -256,12 +249,9 @@ RSpec.describe TableStructure::Iterator do
         end
       end
 
-      context 'when :header_omitted is true' do
+      context 'when :header is set false' do
         let(:header_option) do
-          [
-            { header_omitted: true },
-            { header: false }
-          ].sample
+          { header: false }
         end
 
         describe '#map' do
