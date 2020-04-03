@@ -5,13 +5,7 @@ module TableStructure
     module DSL
       module ContextBuilder
         # TODO: Change definition style
-        def context_builder(name, callable = nil, &block)
-          if callable
-            warn "[TableStructure] Use `block` instead of #{callable}."
-          end
-
-          block ||= callable
-
+        def context_builder(name, &block)
           context_builders[name] =
             ::TableStructure::Schema::Definition::ContextBuilder.new(
               &block

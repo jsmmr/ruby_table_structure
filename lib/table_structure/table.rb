@@ -39,16 +39,6 @@ module TableStructure
       end
     end
 
-    def rows(items)
-      warn '[TableStructure] `TableStructure::Table#rows(items)` has been deprecated. Use `TableStructure::Table#body(items)` instead.'
-      body(items)
-    end
-
-    def row(context: nil)
-      warn '[TableStructure] `TableStructure::Table#row(context: ...)` has been deprecated. Use `TableStructure::Table#body(items)` instead.'
-      data(context: context)
-    end
-
     private
 
     def data(context: nil)
