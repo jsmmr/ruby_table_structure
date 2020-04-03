@@ -1,3 +1,8 @@
+# 0.4.0
+Changes:
+- Remove deprecated methods, arguments and options.
+- It is recommended that you update to 0.3.23 first. if you get warnings or errors, fix them and then update to 0.4.0.
+
 # 0.3.23
 Changes:
 - `TableStructure::CSV::Writer`
