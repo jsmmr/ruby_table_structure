@@ -4,7 +4,7 @@ module TableStructure
   class Writer
     def initialize(
       schema,
-      header: { context: nil },
+      header: { context: nil, step: nil },
       method: :<<,
       row_type: :array
     )

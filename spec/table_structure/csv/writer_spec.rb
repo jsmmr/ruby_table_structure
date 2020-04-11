@@ -6,7 +6,7 @@ RSpec.describe TableStructure::CSV::Writer do
   end
 
   let(:inner_writer_options) do
-    { header: { context: {} } }
+    { header: { context: {}, step: 10 } }
   end
 
   let(:csv_writer) do
@@ -28,7 +28,7 @@ RSpec.describe TableStructure::CSV::Writer do
       writer = double('TableStructure::Writer')
 
       expect(TableStructure::Writer).to receive(:new)
-        .with(schema, header: { context: {} })
+        .with(schema, header: { context: {}, step: 10 })
         .and_return(writer)
 
       expect(writer).to receive(:write)

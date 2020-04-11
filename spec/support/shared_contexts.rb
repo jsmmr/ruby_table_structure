@@ -97,6 +97,60 @@ RSpec.shared_context 'table_structured_array' do
   end
 end
 
+RSpec.shared_context 'table_structured_array_with_stringified' do
+  let(:header_row) do
+    [
+      'ID',
+      'Name',
+      'Pet 1',
+      'Pet 2',
+      'Pet 3',
+      'Q1',
+      'Q2',
+      'Q3'
+    ]
+  end
+
+  let(:body_row_taro) do
+    [
+      '1',
+      '太郎',
+      'cat',
+      'dog',
+      '',
+      'yes',
+      'no',
+      'yes'
+    ]
+  end
+
+  let(:body_row_hanako) do
+    %w[
+      2
+      花子
+      rabbit
+      turtle
+      squirrel
+      yes
+      yes
+      no
+    ]
+  end
+
+  let(:body_row_jiro) do
+    [
+      '3',
+      '次郎',
+      'tiger',
+      'elephant',
+      'doragon',
+      'no',
+      'yes',
+      ''
+    ]
+  end
+end
+
 RSpec.shared_context 'table_structured_hash' do
   let(:header_row) do
     {
@@ -147,6 +201,60 @@ RSpec.shared_context 'table_structured_hash' do
       q1: 'no',
       q2: 'yes',
       q3: nil
+    }
+  end
+end
+
+RSpec.shared_context 'table_structured_hash_with_index_keys' do
+  let(:header_row) do
+    {
+      0 => 'ID',
+      1 => 'Name',
+      2 => 'Pet 1',
+      3 => 'Pet 2',
+      4 => 'Pet 3',
+      5 => 'Q1',
+      6 => 'Q2',
+      7 => 'Q3'
+    }
+  end
+
+  let(:body_row_taro) do
+    {
+      0 => 1,
+      1 => '太郎',
+      2 => 'cat',
+      3 => 'dog',
+      4 => nil,
+      5 => 'yes',
+      6 => 'no',
+      7 => 'yes'
+    }
+  end
+
+  let(:body_row_hanako) do
+    {
+      0 => 2,
+      1 => '花子',
+      2 => 'rabbit',
+      3 => 'turtle',
+      4 => 'squirrel',
+      5 => 'yes',
+      6 => 'yes',
+      7 => 'no'
+    }
+  end
+
+  let(:body_row_jiro) do
+    {
+      0 => 3,
+      1 => '次郎',
+      2 => 'tiger',
+      3 => 'elephant',
+      4 => 'doragon',
+      5 => 'no',
+      6 => 'yes',
+      7 => nil
     }
   end
 end
