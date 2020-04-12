@@ -4,7 +4,7 @@ module TableStructure
   class Iterator
     class HeaderOptions
       attr_reader :enabled, :context, :step
-      alias_method :enabled?, :enabled
+      alias enabled? enabled
 
       def initialize(options)
         @enabled = !!options
@@ -36,7 +36,7 @@ module TableStructure
           header_row = @table.header(context: @header_options.context)
           y << header_row
 
-          if @header_options.step
+          if @header_options.step&.positive?
             loop do
               @header_options.step.times { y << body_enum.next }
               y << header_row
