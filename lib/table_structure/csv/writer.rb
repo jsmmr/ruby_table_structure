@@ -9,7 +9,7 @@ module TableStructure
         schema,
         bom: false,
         csv_options: {},
-        header: { context: nil }
+        header: { context: nil, step: nil }
       )
         require 'csv'
 

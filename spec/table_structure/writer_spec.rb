@@ -14,6 +14,8 @@ RSpec.describe TableStructure::Writer do
     end
 
     context 'when output to CSV file' do
+      include_context 'table_structured_array_with_stringified'
+
       shared_examples 'to convert and write data' do
         it 'succeeds' do
           require 'csv'
@@ -33,49 +35,10 @@ RSpec.describe TableStructure::Writer do
 
           table = ::CSV.read(tf.path, **csv_options)
 
-          expect(table[0]).to eq [
-            'ID',
-            'Name',
-            'Pet 1',
-            'Pet 2',
-            'Pet 3',
-            'Q1',
-            'Q2',
-            'Q3'
-          ]
-
-          expect(table[1]).to eq [
-            '1',
-            '太郎',
-            'cat',
-            'dog',
-            '',
-            'yes',
-            'no',
-            'yes'
-          ]
-
-          expect(table[2]).to eq %w[
-            2
-            花子
-            rabbit
-            turtle
-            squirrel
-            yes
-            yes
-            no
-          ]
-
-          expect(table[3]).to eq [
-            '3',
-            '次郎',
-            'tiger',
-            'elephant',
-            'doragon',
-            'no',
-            'yes',
-            ''
-          ]
+          expect(table[0]).to eq header_row
+          expect(table[1]).to eq body_row_taro
+          expect(table[2]).to eq body_row_hanako
+          expect(table[3]).to eq body_row_jiro
         end
       end
 
@@ -115,6 +78,8 @@ RSpec.describe TableStructure::Writer do
     end
 
     context 'when output to yielder' do
+      include_context 'table_structured_array'
+
       shared_examples 'to convert and write data' do
         it 'succeeds' do
           schema = ::Mono::TestTableSchema.new(context: context)
@@ -127,52 +92,16 @@ RSpec.describe TableStructure::Writer do
             end
           end
 
-          expect(enum.next).to eq [
-            'ID',
-            'Name',
-            'Pet 1',
-            'Pet 2',
-            'Pet 3',
-            'Q1',
-            'Q2',
-            'Q3'
-          ]
+          expect(enum.next).to eq header_row
           expect(times).to eq 1
 
-          expect(enum.next).to eq [
-            1,
-            '太郎',
-            'cat',
-            'dog',
-            nil,
-            'yes',
-            'no',
-            'yes'
-          ]
+          expect(enum.next).to eq body_row_taro
           expect(times).to eq 2
 
-          expect(enum.next).to eq [
-            2,
-            '花子',
-            'rabbit',
-            'turtle',
-            'squirrel',
-            'yes',
-            'yes',
-            'no'
-          ]
+          expect(enum.next).to eq body_row_hanako
           expect(times).to eq 3
 
-          expect(enum.next).to eq [
-            3,
-            '次郎',
-            'tiger',
-            'elephant',
-            'doragon',
-            'no',
-            'yes',
-            nil
-          ]
+          expect(enum.next).to eq body_row_jiro
           expect(times).to eq 4
         end
       end
@@ -190,6 +119,8 @@ RSpec.describe TableStructure::Writer do
 
     context 'when output to array' do
       context 'with row_type: :array' do
+        include_context 'table_structured_array'
+
         let(:options) do
           { row_type: :array }
         end
@@ -199,49 +130,10 @@ RSpec.describe TableStructure::Writer do
             table = []
             writer.write(items, to: table)
 
-            expect(table[0]).to eq [
-              'ID',
-              'Name',
-              'Pet 1',
-              'Pet 2',
-              'Pet 3',
-              'Q1',
-              'Q2',
-              'Q3'
-            ]
-
-            expect(table[1]).to eq [
-              1,
-              '太郎',
-              'cat',
-              'dog',
-              nil,
-              'yes',
-              'no',
-              'yes'
-            ]
-
-            expect(table[2]).to eq [
-              2,
-              '花子',
-              'rabbit',
-              'turtle',
-              'squirrel',
-              'yes',
-              'yes',
-              'no'
-            ]
-
-            expect(table[3]).to eq [
-              3,
-              '次郎',
-              'tiger',
-              'elephant',
-              'doragon',
-              'no',
-              'yes',
-              nil
-            ]
+            expect(table[0]).to eq header_row
+            expect(table[1]).to eq body_row_taro
+            expect(table[2]).to eq body_row_hanako
+            expect(table[3]).to eq body_row_jiro
           end
         end
 
@@ -260,6 +152,8 @@ RSpec.describe TableStructure::Writer do
       end
 
       context 'with row_type: :hash' do
+        include_context 'table_structured_hash_with_index_keys'
+
         let(:options) do
           { row_type: :hash }
         end
@@ -269,49 +163,10 @@ RSpec.describe TableStructure::Writer do
             table = []
             writer.write(items, to: table)
 
-            expect(table[0]).to eq(
-              0 => 'ID',
-              1 => 'Name',
-              2 => 'Pet 1',
-              3 => 'Pet 2',
-              4 => 'Pet 3',
-              5 => 'Q1',
-              6 => 'Q2',
-              7 => 'Q3'
-            )
-
-            expect(table[1]).to eq(
-              0 => 1,
-              1 => '太郎',
-              2 => 'cat',
-              3 => 'dog',
-              4 => nil,
-              5 => 'yes',
-              6 => 'no',
-              7 => 'yes'
-            )
-
-            expect(table[2]).to eq(
-              0 => 2,
-              1 => '花子',
-              2 => 'rabbit',
-              3 => 'turtle',
-              4 => 'squirrel',
-              5 => 'yes',
-              6 => 'yes',
-              7 => 'no'
-            )
-
-            expect(table[3]).to eq(
-              0 => 3,
-              1 => '次郎',
-              2 => 'tiger',
-              3 => 'elephant',
-              4 => 'doragon',
-              5 => 'no',
-              6 => 'yes',
-              7 => nil
-            )
+            expect(table[0]).to eq header_row
+            expect(table[1]).to eq body_row_taro
+            expect(table[2]).to eq body_row_hanako
+            expect(table[3]).to eq body_row_jiro
           end
         end
 
