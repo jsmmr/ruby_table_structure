@@ -4,7 +4,7 @@ module TableStructure
   class Iterator
     class HeaderOptions
       attr_reader :enabled, :context, :step
-      alias_method :enabled?, :enabled
+      alias enabled? enabled
 
       def initialize(options)
         @enabled = !!options
