@@ -2,16 +2,26 @@
 
 module TableStructure
   class Iterator
+    class HeaderOptions
+      attr_reader :enabled, :context, :step
+      alias_method :enabled?, :enabled
+
+      def initialize(options)
+        @enabled = !!options
+        if options.is_a?(Hash)
+          @context = options[:context]
+          @step = options[:step]
+        end
+      end
+    end
+
     def initialize(
       schema,
-      header: { context: nil },
+      header: { context: nil, step: nil },
       row_type: :array
     )
-      @schema = schema
-      @options = {
-        header: header,
-        row_type: row_type
-      }
+      @table = Table.new(schema, row_type: row_type)
+      @header_options = HeaderOptions.new(header)
     end
 
     def iterate(items, &block)
@@ -19,22 +29,29 @@ module TableStructure
         raise ::TableStructure::Error, "Must be enumerable. #{items}"
       end
 
-      enum =
-        Table::Iterator
-        .new(
-          Table.new(@schema, row_type: @options[:row_type]),
-          header: @options[:header]
-        )
-        .iterate(items)
+      table_enum = ::Enumerator.new do |y|
+        body_enum = @table.body(items)
 
-      if block_given?
-        enum =
-          enum
-          .lazy
-          .map { |row| block.call(row) }
+        if @header_options.enabled?
+          header_row = @table.header(context: @header_options.context)
+          y << header_row
+
+          if @header_options.step
+            loop do
+              @header_options.step.times { y << body_enum.next }
+              y << header_row
+            end
+          else
+            body_enum.each { |row| y << row }
+          end
+        else
+          body_enum.each { |row| y << row }
+        end
       end
 
-      enum
+      table_enum = table_enum.lazy.map(&block) if block_given?
+
+      table_enum
     end
   end
 end
