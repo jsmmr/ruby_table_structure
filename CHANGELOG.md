@@ -1,7 +1,15 @@
+# 0.4.1
+Changes:
+- `TableStructure::Iterator`
+- `TableStructure::Writer`
+- `TableStructure::CSV::Writer`
+  - Add `header: { step: n }` option. Header rows are output at intervals of step number.
+    - e.g. `TableStructure::Iterator.new(schema, header: { step: 10 })`
+
 # 0.4.0
 Changes:
 - Remove deprecated methods, arguments and options.
-- It is recommended that you update to 0.3.23 first. if you get warnings or errors, fix them and then update to 0.4.0.
+- It is recommended that you update to `0.3.23` first. If you get warnings or errors, fix them and then update to `0.4.0`.
 
 # 0.3.23
 Changes:

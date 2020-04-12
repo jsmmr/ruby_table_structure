@@ -30,7 +30,6 @@ module TableStructure
   require 'table_structure/table/column_converter'
   require 'table_structure/table/context_builder'
   require 'table_structure/table/row_builder'
-  require 'table_structure/table/iterator'
   require 'table_structure/writer'
   require 'table_structure/csv/writer'
   require 'table_structure/iterator'
