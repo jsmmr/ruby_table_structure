@@ -14,8 +14,8 @@ module TableStructure
         context: schema.context
       ) { |mod| extend mod }
 
-      ColumnConverter.create_module(
-        schema.column_converters,
+      ColumnBuilder.create_module(
+        schema.column_builders,
         context: schema.context
       ) { |mod| extend mod }
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TableStructure
-  class Table::ColumnConverter
+  class Table::ColumnBuilder
     class ColumnConvertible < Module
       def initialize(methods)
         methods.each do |name, method|

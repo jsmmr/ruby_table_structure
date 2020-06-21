@@ -2,31 +2,31 @@
 
 module TableStructure
   module Schema
-    module ColumnConverter
+    module ColumnBuilder
       class << self
-        def create_optional_converters(
+        def create_optional_builders(
           name_prefix: nil,
           name_suffix: nil
         )
-          column_converters = {}
+          column_builders = {}
 
           if name_prefix
-            column_converters[:_name_prepender_] =
+            column_builders[:_name_prepender_] =
               create_prepender(name_prefix, header: true, body: false)
           end
 
           if name_suffix
-            column_converters[:_name_appender_] =
+            column_builders[:_name_appender_] =
               create_appender(name_suffix, header: true, body: false)
           end
 
-          column_converters
+          column_builders
         end
 
         private
 
         def create_prepender(string, **options)
-          Definition::ColumnConverter.new(
+          Definition::ColumnBuilder.new(
             **options
           ) do |val, *|
             val.nil? ? val : "#{string}#{val}"
@@ -34,7 +34,7 @@ module TableStructure
         end
 
         def create_appender(string, **options)
-          Definition::ColumnConverter.new(
+          Definition::ColumnBuilder.new(
             **options
           ) do |val, *|
             val.nil? ? val : "#{val}#{string}"

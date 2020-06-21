@@ -3,7 +3,7 @@
 module TableStructure
   module Schema
     module Definition
-      class ColumnConverter
+      class ColumnBuilder
         extend Forwardable
 
         def_delegator :@callable, :call

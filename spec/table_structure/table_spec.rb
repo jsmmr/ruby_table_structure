@@ -69,7 +69,7 @@ RSpec.describe TableStructure::Table do
         columns ::Micro::PetTableSchema
         columns ::Micro::QuestionTableSchema
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           val.to_s
         end
       end
@@ -112,18 +112,18 @@ RSpec.describe TableStructure::Table do
     end
   end
 
-  context 'when several `column_converter` are defined' do
-    module ColumnConverter
+  context 'when several `column_builder` are defined' do
+    module ColumnBuilder
       class TestTableSchema
         include ::TableStructure::Schema
 
         columns ::Mono::TestTableSchema
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           val.to_s
         end
 
-        column_converter :empty_to_hyphen, header: true, body: true do |val, *|
+        column_builder :empty_to_hyphen, header: true, body: true do |val, *|
           val.empty? ? '-' : val
         end
       end
@@ -134,7 +134,7 @@ RSpec.describe TableStructure::Table do
     let(:row_type) { :array }
 
     let(:schema) do
-      ColumnConverter::TestTableSchema.new(context: { questions: questions })
+      ColumnBuilder::TestTableSchema.new(context: { questions: questions })
     end
 
     describe 'Table#header' do
@@ -646,13 +646,13 @@ RSpec.describe TableStructure::Table do
               name_prefix: 'Nested ',
               key_prefix: 'nested_'
             ) do
-              column_converter :row_prefix, header: false do |val, *|
+              column_builder :row_prefix, header: false do |val, *|
                 "Nested #{val}"
               end
             end
           }
 
-          column_converter :to_s do |val, *|
+          column_builder :to_s do |val, *|
             val.to_s
           end
         end
@@ -683,7 +683,7 @@ RSpec.describe TableStructure::Table do
             )
           }
 
-          column_converter :row_prefix do |val, *|
+          column_builder :row_prefix do |val, *|
             "Nested #{val}"
           end
         end
@@ -695,7 +695,7 @@ RSpec.describe TableStructure::Table do
         ) do
           columns Nested::TestTableSchema
 
-          column_converter :to_s do |val, *|
+          column_builder :to_s do |val, *|
             val.to_s
           end
         end
@@ -735,7 +735,7 @@ RSpec.describe TableStructure::Table do
                 key: :name,
                 value: ->(row, *) { row[:user_name] }
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           "user: #{val}"
         end
       end
@@ -753,7 +753,7 @@ RSpec.describe TableStructure::Table do
                 key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:user_pets] }
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           "pet: #{val}"
         end
       end
@@ -781,7 +781,7 @@ RSpec.describe TableStructure::Table do
           end
         }
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           "question: #{val}"
         end
       end
@@ -853,8 +853,8 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::UserTableSchema
 
-        column_converter :to_s do
-          raise 'this column_converter will be overwritten.'
+        column_builder :to_s do
+          raise 'this column_builder will be overwritten.'
         end
       end
 
@@ -871,8 +871,8 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::PetTableSchema
 
-        column_converter :to_s do
-          raise 'this column_converter will be overwritten.'
+        column_builder :to_s do
+          raise 'this column_builder will be overwritten.'
         end
       end
 
@@ -889,8 +889,8 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::QuestionTableSchema
 
-        column_converter :to_s do
-          raise 'this column_converter will be overwritten.'
+        column_builder :to_s do
+          raise 'this column_builder will be overwritten.'
         end
       end
     end
@@ -913,7 +913,7 @@ RSpec.describe TableStructure::Table do
               context
             end
 
-            column_converter :to_s do |val, *|
+            column_builder :to_s do |val, *|
               val.to_s
             end
           end
@@ -971,7 +971,7 @@ RSpec.describe TableStructure::Table do
               context[:partner]
             end
 
-            column_converter :to_s do |val, *|
+            column_builder :to_s do |val, *|
               val.to_s
             end
           end

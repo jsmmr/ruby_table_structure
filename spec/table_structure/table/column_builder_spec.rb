@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Table::ColumnConverter do
+RSpec.describe TableStructure::Table::ColumnBuilder do
   describe '.create_module' do
     let(:table_class) do
       Class.new do
@@ -16,7 +16,7 @@ RSpec.describe TableStructure::Table::ColumnConverter do
 
     let(:table) do
       converters = {
-        test: ::TableStructure::Schema::Definition::ColumnConverter.new(
+        test: ::TableStructure::Schema::Definition::ColumnBuilder.new(
           **converter_options
         ) { |val, row, table| "#{table[:name]}_#{row[:name]}_#{val}" }
       }

@@ -3,15 +3,15 @@
 module TableStructure
   module Schema
     module DSL
-      module ColumnConverter
-        def column_converter(
+      module ColumnBuilder
+        def column_builder(
           name,
           header: true,
           body: true,
           &block
         )
-          column_converters[name] =
-            ::TableStructure::Schema::Definition::ColumnConverter.new(
+          column_builders[name] =
+            ::TableStructure::Schema::Definition::ColumnBuilder.new(
               header: header,
               body: body,
               &block
@@ -19,8 +19,8 @@ module TableStructure
           nil
         end
 
-        def column_converters
-          @__column_converters__ ||= {}
+        def column_builders
+          @__column_builders__ ||= {}
         end
       end
     end

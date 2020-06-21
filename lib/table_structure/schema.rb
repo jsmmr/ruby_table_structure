@@ -3,7 +3,7 @@
 module TableStructure
   module Schema
     def self.included(klass)
-      klass.extend(DSL::ColumnConverter)
+      klass.extend(DSL::ColumnBuilder)
       klass.extend(DSL::ColumnDefinition)
       klass.extend(DSL::ContextBuilder)
       klass.extend(DSL::RowBuilder)
@@ -22,7 +22,7 @@ module TableStructure
 
     attr_reader :columns,
                 :context_builders,
-                :column_converters,
+                :column_builders,
                 :key_converter,
                 :row_builders,
                 :context
@@ -50,12 +50,12 @@ module TableStructure
 
       @context = table_context_builder ? table_context_builder.call(context) : context
 
-      @column_converters =
+      @column_builders =
         schema_classes
-        .map(&:column_converters)
+        .map(&:column_builders)
         .reduce({}, &:merge!)
         .merge(
-          ColumnConverter.create_optional_converters(
+          ColumnBuilder.create_optional_builders(
             name_prefix: name_prefix,
             name_suffix: name_suffix
           )
