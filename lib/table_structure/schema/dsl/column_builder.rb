@@ -22,6 +22,8 @@ module TableStructure
         def column_builders
           @__column_builders__ ||= {}
         end
+
+        alias_method :column_converter, :column_builder
       end
     end
   end

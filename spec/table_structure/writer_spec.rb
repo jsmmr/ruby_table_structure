@@ -22,7 +22,7 @@ RSpec.describe TableStructure::Writer do
           require 'tempfile'
 
           schema = ::Mono::TestTableSchema.new(context: context) do
-            column_builder :to_s do |val, *|
+            column_converter :to_s do |val, *|
               val.to_s
             end
           end
