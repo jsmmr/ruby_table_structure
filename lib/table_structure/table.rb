@@ -2,61 +2,46 @@
 
 module TableStructure
   class Table
+    DEFAULT_ROW_BUILDERS = {
+      _to_hash_: Utils::TypedProc.new(
+        types: :hash
+      ) do |values, keys, *|
+        keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
+      end
+    }.freeze
+
     def initialize(schema, row_type: :array)
-      @columns = schema.columns
-      @context = schema.context
-      @key_converter = schema.key_converter
+      @header_row_generator = schema.create_header_row_generator
+      @data_row_generator = schema.create_data_row_generator
 
-      ContextBuilder.create_module(
-        schema.context_builders,
-        apply_to_name: schema.contain_callable?(:name),
-        apply_to_value: schema.contain_callable?(:value),
-        context: schema.context
-      ) { |mod| extend mod }
+      row_builders =
+        DEFAULT_ROW_BUILDERS
+        .merge(schema.row_builders)
+        .select { |_k, v| v.typed?(row_type) }
+        .values
 
-      ColumnBuilder.create_module(
-        schema.column_builders,
-        context: schema.context
-      ) { |mod| extend mod }
-
-      RowBuilder.create_module(
-        schema.row_builders,
-        row_type: row_type,
-        keys: keys,
-        context: schema.context
-      ) { |mod| extend mod }
+      unless row_builders.empty?
+        row_build_task = proc do |row|
+          row.values = row_builders.reduce(row.values) do |values, builder|
+            builder.call(values, row.keys, row.context, schema.context)
+          end
+          row
+        end
+        @header_row_generator.compose(row_build_task)
+        @data_row_generator.compose(row_build_task)
+      end
 
       yield self if block_given?
     end
 
     def header(context: nil)
-      row_values(:names, context)
+      @header_row_generator.call(context).values
     end
 
-    def body(items)
-      Enumerator.new do |y|
-        items.each { |item| y << data(context: item) }
+    def body(contexts)
+      ::Enumerator.new do |y|
+        contexts.each { |context| y << @data_row_generator.call(context).values }
       end
-    end
-
-    private
-
-    def data(context: nil)
-      row_values(:values, context)
-    end
-
-    def keys
-      @keys ||= @key_converter.convert(@columns.map(&:keys).flatten)
-    end
-
-    def size
-      @size ||= @columns.map(&:size).reduce(0, &:+)
-    end
-
-    def row_values(method, context)
-      @columns
-        .map { |column| column.send(method, context, @context) }
-        .flatten
     end
   end
 end

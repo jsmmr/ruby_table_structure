@@ -10,8 +10,8 @@ module TableStructure
           &block
         )
           row_builders[name] =
-            ::TableStructure::Schema::Definition::RowBuilder.new(
-              enabled_row_types: enabled_row_types,
+            ::TableStructure::Utils::TypedProc.new(
+              types: enabled_row_types,
               &block
             )
           nil

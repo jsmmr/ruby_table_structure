@@ -6,23 +6,24 @@ module TableStructure
       class Schema
         def initialize(schema)
           @schema = schema
-          @table = ::TableStructure::Table.new(schema)
+          @header_row_generator = schema.create_header_row_generator
+          @data_row_generator = schema.create_data_row_generator
         end
 
-        def names(header_context, _table_context)
-          @table.header(context: header_context)
+        def names(row_context, *)
+          @header_row_generator.call(row_context).values
         end
 
         def keys
-          @table.send(:keys)
+          @schema.columns_keys
         end
 
-        def values(row_context, _table_context)
-          @table.send(:data, context: row_context)
+        def values(row_context, *)
+          @data_row_generator.call(row_context).values
         end
 
         def size
-          @table.send(:size)
+          @schema.columns_size
         end
 
         def contain_callable?(attribute)

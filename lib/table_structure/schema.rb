@@ -11,20 +11,17 @@ module TableStructure
     end
 
     def self.create_class(&block)
-      raise ::TableStructure::Error, 'No block given.' unless block
+      raise ::TableStructure::Error, 'No block has been given.' unless block
 
-      schema_module = self
-      Class.new do
-        include schema_module
+      ::Class.new do
+        include Schema
         class_eval(&block)
       end
     end
 
-    attr_reader :columns,
-                :context_builders,
-                :column_builders,
-                :key_converter,
-                :row_builders,
+    Row = ::Struct.new(:keys, :values, :context)
+
+    attr_reader :row_builders,
                 :context
 
     def initialize(
@@ -37,54 +34,81 @@ module TableStructure
       nil_definitions_ignored: false,
       &block
     )
-      schema_classes = [self.class]
+      schema_class = CompositeClass.new.compose(self.class)
+      schema_class.compose(Schema.create_class(&block)) if block
 
-      schema_classes << ::TableStructure::Schema.create_class(&block) if block_given?
+      context_builders = schema_class.context_builders
 
-      @context_builders =
-        schema_classes
-        .map(&:context_builders)
-        .reduce({}, &:merge!)
-
-      table_context_builder = @context_builders.delete(:table)
+      table_context_builder = context_builders.delete(:table)
 
       @context = table_context_builder ? table_context_builder.call(context) : context
 
-      @column_builders =
-        schema_classes
-        .map(&:column_builders)
-        .reduce({}, &:merge!)
-        .merge(
-          ColumnBuilder.create_optional_builders(
-            name_prefix: name_prefix,
-            name_suffix: name_suffix
-          )
-        )
+      @row_context_builder_factory = RowContextBuilderFactory.new(self, context_builders)
 
-      @key_converter = KeyConverter.new(
+      @column_builder_factory = ColumnBuilderFactory.new(
+        schema_class.column_builders,
+        context: @context,
+        name_prefix: name_prefix,
+        name_suffix: name_suffix
+      )
+
+      @keys_builder = KeysBuilder.new(
         prefix: key_prefix,
         suffix: key_suffix
       )
 
-      @row_builders =
-        RowBuilder.prepend_default_builders(
-          schema_classes
-            .map(&:row_builders)
-            .reduce({}, &:merge!)
-        )
+      @row_builders = schema_class.row_builders
 
       @columns =
         Definition::Columns::Compiler
         .new(
           name,
-          schema_classes.map(&:column_definitions).reduce([], &:concat),
+          schema_class.column_definitions,
           { nil_definitions_ignored: nil_definitions_ignored }
         )
         .compile(@context)
     end
 
+    def columns_keys
+      @columns_keys ||= @keys_builder.build(@columns.map(&:keys).flatten)
+    end
+
+    def columns_size
+      @columns.map(&:size).reduce(0, &:+)
+    end
+
     def contain_callable?(attribute)
       @columns.any? { |column| column.contain_callable?(attribute) }
+    end
+
+    def create_header_row_generator
+      ::TableStructure::Utils::CompositeCallable.new.compose(
+        @row_context_builder_factory.create_header_builder,
+        proc do |context|
+          values =
+            @columns
+            .map { |column| column.names(context, @context) }
+            .flatten
+
+          Row.new(columns_keys, values, context)
+        end,
+        @column_builder_factory.create_header_builder
+      )
+    end
+
+    def create_data_row_generator
+      ::TableStructure::Utils::CompositeCallable.new.compose(
+        @row_context_builder_factory.create_data_builder,
+        proc do |context|
+          values =
+            @columns
+            .map { |column| column.values(context, @context) }
+            .flatten
+
+          Row.new(columns_keys, values, context)
+        end,
+        @column_builder_factory.create_data_builder
+      )
     end
   end
 end

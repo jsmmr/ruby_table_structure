@@ -11,9 +11,8 @@ module TableStructure
           &block
         )
           column_builders[name] =
-            ::TableStructure::Schema::Definition::ColumnBuilder.new(
-              header: header,
-              body: body,
+            ::TableStructure::Utils::TypedProc.new(
+              types: { header: !!header, body: !!body }.select { |_k, v| v }.keys,
               &block
             )
           nil
@@ -23,7 +22,7 @@ module TableStructure
           @__column_builders__ ||= {}
         end
 
-        alias_method :column_converter, :column_builder
+        alias column_converter column_builder
       end
     end
   end
