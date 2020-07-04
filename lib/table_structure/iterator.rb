@@ -12,6 +12,17 @@ module TableStructure
           @context = options[:context]
           @step = options[:step]
         end
+
+        validate
+      end
+
+      private
+
+      def validate
+        if @step
+          raise ::TableStructure::Error, ':step must be numeric.' unless @step.is_a?(Numeric)
+          raise ::TableStructure::Error, ':step must be positive number.' unless @step.positive?
+        end
       end
     end
 
@@ -25,9 +36,7 @@ module TableStructure
     end
 
     def iterate(items, &block)
-      unless items.respond_to?(:each)
-        raise ::TableStructure::Error, "Must be enumerable. #{items}"
-      end
+      raise ::TableStructure::Error, "Must be enumerable. #{items}" unless items.respond_to?(:each)
 
       table_enum = ::Enumerator.new do |y|
         body_enum = @table.body(items)
@@ -36,7 +45,7 @@ module TableStructure
           header_row = @table.header(context: @header_options.context)
           y << header_row
 
-          if @header_options.step&.positive?
+          if @header_options.step
             loop do
               @header_options.step.times { y << body_enum.next }
               y << header_row
