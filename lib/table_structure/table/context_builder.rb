@@ -24,13 +24,9 @@ module TableStructure
 
         methods = {}
 
-        if apply_to_name && builders.key?(:header)
-          methods[:header] = create_method(builders[:header])
-        end
+        methods[:header] = create_method(builders[:header]) if apply_to_name && builders.key?(:header)
 
-        if apply_to_value && builders.key?(:row)
-          methods[:data] = create_method(builders[:row])
-        end
+        methods[:data] = create_method(builders[:row]) if apply_to_value && builders.key?(:row)
 
         yield ContextBuildable.new(methods)
       end

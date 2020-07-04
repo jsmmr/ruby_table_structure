@@ -19,13 +19,9 @@ module TableStructure
 
         methods = {}
 
-        unless header_converters.empty?
-          methods[:header] = create_method(header_converters, context)
-        end
+        methods[:header] = create_method(header_converters, context) unless header_converters.empty?
 
-        unless body_converters.empty?
-          methods[:data] = create_method(body_converters, context)
-        end
+        methods[:data] = create_method(body_converters, context) unless body_converters.empty?
 
         yield ColumnConvertible.new(methods)
       end

@@ -39,9 +39,7 @@ module TableStructure
     )
       schema_classes = [self.class]
 
-      if block_given?
-        schema_classes << ::TableStructure::Schema.create_class(&block)
-      end
+      schema_classes << ::TableStructure::Schema.create_class(&block) if block_given?
 
       @context_builders =
         schema_classes
