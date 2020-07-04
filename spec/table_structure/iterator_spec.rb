@@ -8,6 +8,37 @@ RSpec.describe TableStructure::Iterator do
     let(:context) { { questions: questions } }
     let(:items) { users }
 
+    context 'options validation' do
+      subject do
+        described_class.new(
+          ::Mono::TestTableSchema.new(context: context),
+          **header_options
+        )
+      end
+
+      context 'when header step is not numeric' do
+        let(:header_options) do
+          { header: { step: 'a' } }
+        end
+
+        it 'raises error' do
+          expect { subject }
+            .to raise_error ':step must be numeric.'
+        end
+      end
+
+      context 'when header step is negative' do
+        let(:header_options) do
+          { header: { step: 0 } }
+        end
+
+        it 'raises error' do
+          expect { subject }
+            .to raise_error ':step must be positive number.'
+        end
+      end
+    end
+
     context 'when :row_type is :array' do
       include_context 'table_structured_array'
 
@@ -38,23 +69,12 @@ RSpec.describe TableStructure::Iterator do
             expect(subject[2]).to eq body_row_hanako
             expect(subject[3]).to eq body_row_jiro
           end
-        end
 
-        describe '#take' do
-          subject { iterator.iterate(items).lazy.take(1).force }
-          it 'returns rows as array with header' do
-            expect(subject.size).to eq 1
-            expect(subject[0]).to eq header_row
-          end
-        end
+          context 'with positive step' do
+            let(:header_options) do
+              { header: { step: 2 } }
+            end
 
-        context 'with positive step' do
-          let(:header_options) do
-            { header: { step: 2 } }
-          end
-
-          describe '#map' do
-            subject { iterator.iterate(items).map(&:itself) }
             it 'returns rows as array with header' do
               expect(subject.size).to eq 5
               expect(subject[0]).to eq header_row
@@ -66,20 +86,11 @@ RSpec.describe TableStructure::Iterator do
           end
         end
 
-        context 'with negative step' do
-          let(:header_options) do
-            { header: { step: 0 } }
-          end
-
-          describe '#map' do
-            subject { iterator.iterate(items).map(&:itself) }
-            it 'returns rows as array with header' do
-              expect(subject.size).to eq 4
-              expect(subject[0]).to eq header_row
-              expect(subject[1]).to eq body_row_taro
-              expect(subject[2]).to eq body_row_hanako
-              expect(subject[3]).to eq body_row_jiro
-            end
+        describe '#take' do
+          subject { iterator.iterate(items).lazy.take(1).force }
+          it 'returns rows as array with header' do
+            expect(subject.size).to eq 1
+            expect(subject[0]).to eq header_row
           end
         end
       end
@@ -139,23 +150,12 @@ RSpec.describe TableStructure::Iterator do
             expect(subject[2]).to eq body_row_hanako
             expect(subject[3]).to eq body_row_jiro
           end
-        end
 
-        describe '#take' do
-          subject { iterator.iterate(items).lazy.take(1).force }
-          it 'returns rows as hash with header' do
-            expect(subject.size).to eq 1
-            expect(subject[0]).to eq header_row
-          end
-        end
+          context 'with positive step' do
+            let(:header_options) do
+              { header: { step: 2 } }
+            end
 
-        context 'with positive step' do
-          let(:header_options) do
-            { header: { step: 2 } }
-          end
-
-          describe '#map' do
-            subject { iterator.iterate(items).map(&:itself) }
             it 'returns rows as hash with header' do
               expect(subject.size).to eq 5
               expect(subject[0]).to eq header_row
@@ -167,20 +167,11 @@ RSpec.describe TableStructure::Iterator do
           end
         end
 
-        context 'with negative step' do
-          let(:header_options) do
-            { header: { step: 0 } }
-          end
-
-          describe '#map' do
-            subject { iterator.iterate(items).map(&:itself) }
-            it 'returns rows as hash with header' do
-              expect(subject.size).to eq 4
-              expect(subject[0]).to eq header_row
-              expect(subject[1]).to eq body_row_taro
-              expect(subject[2]).to eq body_row_hanako
-              expect(subject[3]).to eq body_row_jiro
-            end
+        describe '#take' do
+          subject { iterator.iterate(items).lazy.take(1).force }
+          it 'returns rows as hash with header' do
+            expect(subject.size).to eq 1
+            expect(subject[0]).to eq header_row
           end
         end
       end
