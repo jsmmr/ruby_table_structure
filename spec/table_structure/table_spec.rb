@@ -69,7 +69,7 @@ RSpec.describe TableStructure::Table do
         columns ::Micro::PetTableSchema
         columns ::Micro::QuestionTableSchema
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           val.to_s
         end
       end
@@ -112,19 +112,31 @@ RSpec.describe TableStructure::Table do
     end
   end
 
-  context 'when several `column_converter` are defined' do
-    module ColumnConverter
+  context 'when several `column_builder` are defined' do
+    module ColumnBuilder
       class TestTableSchema
         include ::TableStructure::Schema
 
         columns ::Mono::TestTableSchema
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           val.to_s
         end
 
-        column_converter :empty_to_hyphen, header: true, body: true do |val, *|
+        column_builder :header_decoration, header: true, body: false do |val, *|
+          !val.empty? ? "[#{val}]" : val
+        end
+
+        column_builder :body_decoration, header: false, body: true do |val, *|
+          !val.empty? ? "(#{val})" : val
+        end
+
+        column_builder :empty_to_hyphen, header: true, body: true do |val, *|
           val.empty? ? '-' : val
+        end
+
+        column_builder :unreachable, header: false, body: false do |*|
+          nil
         end
       end
     end
@@ -134,7 +146,7 @@ RSpec.describe TableStructure::Table do
     let(:row_type) { :array }
 
     let(:schema) do
-      ColumnConverter::TestTableSchema.new(context: { questions: questions })
+      ColumnBuilder::TestTableSchema.new(context: { questions: questions })
     end
 
     describe 'Table#header' do
@@ -142,14 +154,14 @@ RSpec.describe TableStructure::Table do
 
       it {
         is_expected.to eq [
-          'ID',
-          'Name',
-          'Pet 1',
-          'Pet 2',
-          'Pet 3',
-          'Q1',
-          'Q2',
-          'Q3'
+          '[ID]',
+          '[Name]',
+          '[Pet 1]',
+          '[Pet 2]',
+          '[Pet 3]',
+          '[Q1]',
+          '[Q2]',
+          '[Q3]'
         ]
       }
     end
@@ -161,14 +173,14 @@ RSpec.describe TableStructure::Table do
 
       it {
         is_expected.to eq [
-          '1',
-          '太郎',
-          'cat',
-          'dog',
+          '(1)',
+          '(太郎)',
+          '(cat)',
+          '(dog)',
           '-',
-          'yes',
-          'no',
-          'yes'
+          '(yes)',
+          '(no)',
+          '(yes)'
         ]
       }
     end
@@ -331,49 +343,101 @@ RSpec.describe TableStructure::Table do
   context 'when `row_builder` is defined' do
     include_context 'questions'
 
-    require 'ostruct'
+    context 'for :array' do
+      let(:row_type) { :array }
 
-    let(:row_type) { :hash }
-
-    let(:schema) do
-      ::Mono::WithKeys::TestTableSchema.new(
-        context: { questions: questions }
-      ) do
-        row_builder :to_ostruct, enabled_row_types: [:hash] do |values, *|
-          OpenStruct.new(values)
+      let(:schema) do
+        ::Mono::WithKeys::TestTableSchema.new(
+          context: { questions: questions }
+        ) do
+          row_builder :reversible, enabled_row_types: :array do |values, *|
+            values.reverse!
+          end
         end
       end
-    end
 
-    describe 'Table#header' do
-      subject { table.header }
+      describe 'Table#header' do
+        subject { table.header }
 
-      it 'returns header columns' do
-        expect(subject.id).to eq 'ID'
-        expect(subject.name).to eq 'Name'
-        expect(subject.pet1).to eq 'Pet 1'
-        expect(subject.pet2).to eq 'Pet 2'
-        expect(subject.pet3).to eq 'Pet 3'
-        expect(subject.q1).to eq 'Q1'
-        expect(subject.q2).to eq 'Q2'
-        expect(subject.q3).to eq 'Q3'
+        it {
+          is_expected.to eq [
+            'Q3',
+            'Q2',
+            'Q1',
+            'Pet 3',
+            'Pet 2',
+            'Pet 1',
+            'Name',
+            'ID'
+          ]
+        }
+      end
+
+      describe 'Table#body' do
+        include_context 'users'
+
+        subject { table.body(users).first }
+
+        it {
+          is_expected.to eq [
+            'yes',
+            'no',
+            'yes',
+            nil,
+            'dog',
+            'cat',
+            '太郎',
+            1
+          ]
+        }
       end
     end
 
-    describe 'Table#body' do
-      include_context 'users'
+    context 'for :hash' do
+      require 'ostruct'
 
-      subject { table.body(users).first }
+      let(:row_type) { :hash }
 
-      it 'returns row columns' do
-        expect(subject.id).to eq 1
-        expect(subject.name).to eq '太郎'
-        expect(subject.pet1).to eq 'cat'
-        expect(subject.pet2).to eq 'dog'
-        expect(subject.pet3).to eq nil
-        expect(subject.q1).to eq 'yes'
-        expect(subject.q2).to eq 'no'
-        expect(subject.q3).to eq 'yes'
+      let(:schema) do
+        ::Mono::WithKeys::TestTableSchema.new(
+          context: { questions: questions }
+        ) do
+          row_builder :to_ostruct, enabled_row_types: [:hash] do |values, *|
+            OpenStruct.new(values)
+          end
+        end
+      end
+
+      describe 'Table#header' do
+        subject { table.header }
+
+        it 'returns header columns' do
+          expect(subject.id).to eq 'ID'
+          expect(subject.name).to eq 'Name'
+          expect(subject.pet1).to eq 'Pet 1'
+          expect(subject.pet2).to eq 'Pet 2'
+          expect(subject.pet3).to eq 'Pet 3'
+          expect(subject.q1).to eq 'Q1'
+          expect(subject.q2).to eq 'Q2'
+          expect(subject.q3).to eq 'Q3'
+        end
+      end
+
+      describe 'Table#body' do
+        include_context 'users'
+
+        subject { table.body(users).first }
+
+        it 'returns row columns' do
+          expect(subject.id).to eq 1
+          expect(subject.name).to eq '太郎'
+          expect(subject.pet1).to eq 'cat'
+          expect(subject.pet2).to eq 'dog'
+          expect(subject.pet3).to eq nil
+          expect(subject.q1).to eq 'yes'
+          expect(subject.q2).to eq 'no'
+          expect(subject.q3).to eq 'yes'
+        end
       end
     end
   end
@@ -646,13 +710,13 @@ RSpec.describe TableStructure::Table do
               name_prefix: 'Nested ',
               key_prefix: 'nested_'
             ) do
-              column_converter :row_prefix, header: false do |val, *|
+              column_builder :row_prefix, header: false do |val, *|
                 "Nested #{val}"
               end
             end
           }
 
-          column_converter :to_s do |val, *|
+          column_builder :to_s do |val, *|
             val.to_s
           end
         end
@@ -683,7 +747,7 @@ RSpec.describe TableStructure::Table do
             )
           }
 
-          column_converter :row_prefix do |val, *|
+          column_builder :row_prefix do |val, *|
             "Nested #{val}"
           end
         end
@@ -695,7 +759,7 @@ RSpec.describe TableStructure::Table do
         ) do
           columns Nested::TestTableSchema
 
-          column_converter :to_s do |val, *|
+          column_builder :to_s do |val, *|
             val.to_s
           end
         end
@@ -735,7 +799,7 @@ RSpec.describe TableStructure::Table do
                 key: :name,
                 value: ->(row, *) { row[:user_name] }
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           "user: #{val}"
         end
       end
@@ -753,7 +817,7 @@ RSpec.describe TableStructure::Table do
                 key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:user_pets] }
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           "pet: #{val}"
         end
       end
@@ -781,7 +845,7 @@ RSpec.describe TableStructure::Table do
           end
         }
 
-        column_converter :to_s do |val, *|
+        column_builder :to_s do |val, *|
           "question: #{val}"
         end
       end
@@ -853,8 +917,8 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::UserTableSchema
 
-        column_converter :to_s do
-          raise 'this column_converter will be overwritten.'
+        column_builder :to_s do
+          raise 'this column_builder will be overwritten.'
         end
       end
 
@@ -871,8 +935,8 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::PetTableSchema
 
-        column_converter :to_s do
-          raise 'this column_converter will be overwritten.'
+        column_builder :to_s do
+          raise 'this column_builder will be overwritten.'
         end
       end
 
@@ -889,8 +953,8 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::QuestionTableSchema
 
-        column_converter :to_s do
-          raise 'this column_converter will be overwritten.'
+        column_builder :to_s do
+          raise 'this column_builder will be overwritten.'
         end
       end
     end
@@ -913,7 +977,7 @@ RSpec.describe TableStructure::Table do
               context
             end
 
-            column_converter :to_s do |val, *|
+            column_builder :to_s do |val, *|
               val.to_s
             end
           end
@@ -971,7 +1035,7 @@ RSpec.describe TableStructure::Table do
               context[:partner]
             end
 
-            column_converter :to_s do |val, *|
+            column_builder :to_s do |val, *|
               val.to_s
             end
           end

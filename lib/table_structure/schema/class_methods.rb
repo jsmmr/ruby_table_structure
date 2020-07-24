@@ -36,9 +36,9 @@ module TableStructure
             .map(&:context_builders)
             .reduce({}, &:merge!)
 
-          @__column_converters__ =
+          @__column_builders__ =
             schema_classes
-            .map(&:column_converters)
+            .map(&:column_builders)
             .reduce({}, &:merge!)
 
           @__row_builders__ =
