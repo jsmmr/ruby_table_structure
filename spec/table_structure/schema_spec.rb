@@ -39,8 +39,8 @@ RSpec.describe TableStructure::Schema do
     it { is_expected.to eq 8 }
   end
 
-  describe '#contain_callable?' do
-    subject { schema.contain_callable?(attribute) }
+  describe '#contain_name_callable?' do
+    subject { schema.contain_name_callable? }
 
     context 'when callables are contained' do
       let(:schema) do
@@ -51,15 +51,8 @@ RSpec.describe TableStructure::Schema do
         schema_class.new
       end
 
-      context 'attribute: name' do
-        let(:attribute) { :name }
-        it { is_expected.to be true }
-      end
-
-      context 'attribute: value' do
-        let(:attribute) { :value }
-        it { is_expected.to be true }
-      end
+      subject { schema.contain_name_callable? }
+      it { is_expected.to be true }
     end
 
     context 'when callables are not contained' do
@@ -71,15 +64,38 @@ RSpec.describe TableStructure::Schema do
         schema_class.new
       end
 
-      context 'attribute: name' do
-        let(:attribute) { :name }
-        it { is_expected.to be false }
+      subject { schema.contain_name_callable? }
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#contain_value_callable?' do
+    subject { schema.contain_value_callable? }
+
+    context 'when callables are contained' do
+      let(:schema) do
+        schema_class = ::TableStructure::Schema.create_class do
+          column name: 'a', key: :a, value: ->(*) { 1 }
+          column name: ->(*) { 'b' }, key: :b, value: 2
+        end
+        schema_class.new
       end
 
-      context 'attribute: value' do
-        let(:attribute) { :value }
-        it { is_expected.to be false }
+      subject { schema.contain_value_callable? }
+      it { is_expected.to be true }
+    end
+
+    context 'when callables are not contained' do
+      let(:schema) do
+        schema_class = ::TableStructure::Schema.create_class do
+          column name: 'a', key: :a, value: '1'
+          column name: 'b', key: :b, value: '2'
+        end
+        schema_class.new
       end
+
+      subject { schema.contain_value_callable? }
+      it { is_expected.to be false }
     end
   end
 

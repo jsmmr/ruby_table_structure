@@ -7,25 +7,30 @@ module TableStructure
         attr_reader :keys, :size
 
         def initialize(name:, key:, value:, size:)
-          @name = name
+          @name_callable = Utils.callable?(name)
+          @name = @name_callable ? name : proc { name }
           @keys = optimize_size([key].flatten, size)
-          @value = value
+          @value_callable = Utils.callable?(value)
+          @value = @value_callable ? value : proc { value }
           @size = size
         end
 
         def names(context, table_context)
-          name = Utils.evaluate_callable(@name, context, table_context)
-          optimize_size(name, @size)
+          names = @name.call(context, table_context)
+          optimize_size(names, @size)
         end
 
         def values(context, table_context)
-          value = Utils.evaluate_callable(@value, context, table_context)
-          optimize_size(value, @size)
+          values = @value.call(context, table_context)
+          optimize_size(values, @size)
         end
 
-        def contain_callable?(attribute)
-          val = instance_variable_get("@#{attribute}")
-          Utils.callable?(val)
+        def name_callable?
+          @name_callable
+        end
+
+        def value_callable?
+          @value_callable
         end
 
         private

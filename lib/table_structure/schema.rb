@@ -77,8 +77,12 @@ module TableStructure
       @columns.map(&:size).reduce(0, &:+)
     end
 
-    def contain_callable?(attribute)
-      @columns.any? { |column| column.contain_callable?(attribute) }
+    def contain_name_callable?
+      @columns.any? { |column| column.name_callable? }
+    end
+
+    def contain_value_callable?
+      @columns.any? { |column| column.value_callable? }
     end
 
     def create_header_row_generator

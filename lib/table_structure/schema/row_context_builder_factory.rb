@@ -9,7 +9,7 @@ module TableStructure
       end
 
       def create_header_builder
-        return unless @schema.contain_callable?(:name)
+        return unless @schema.contain_name_callable?
         return unless @builders.key?(:header)
 
         proc do |context|
@@ -18,7 +18,7 @@ module TableStructure
       end
 
       def create_data_builder
-        return unless @schema.contain_callable?(:value)
+        return unless @schema.contain_value_callable?
         return unless @builders.key?(:row)
 
         proc do |context|

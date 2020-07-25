@@ -19,7 +19,7 @@ RSpec.describe TableStructure::Schema::RowContextBuilderFactory do
 
     let(:header_builder) { factory.create_header_builder }
 
-    before { expect(schema).to receive(:contain_callable?).with(:name).and_return(contain_callable) }
+    before { expect(schema).to receive(:contain_name_callable?).and_return(contain_callable) }
 
     context 'when schema contains callable' do
       let(:contain_callable) { true }
@@ -50,7 +50,7 @@ RSpec.describe TableStructure::Schema::RowContextBuilderFactory do
 
     let(:data_builder) { factory.create_data_builder }
 
-    before { expect(schema).to receive(:contain_callable?).with(:value).and_return(contain_callable) }
+    before { expect(schema).to receive(:contain_value_callable?).and_return(contain_callable) }
 
     context 'when schema contains callable' do
       let(:contain_callable) { true }

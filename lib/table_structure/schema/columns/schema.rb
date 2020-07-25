@@ -26,8 +26,12 @@ module TableStructure
           @schema.columns_size
         end
 
-        def contain_callable?(attribute)
-          @schema.contain_callable?(attribute)
+        def name_callable?
+          @schema.contain_name_callable?
+        end
+
+        def value_callable?
+          @schema.contain_value_callable?
         end
       end
     end

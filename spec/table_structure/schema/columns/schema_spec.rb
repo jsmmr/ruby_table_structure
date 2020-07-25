@@ -41,12 +41,17 @@ RSpec.describe TableStructure::Schema::Columns::Schema do
     end
   end
 
-  describe '#contain_callable?' do
-    let(:attribute) { 'attribute' }
-
+  describe '#name_callable?' do
     it 'delegates to schema' do
-      expect(schema).to receive(:contain_callable?).with(attribute)
-      column.contain_callable?(attribute)
+      expect(schema).to receive(:contain_name_callable?)
+      column.name_callable?
+    end
+  end
+
+  describe '#value_callable?' do
+    it 'delegates to schema' do
+      expect(schema).to receive(:contain_value_callable?)
+      column.value_callable?
     end
   end
 end
