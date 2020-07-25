@@ -64,7 +64,7 @@ module TableStructure
         .new(
           name,
           schema_class.column_definitions,
-          { nil_definitions_ignored: nil_definitions_ignored }
+          nil_definitions_ignored: nil_definitions_ignored
         )
         .compile(@context)
     end
