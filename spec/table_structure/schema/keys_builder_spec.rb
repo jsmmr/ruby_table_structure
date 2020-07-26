@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe TableStructure::Schema::KeyConverter do
-  describe '#convert' do
-    subject { described_class.new(**options).convert(keys) }
+RSpec.describe TableStructure::Schema::KeysBuilder do
+  describe '#build' do
+    subject { described_class.new(**options).build(keys) }
 
     let(:keys) { [:a, 'b', nil, '', 1] }
 

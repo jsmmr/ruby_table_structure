@@ -36,8 +36,6 @@ module TableStructure
       nil
     end
 
-    private
-
     class Output
       def initialize(output, method: :<<)
         @output = output

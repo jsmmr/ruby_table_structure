@@ -6,10 +6,7 @@ module TableStructure
       module ContextBuilder
         # TODO: Change definition style
         def context_builder(name, &block)
-          context_builders[name] =
-            ::TableStructure::Schema::Definition::ContextBuilder.new(
-              &block
-            )
+          context_builders[name] = block
           nil
         end
 

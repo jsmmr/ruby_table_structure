@@ -1,3 +1,13 @@
+# 0.4.2
+Changes:
+- `TableStructure::Schema`
+  - Improve performance.
+- `TableStructure::Iterator`
+- `TableStructure::Writer`
+- `TableStructure::CSV::Writer`
+  - Add validation for `header: { step: n }` option.
+    - `n` is allowed positive number or `nil`(default).
+
 # 0.4.1
 Changes:
 - `TableStructure::Iterator`

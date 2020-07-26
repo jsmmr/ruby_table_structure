@@ -5,10 +5,14 @@ module TableStructure
     module Definition
       module Columns
         class Compiler
-          def initialize(schema_name, definitions, options)
+          def initialize(
+            schema_name,
+            definitions,
+            nil_definitions_ignored: false
+          )
             @schema_name = schema_name
             @definitions = definitions
-            @options = options
+            @nil_definitions_ignored = !!nil_definitions_ignored
           end
 
           def compile(context = nil)
@@ -26,7 +30,7 @@ module TableStructure
                       SchemaInstance.new(definition)
                     elsif Utils.schema_class?(definition)
                       SchemaClass.new(definition)
-                    elsif definition.nil? && @options[:nil_definitions_ignored]
+                    elsif definition.nil? && @nil_definitions_ignored
                       next
                     else
                       raise Error.new('Invalid definition.', @schema_name, i)

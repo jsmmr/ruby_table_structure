@@ -43,18 +43,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 1 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -100,18 +96,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 1 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -157,18 +149,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 1 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq true }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq true }
     end
   end
 
@@ -214,18 +202,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 1 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq true }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq true }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -271,18 +255,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 3 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -328,18 +308,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 3 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -385,18 +361,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 3 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -442,18 +414,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 3 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -499,18 +467,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 3 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -556,18 +520,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 1 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -613,18 +573,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 2 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -670,18 +626,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 4 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -727,18 +679,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 2 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq false }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq false }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 
@@ -784,18 +732,14 @@ RSpec.describe TableStructure::Schema::Columns::Attributes do
       it { is_expected.to eq 2 }
     end
 
-    describe '#contain_callable?' do
-      subject { column.contain_callable?(attribute) }
+    describe '#name_callable?' do
+      subject { column.name_callable? }
+      it { is_expected.to eq true }
+    end
 
-      context 'attribute: :name' do
-        let(:attribute) { :name }
-        it { is_expected.to eq true }
-      end
-
-      context 'attribute: :value' do
-        let(:attribute) { :value }
-        it { is_expected.to eq false }
-      end
+    describe '#value_callable?' do
+      subject { column.value_callable? }
+      it { is_expected.to eq false }
     end
   end
 end
