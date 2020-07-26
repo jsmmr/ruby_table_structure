@@ -56,7 +56,7 @@ class SampleTableSchema
     end
   }
 
-  column_converter :to_s do |val, _row, _table|
+  column_builder :to_s do |val, _row, _table|
     val.to_s
   end
 end
@@ -275,7 +275,7 @@ class UserTableSchema
 end
 
 schema = UserTableSchema.new do
-  column_converter :to_s do |val, *|
+  column_builder :to_s do |val|
     val.to_s
   end
 end
@@ -420,9 +420,9 @@ You can also concatenate or merge the schema classes.
 Both create a schema class, with a few differences.
 - `+`
   - Similar to nesting the schemas.
-    `column_converter` works only to columns in the schema that they was defined.
+    `column_builder` works only to columns in the schema that they was defined.
 - `merge`
-  - If there are some definitions of `column_converter` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
+  - If there are some definitions of `column_builder` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
 
 ```ruby
 class UserTableSchema
@@ -441,7 +441,7 @@ class PetTableSchema
   columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 
-  column_converter :same_name do |val, *|
+  column_builder :same_name do |val|
     "pet: #{val}"
   end
 end
@@ -458,7 +458,7 @@ class QuestionTableSchema
     end
   }
 
-  column_converter :same_name do |val, *|
+  column_builder :same_name do |val|
     "question: #{val}"
   end
 end
