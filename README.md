@@ -106,10 +106,10 @@ items = [
 ## or
 # items = Enumerator.new { |y| Item.find_each { |item| y << item } }
 
-table = []
-writer.write(items, to: table)
+array = []
+writer.write(items, to: array)
 
-# table
+# array
 # => [["ID", "Name", "Pet 1", "Pet 2", "Pet 3", "Q1", "Q2", "Q3"], ["1", "Taro", "🐱", "🐶", "", "⭕️", "❌", "⭕️"], ["2", "Hanako", "🐇", "🐢", "🐿", "⭕️", "⭕️", "❌"]]
 ```
 
