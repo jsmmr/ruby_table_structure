@@ -8,14 +8,40 @@ RSpec.describe TableStructure::Schema do
 
     context 'when block has been given' do
       let(:block) { proc { column name: 'ID', value: 1 } }
-
       it { is_expected.to be_a ::Class }
     end
 
     context 'when no block has been given' do
       let(:block) { nil }
-
       it { expect { subject }.to raise_error 'No block has been given.' }
+    end
+  end
+
+  describe '.+' do
+    subject { ::Mono::TestTableSchema + schema_class }
+
+    context 'valid' do
+      let(:schema_class) { ::Mono::TestTableSchema }
+      it { is_expected.to be_a ::Class }
+    end
+
+    context 'invalid' do
+      let(:schema_class) { 'foo' }
+      it { expect { subject }.to raise_error 'Must be a schema class. [foo]' }
+    end
+  end
+
+  describe '.merge' do
+    subject { ::Mono::TestTableSchema.merge(schema_class) }
+
+    context 'valid' do
+      let(:schema_class) { ::Mono::TestTableSchema }
+      it { is_expected.to be_a ::Class }
+    end
+
+    context 'invalid' do
+      let(:schema_class) { 'foo' }
+      it { expect { subject }.to raise_error 'Must be a schema class. [foo]' }
     end
   end
 

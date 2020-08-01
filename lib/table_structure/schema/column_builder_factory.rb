@@ -18,7 +18,7 @@ module TableStructure
           optional_builders[:_name_prepender_] =
             ::TableStructure::Utils::TypedProc.new(
               types: :header
-            ) do |val, *|
+            ) do |val|
               val.nil? ? val : "#{name_prefix}#{val}"
             end
         end
@@ -27,7 +27,7 @@ module TableStructure
           optional_builders[:_name_appender_] =
             ::TableStructure::Utils::TypedProc.new(
               types: :header
-            ) do |val, *|
+            ) do |val|
               val.nil? ? val : "#{val}#{name_suffix}"
             end
         end

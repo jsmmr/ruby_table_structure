@@ -18,7 +18,7 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Validator do
     describe '.new' do
       it 'raises error' do
         expect { validator.validate(**attrs) }
-          .to raise_error '"key" must not be lambda. [TestTableSchema] defined position of column(s): 1'
+          .to raise_error '"key" must not be callable. [TestTableSchema] defined position of column(s): 1'
       end
     end
   end

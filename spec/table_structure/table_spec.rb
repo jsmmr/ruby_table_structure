@@ -69,7 +69,7 @@ RSpec.describe TableStructure::Table do
         columns ::Micro::PetTableSchema
         columns ::Micro::QuestionTableSchema
 
-        column_builder :to_s do |val, *|
+        column_builder :to_s do |val|
           val.to_s
         end
       end
@@ -799,7 +799,7 @@ RSpec.describe TableStructure::Table do
                 key: :name,
                 value: ->(row, *) { row[:user_name] }
 
-        column_builder :to_s do |val, *|
+        column_builder :to_s do |val|
           "user: #{val}"
         end
       end
@@ -817,7 +817,7 @@ RSpec.describe TableStructure::Table do
                 key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:user_pets] }
 
-        column_builder :to_s do |val, *|
+        column_builder :to_s do |val|
           "pet: #{val}"
         end
       end
@@ -845,7 +845,7 @@ RSpec.describe TableStructure::Table do
           end
         }
 
-        column_builder :to_s do |val, *|
+        column_builder :to_s do |val|
           "question: #{val}"
         end
       end
@@ -977,7 +977,7 @@ RSpec.describe TableStructure::Table do
               context
             end
 
-            column_builder :to_s do |val, *|
+            column_builder :to_s do |val|
               val.to_s
             end
           end
@@ -1035,7 +1035,7 @@ RSpec.describe TableStructure::Table do
               context[:partner]
             end
 
-            column_builder :to_s do |val, *|
+            column_builder :to_s do |val|
               val.to_s
             end
           end

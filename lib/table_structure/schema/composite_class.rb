@@ -15,7 +15,7 @@ module TableStructure
       def column_definitions
         @classes
           .map(&:column_definitions)
-          .reduce([], &:concat)
+          .flatten
       end
 
       def context_builders
