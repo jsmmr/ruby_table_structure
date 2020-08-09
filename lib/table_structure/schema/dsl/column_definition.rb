@@ -10,7 +10,11 @@ module TableStructure
         end
 
         def columns(definition)
-          column(definition)
+          if definition.is_a?(Hash)
+            warn "[TableStructure] Use `column` instead of `columns`.", uplevel: 1
+          end
+          column_definitions << definition
+          nil
         end
 
         def column_definitions

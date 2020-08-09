@@ -10,7 +10,7 @@ module Mono
     column  name: 'Name',
             value: ->(row, *) { row[:name] }
 
-    columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+    column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
             value: ->(row, *) { row[:pets] }
 
     columns lambda { |table|
@@ -35,7 +35,7 @@ module Mono
               key: :name,
               value: ->(row, *) { row[:name] }
 
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+      column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
               key: %i[pet1 pet2 pet3],
               value: ->(row, *) { row[:pets] }
 
@@ -66,7 +66,7 @@ module Micro
   class PetTableSchema
     include TableStructure::Schema
 
-    columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+    column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
             value: ->(row, *) { row[:pets] }
   end
 
@@ -99,7 +99,7 @@ module Micro
     class PetTableSchema
       include TableStructure::Schema
 
-      columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+      column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
               key: %i[pet1 pet2 pet3],
               value: ->(row, *) { row[:pets] }
     end

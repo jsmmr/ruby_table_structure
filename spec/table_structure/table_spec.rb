@@ -222,7 +222,7 @@ RSpec.describe TableStructure::Table do
                 value: ->(row, *) { row.name },
                 size: 1
 
-        columns name: ->(row, *) { row.pets },
+        column  name: ->(row, *) { row.pets },
                 value: ->(row, *) { row.more_pets },
                 size: 3
 
@@ -528,11 +528,11 @@ RSpec.describe TableStructure::Table do
         column  nil
         column  ->(*) { nil }
 
-        columns [nil, nil]
-        columns ->(*) { [nil, nil] }
+        column [nil, nil]
+        column ->(*) { [nil, nil] }
 
-        columns []
-        columns ->(*) { [] }
+        column []
+        column ->(*) { [] }
       end
     end
 
@@ -813,7 +813,7 @@ RSpec.describe TableStructure::Table do
           }
         end
 
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+        column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
                 key: %i[pet1 pet2 pet3],
                 value: ->(row, *) { row[:user_pets] }
 
