@@ -525,14 +525,14 @@ RSpec.describe TableStructure::Table do
 
         columns ::Micro::UserTableSchema
 
-        column  nil
-        column  ->(*) { nil }
+        columns nil
+        columns ->(*) { nil }
 
-        column [nil, nil]
-        column ->(*) { [nil, nil] }
+        columns [nil, nil]
+        columns ->(*) { [nil, nil] }
 
-        column []
-        column ->(*) { [] }
+        columns []
+        columns ->(*) { [] }
       end
     end
 

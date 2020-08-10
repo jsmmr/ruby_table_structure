@@ -5,6 +5,9 @@ module TableStructure
     module DSL
       module ColumnDefinition
         def column(definition)
+          unless definition.is_a?(Hash)
+            warn "[TableStructure] Use `columns` instead of `column`.", uplevel: 1
+          end
           column_definitions << definition
           nil
         end
