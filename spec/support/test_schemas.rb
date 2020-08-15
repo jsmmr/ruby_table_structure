@@ -13,14 +13,14 @@ module Mono
     column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
             value: ->(row, *) { row[:pets] }
 
-    columns lambda { |table|
+    columns do |table|
       table[:questions].map do |question|
         {
           name: question[:id],
           value: ->(row, *) { row[:answers][question[:id]] }
         }
       end
-    }
+    end
   end
 
   module WithKeys
@@ -39,7 +39,7 @@ module Mono
               key: %i[pet1 pet2 pet3],
               value: ->(row, *) { row[:pets] }
 
-      columns lambda { |table|
+      columns do |table|
         table[:questions].map do |question|
           {
             name: question[:id],
@@ -47,7 +47,7 @@ module Mono
             value: ->(row, *) { row[:answers][question[:id]] }
           }
         end
-      }
+      end
     end
   end
 end
@@ -73,14 +73,14 @@ module Micro
   class QuestionTableSchema
     include TableStructure::Schema
 
-    columns lambda { |table|
+    columns do |table|
       table[:questions].map do |question|
         {
           name: question[:id],
           value: ->(row, *) { row[:answers][question[:id]] }
         }
       end
-    }
+    end
   end
 
   module WithKeys
