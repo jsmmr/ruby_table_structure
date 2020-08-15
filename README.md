@@ -346,7 +346,7 @@ class SampleTableSchema
     TableContext.new(**context)
   end
 
-  context_builder :row, :value do |context|
+  context_builder :row do |context|
     RowContext.new(**context)
   end
 
