@@ -12,18 +12,14 @@ module TableStructure
         return unless @schema.contain_name_callable?
         return unless @builders.key?(:header)
 
-        proc do |context|
-          @builders[:header].call(context)
-        end
+        proc { |context| @builders[:header].call(context) }
       end
 
       def create_data_builder
         return unless @schema.contain_value_callable?
         return unless @builders.key?(:row)
 
-        proc do |context|
-          @builders[:row].call(context)
-        end
+        proc { |context| @builders[:row].call(context) }
       end
     end
   end

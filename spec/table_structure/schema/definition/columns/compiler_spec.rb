@@ -308,7 +308,7 @@ RSpec.describe TableStructure::Schema::Definition::Columns::Compiler do
         column  name: 'Name',
                 value: ->(row, *) { row[:name] }
 
-        columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+        column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
                 value: ->(row, *) { row[:pets] }
 
         columns lambda { |table|

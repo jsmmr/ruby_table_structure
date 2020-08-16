@@ -5,7 +5,7 @@ module TableStructure
     DEFAULT_ROW_BUILDERS = {
       _to_hash_: Utils::TypedProc.new(
         types: :hash
-      ) do |values, keys, *|
+      ) do |values, keys|
         keys.map.with_index { |key, i| [key || i, values[i]] }.to_h
       end
     }.freeze
