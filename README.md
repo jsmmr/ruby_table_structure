@@ -159,7 +159,6 @@ Define a schema:
 class SampleTableSchema
   include TableStructure::Schema
 
-  # If `:header` is set to `false`, `:name` is optional.
   column  name: 'ID',
           key: :id,
           value: ->(row, *) { row[:id] }
