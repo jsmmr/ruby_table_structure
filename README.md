@@ -44,19 +44,19 @@ class SampleTableSchema
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
 
-  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+  column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 
-  columns ->(table) {
+  columns do |table|
     table[:questions].map do |question|
       {
         name: question[:id],
         value: ->(row, *) { row[:answers][question[:id]] }
       }
     end
-  }
+  end
 
-  column_converter :to_s do |val, _row, _table|
+  column_builder :to_s do |val, _row, _table|
     val.to_s
   end
 end
@@ -159,7 +159,6 @@ Define a schema:
 class SampleTableSchema
   include TableStructure::Schema
 
-  # If `:header` is set to `false`, `:name` is optional.
   column  name: 'ID',
           key: :id,
           value: ->(row, *) { row[:id] }
@@ -168,11 +167,11 @@ class SampleTableSchema
           key: :name,
           value: ->(row, *) { row[:name] }
 
-  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+  column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
           key: %i[pet1 pet2 pet3],
           value: ->(row, *) { row[:pets] }
 
-  columns ->(table) {
+  columns do |table|
     table[:questions].map do |question|
       {
         name: question[:id],
@@ -180,7 +179,7 @@ class SampleTableSchema
         value: ->(row, *) { row[:answers][question[:id]] }
       }
     end
-  }
+  end
 end
 ```
 
@@ -275,7 +274,7 @@ class UserTableSchema
 end
 
 schema = UserTableSchema.new do
-  column_converter :to_s do |val, *|
+  column_builder :to_s do |val|
     val.to_s
   end
 end
@@ -314,14 +313,14 @@ class SampleTableSchema
   column  name: 'Name',
           value: ->(row, *) { row[:name] }
 
-  columns ->(table) {
+  columns do |table|
     if table[:pet_num].positive?
       {
         name: (1..table[:pet_num]).map { |num| "Pet #{num}" },
         value: ->(row, *) { row[:pets] }
       }
     end
-  }
+  end
 end
 
 context = { pet_num: 0 }
@@ -356,17 +355,17 @@ class SampleTableSchema
   column  name: 'Name',
           value: ->(row, *) { row.name }
 
-  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+  column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row.increase_pets }
 
-  columns ->(table) {
+  columns do |table|
     table.questions.map do |question|
       {
         name: question[:id],
         value: ->(row, *) { row.answers[question[:id]] }
       }
     end
-  }
+  end
 end
 ```
 
@@ -392,13 +391,13 @@ class SampleTableSchema
 
   columns UserTableSchema
 
-  columns ->(table) {
+  columns do |table|
     UserTableSchema.new(context: table, name_prefix: 'Friend ', key_prefix: 'friend_') do
       context_builder :row do |context|
         context[:friend]
       end
     end
-  }
+  end
 end
 
 items = [
@@ -420,9 +419,9 @@ You can also concatenate or merge the schema classes.
 Both create a schema class, with a few differences.
 - `+`
   - Similar to nesting the schemas.
-    `column_converter` works only to columns in the schema that they was defined.
+    `column_builder` works only to columns in the schema that they was defined.
 - `merge`
-  - If there are some definitions of `column_converter` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
+  - If there are some definitions of `column_builder` with the same name in the schemas to be merged, the one in the schema that is merged last will work to all columns.
 
 ```ruby
 class UserTableSchema
@@ -438,10 +437,10 @@ end
 class PetTableSchema
   include TableStructure::Schema
 
-  columns name: ['Pet 1', 'Pet 2', 'Pet 3'],
+  column  name: ['Pet 1', 'Pet 2', 'Pet 3'],
           value: ->(row, *) { row[:pets] }
 
-  column_converter :same_name do |val, *|
+  column_builder :same_name do |val|
     "pet: #{val}"
   end
 end
@@ -449,16 +448,16 @@ end
 class QuestionTableSchema
   include TableStructure::Schema
 
-  columns ->(table) {
+  columns do |table|
     table[:questions].map do |question|
       {
         name: question[:id],
         value: ->(row, *) { row[:answers][question[:id]] }
       }
     end
-  }
+  end
 
-  column_converter :same_name do |val, *|
+  column_builder :same_name do |val|
     "question: #{val}"
   end
 end

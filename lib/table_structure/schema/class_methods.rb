@@ -4,13 +4,11 @@ module TableStructure
   module Schema
     module ClassMethods
       def +(other)
-        unless ::TableStructure::Schema::Utils.schema_class?(other)
-          raise ::TableStructure::Error, "Must be a schema class. #{other}"
-        end
+        raise ::TableStructure::Error, "Must be a schema class. [#{other}]" unless Utils.schema_class?(other)
 
         self_class = self
 
-        ::TableStructure::Schema.create_class do
+        Schema.create_class do
           columns self_class
           columns other
         end
@@ -18,33 +16,16 @@ module TableStructure
 
       def merge(*others)
         others.each do |other|
-          unless ::TableStructure::Schema::Utils.schema_class?(other)
-            raise ::TableStructure::Error, "Must be a schema class. #{other}"
-          end
+          raise ::TableStructure::Error, "Must be a schema class. [#{other}]" unless Utils.schema_class?(other)
         end
 
-        schema_classes = [self, *others]
+        schema_class = CompositeClass.new.compose(self, *others)
 
-        ::TableStructure::Schema.create_class do
-          @__column_definitions__ =
-            schema_classes
-            .map(&:column_definitions)
-            .flatten
-
-          @__context_builders__ =
-            schema_classes
-            .map(&:context_builders)
-            .reduce({}, &:merge!)
-
-          @__column_builders__ =
-            schema_classes
-            .map(&:column_builders)
-            .reduce({}, &:merge!)
-
-          @__row_builders__ =
-            schema_classes
-            .map(&:row_builders)
-            .reduce({}, &:merge!)
+        Schema.create_class do
+          @__column_definitions__ = schema_class.column_definitions
+          @__context_builders__ = schema_class.context_builders
+          @__column_builders__ = schema_class.column_builders
+          @__row_builders__ = schema_class.row_builders
         end
       end
     end

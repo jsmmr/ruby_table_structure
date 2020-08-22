@@ -1,3 +1,8 @@
+# 0.4.3
+Changes:
+- `TableStructure::Schema`
+  - Change to be able to use a block with `columns` DSL.
+
 # 0.4.2
 Changes:
 - `TableStructure::Schema`

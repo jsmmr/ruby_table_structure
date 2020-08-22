@@ -13,7 +13,7 @@ module TableStructure
           end
 
           def validate(name:, key:, size:, **)
-            raise Error.new('"key" must not be lambda.', @name, @index) if key.respond_to?(:call)
+            raise Error.new('"key" must not be callable.', @name, @index) if key.respond_to?(:call)
             if !key && name.respond_to?(:call) && !size
               raise Error.new('"size" must be defined, because column size cannot be determined.', @name, @index)
             end
