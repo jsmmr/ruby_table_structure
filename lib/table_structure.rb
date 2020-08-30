@@ -9,6 +9,7 @@ module TableStructure
   require 'table_structure/schema'
   require 'table_structure/schema/class_methods'
   require 'table_structure/schema/composite_class'
+  require 'table_structure/schema/column/utils'
   require 'table_structure/schema/dsl/column_builder'
   require 'table_structure/schema/dsl/column_definition'
   require 'table_structure/schema/dsl/context_builder'
