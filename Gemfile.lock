@@ -17,10 +17,10 @@ GEM
     rspec-expectations (3.10.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
-    rspec-mocks (3.10.0)
+    rspec-mocks (3.10.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
-    rspec-support (3.10.1)
+    rspec-support (3.10.2)
 
 PLATFORMS
   ruby
@@ -32,4 +32,4 @@ DEPENDENCIES
   table_structure!
 
 BUNDLED WITH
-   2.2.3
+   2.2.4
