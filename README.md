@@ -1,6 +1,8 @@
 # TableStructure
 
-[![Build Status](https://travis-ci.org/jsmmr/ruby_table_structure.svg?branch=master)](https://travis-ci.org/jsmmr/ruby_table_structure)
+[![build](https://github.com/jsmmr/ruby_table_structure/actions/workflows/build.yml/badge.svg)](https://github.com/jsmmr/ruby_table_structure/actions/workflows/build.yml)
+[![CodeQL](https://github.com/jsmmr/ruby_table_structure/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jsmmr/ruby_table_structure/actions/workflows/codeql-analysis.yml)
+
 
 - `TableStructure::Schema`
   - Defines columns of a table using DSL.
