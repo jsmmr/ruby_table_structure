@@ -11,7 +11,11 @@ module TableStructure
         csv_options: {},
         header: { context: nil, step: nil }
       )
-        require 'csv'
+        begin
+          require 'csv'
+        rescue LoadError
+          raise LoadError, 'TableStructure::CSV::Writer requires the "csv" gem. Please add "gem \'csv\'" to your Gemfile.'
+        end
 
         @options = {
           bom: bom,
