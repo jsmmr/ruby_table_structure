@@ -3,15 +3,16 @@
 [![build](https://github.com/jsmmr/ruby_table_structure/actions/workflows/build.yml/badge.svg)](https://github.com/jsmmr/ruby_table_structure/actions/workflows/build.yml)
 [![CodeQL](https://github.com/jsmmr/ruby_table_structure/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jsmmr/ruby_table_structure/actions/workflows/codeql-analysis.yml)
 
+Build **complex table schemas** with a **declarative DSL**. Export data as arrays, hashes, or stream to CSV with support for dynamic columns and schema composition.
 
 - `TableStructure::Schema`
-  - Defines columns of a table using DSL.
+  - Define table columns using DSL.
 - `TableStructure::Writer`
-  - Converts data with the schema, and outputs table structured data.
+  - Convert data with the schema and output table-structured data.
 - `TableStructure::Iterator`
-  - Converts data with the schema, and enumerates table structured data.
+  - Convert data with the schema and enumerate table-structured data.
 - `TableStructure::Table`
-  - Provides methods for converting data with the schema.
+  - Provide methods for converting data with the schema.
 
 ## Installation
 
@@ -304,7 +305,7 @@ schema = UserTableSchema.new(context: context)
 ```
 
 You can also omit columns by using `:nil_definitions_ignored` option.
-If this option is set to `true` and `column(s)` difinition returns `nil`, the difinition is ignored.
+If this option is set to `true` and `column(s)` definition returns `nil`, the definition is ignored.
 ```ruby
 class SampleTableSchema
   include TableStructure::Schema

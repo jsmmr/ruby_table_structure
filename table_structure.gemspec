@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['jsmmr']
   spec.email         = ['jsmmr@icloud.com']
 
-  spec.summary       = 'Generates and outputs table structured data.'
-  spec.description   = 'Generates and outputs table structured data. Useful to stream CSV.'
+  spec.summary       = 'Generate table-structured data with a declarative Ruby DSL.'
+  spec.description   = 'Build complex table schemas using a declarative DSL. Perfect for CSV exports, report generation, and data transformation. Supports dynamic columns, schema composition, and streaming output.'
   spec.homepage      = 'https://github.com/jsmmr/ruby_table_structure'
   spec.license       = 'MIT'
 
